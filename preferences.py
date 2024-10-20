@@ -34,7 +34,7 @@ for i in range(1, 17):
     geo_preferences[i] = geometric_mean(hlias.index(i) + 1, kontsantinos.index(i) + 1)
 
 
-with open("final_preferences.txt", "w") as f:
+with open("final-preferences.txt", "w") as f:
     for pos, i in enumerate(sorted(geo_preferences.keys(), key=lambda x: geo_preferences[x])):
         f.write(f"{pos:2d}){i:2d} {projects[i]}\n")
 
