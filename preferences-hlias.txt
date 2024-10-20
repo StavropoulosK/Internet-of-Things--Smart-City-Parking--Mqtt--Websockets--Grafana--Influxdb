@@ -1,16 +1,16 @@
-Beach Monitor
-Smart City Parking
-City Microclimate and Traffic Analysis
-Traffic Lights Adjustments
-Industrial Spatial Authorization
-Public Hotspots
-Portable Traffic Lights
-Fire Safety Panel
-Public Greenery
-Indoors Infrastructure Alerting
-Wide Area Infrastructure Management
-Fire Safety in Urban Forests
-Vehicle Mounted Sensors
-Smart Charging Spots
-Remote Farm Monitoring
-Geriatric Monitoring
+Beach Monitor (3)
+Smart City Parking (10)
+City Microclimate and Traffic Analysis (9)
+Traffic Lights Adjustments (7)
+Industrial Spatial Authorization (15)
+Public Hotspots (1)
+Portable Traffic Lights (8)
+Fire Safety Panel (4)
+Public Greenery (13)
+Indoors Infrastructure Alerting (2)
+Wide Area Infrastructure Management (6)
+Fire Safety in Urban Forests (5)
+Vehicle Mounted Sensors (11)
+Smart Charging Spots (14)
+Remote Farm Monitoring (12)
+Geriatric Monitoring (16)
