@@ -1,0 +1,16 @@
+ 0)10 Smart City Parking
+ 1) 3 Beach Monitor
+ 2) 9 City Microclimate and Traffic Analysis
+ 3) 7 Traffic Lights Adjustments
+ 4)16 Geriatric Monitoring
+ 5) 1 Public Hotspots
+ 6)13 Public Greenery
+ 7)11 Vehicle Mounted Sensors
+ 8) 8 Portable Traffic Lights
+ 9)15 Industrial Spatial Authorization
+10)14 Smart Charging Spots
+11) 4 Fire Safety Panel
+12) 6 Wide Area Infrastructure Management
+13)12 Remote Farm Monitoring
+14) 2 Indoors Infrastructure Alerting
+15) 5 Fire Safety in Urban Forests
