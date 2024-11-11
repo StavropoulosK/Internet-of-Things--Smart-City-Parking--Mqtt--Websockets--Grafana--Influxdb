@@ -1,0 +1,41 @@
+body{
+    margin:0;
+    padding:0;
+    height:100%;
+    background-color: bisque;
+}
+
+:root{
+    font-size: 16px;
+}
+
+h1{
+    font-family:"DejaVu Sans","DejaVu Sans Mac Name","DejaVu Sans Unix Name","Times New Roman";
+    margin-top:0;
+    padding-top:1em;
+    padding-left:1em;
+    color: rgb(77, 64, 74);
+
+}
+
+.panel{
+    width:60%;
+    /* background-color: red; */
+    margin:5em auto;
+}
+
+.panel a{
+    display: block;
+    width:5em;
+    margin-left:3rem;
+    font-size: 2rem;
+    height:6rem;
+    background-color: rgb(117, 145, 47);
+    display: inline-flex;         /* Makes the link an inline-flex container */
+    justify-content: center;      /* Horizontally center the text */
+    align-items: center;          /* Vertically center the text */
+    color:#1A5319;
+    
+    text-decoration: none;  /* Remove underline */
+    
+}
