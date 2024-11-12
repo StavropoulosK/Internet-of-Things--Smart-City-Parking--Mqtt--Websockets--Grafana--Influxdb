@@ -1,0 +1,31 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+// HTML structure for the map
+<div id="map" style="height: 500px;"></div>
+
+<script>
+    // Initialize the map
+    const map = L.map('map').setView([37.7749, -122.4194], 13); // Center on San Francisco
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
+
+    // Fetch route data from backend and use it to draw the route
+    fetch(' http://127.0.0.1:3000/api/directions?origin=Patra, Greece &destination=Athens, Greece')
+        .then(response => response.json())
+        .then(data => {
+            const waypoints = data.routes[0].legs[0].steps.map(step => {
+                return L.latLng(step.start_location.lat, step.start_location.lng);
+            });
+            L.Routing.control({
+                waypoints: waypoints,
+                routeWhileDragging: true,
+                createMarker: () => null, // Hide default markers
+                show: false,
+            }).addTo(map);
+        });
+</script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
