@@ -14,3 +14,7 @@ html, body {
     height:25px;
     border-radius: 50%;
 }
+
+.leaflet-control-container .leaflet-routing-container-hide {
+    display: none;
+}

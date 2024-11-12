@@ -1,5 +1,5 @@
 // Initialize the map
-const map = L.map('map').setView([38.2454113895787, 21.730596853475497], 15);
+const map = L.map('map').setView([38.2454113895787, 21.730596853475497], 15, watch = true, setView = true);
 
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -48,12 +48,66 @@ locations.forEach(location => {
     marker.addTo(map);
 });
 
+let currentRoute = null;
 function clicked(e) {
-    console.log(e.latlng);
+    if (currentRoute) {
+        currentRoute.remove();
+    }
+
+    if (navigator.geolocation){
+        navigator.geolocation.getCurrentPosition( async (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+
+
+            currentRoute = L.Routing.control({
+                waypoints: [
+                    L.latLng(userLat, userLng),
+                    e.latlng
+                ],
+                createMarker: () => null,
+                routeWhileDragging: false,
+                show: false,
+            }).addTo(map);
+            
+            // currentRoute = useGoogleAPI(position, e.latlng);
+        });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
 }
 markers.forEach(marker => {
     marker.on('click', clicked);
 });
+
+async function useGoogleAPI(user, parking) {
+    const userLat = user.lat;
+    const userLng = user.lng;
+    const parkingLat = parking.lat;
+    const parkingLng = parking.lng;
+
+    const response = await fetch('/api/directions?origin=' + userLat + ',' + userLng + '&destination=' + parkingLat + ',' + parkingLng);
+            
+    if (!response.ok) {
+        console.error('Error fetching directions:', response.statusText);
+        return;
+    }
+    const data = await response.json();
+    return displayRoute(data);
+}
+
+function displayRoute(data) {
+    const waypoints = data.routes[0].legs[0].steps.map(step => {
+        return L.latLng(step.start_location.lat, step.start_location.lng);
+    });
+
+    return L.Routing.control({
+        waypoints: waypoints,
+        routeWhileDragging: true,
+        createMarker: () => null, // Hide default markers
+        show: false,
+    }).addTo(map);
+}
 
 // Fetch route data from backend and use it to draw the route
 // fetch(' http://127.0.0.1:3000/api/directions?origin=Patra, Greece &destination=Athens, Greece')
