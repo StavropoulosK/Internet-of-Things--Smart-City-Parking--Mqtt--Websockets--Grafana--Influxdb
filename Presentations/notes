@@ -1,0 +1,19 @@
+requirements - υλοποιήσεις
+    - Parkign sensors -> ανιχνευση ελευθερων θέσεων παρκαρίσματος
+    - Graphana/Influx -> Ειδοποιήσεις για battery/overheating (admin panel)
+    - Google Maps API -> Καθοδήγηση σε ελεύθερες θέσεις
+    - Google Maps (Graphana) -> Heat Maps (Admim - averages temp / User - current temp)
+    - Grapaha -> Bluetooth tag alerts / Παράνομο παρκάρισμα θέσεων ΑΜΕΑ
+    - Temp sensors -> Εντοπισμός σκιας
+
+αρχιτεκτονικη
+demo map
+προσομοιωση
+3 χρονοσειρες
+(Χρονοδιαγραμμα)
+
+Server
+    - Μαρκάρισμα επιλεγμένων θέσεων
+    - Heatmaps
+    - Frontend
+    - (διπλοπαρκάρισμα)
