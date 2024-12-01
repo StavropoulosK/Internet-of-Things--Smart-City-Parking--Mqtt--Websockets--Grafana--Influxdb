@@ -1,0 +1,7 @@
+iframe {
+    display: block;      /* Ensures the iframes behave like block elements */
+    width: 80%;         /* Makes the iframes take the full width of the screen */
+    height: 50vh;        /* Sets each iframe to take 50% of the viewport height */
+    margin: 4em;           /* Removes any margin around the iframes */
+    padding: 0;          /* Removes any padding around the iframes */
+  }
