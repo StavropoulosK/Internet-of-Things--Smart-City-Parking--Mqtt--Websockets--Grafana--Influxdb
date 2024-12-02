@@ -47,7 +47,7 @@ write_api = client.write_api()  # No need to pass WritePrecision here
 
 ameaThesisId=[3,12,30,56,76,84,92]
 
-def check_and_create_entity(entity_id,latitude,longitude,parkingType,temperature,formatted_utc_time,parkedVehicleHadTag,carParked):
+def check_and_create_entity(entity_id,latitude,longitude,parkingType,temperature,formatted_utc_time,parkedVehicleHasTag,carParked):
 
     """Check if the entity exists in FIWARE, and create it if it does not."""
     headers = {
@@ -82,22 +82,22 @@ def check_and_create_entity(entity_id,latitude,longitude,parkingType,temperature
                 "type": "Array",
                 "value": parkingType
             },
-            "temperature": {
-                "type": "Number",
-                "value": temperature
-            },
             "dateModified": {
                 "type": "DateTime",
                 "value": formatted_utc_time
             },
-            "parkedVehicleHadTag": {
-                "type": "Boolean",
-                "value": parkedVehicleHadTag
+            "temperature": {
+                "type": "Number",
+                "value": temperature
             },
             "carParked": {
                 "type": "Boolean",
                 "value": carParked
-            }
+            },
+            "parkedVehicleHasTag": {
+                "type": "Boolean",
+                "value": parkedVehicleHasTag
+            },
 
         }
 
@@ -135,10 +135,10 @@ def sendDataToContextBroker(sensor_id,latitude,longitude,temperature,tag,parking
     utc_time = datetime.utcnow()
 
     parkingType=[]
-    parkedVehicleHadTag=False
+    parkedVehicleHasTag=False
 
     if tag!='':
-        parkedVehicleHadTag=True
+        parkedVehicleHasTag=True
  
     if(int(sensor_id) in ameaThesisId):
         parkingType=['free', 'forDisabled']
@@ -153,7 +153,7 @@ def sendDataToContextBroker(sensor_id,latitude,longitude,temperature,tag,parking
     # Format the UTC time in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)
     formatted_utc_time = utc_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    # print('asdasdasd', sensor_id,parkingType,formatted_utc_time,parkingStatus,carParked,tag,tag=='',parkedVehicleHadTag)
+    # print('asdasdasd', sensor_id,parkingType,formatted_utc_time,parkingStatus,carParked,tag,tag=='',parkedVehicleHasTag)
 
     payload = {
         "location": {
@@ -175,9 +175,9 @@ def sendDataToContextBroker(sensor_id,latitude,longitude,temperature,tag,parking
             "type": "DateTime",
             "value": formatted_utc_time
         },
-        "parkedVehicleHadTag": {
+        "parkedVehicleHasTag": {
             "type": "Boolean",
-            "value": parkedVehicleHadTag
+            "value": parkedVehicleHasTag
         },
         "carParked": {
             "type": "Boolean",
@@ -188,7 +188,7 @@ def sendDataToContextBroker(sensor_id,latitude,longitude,temperature,tag,parking
     entity_id='SmartCityParking_'+sensor_id
 
     
-    res=check_and_create_entity(entity_id,latitude,longitude,parkingType,temperature,formatted_utc_time,parkedVehicleHadTag,carParked)
+    res=check_and_create_entity(entity_id,latitude,longitude,parkingType,temperature,formatted_utc_time,parkedVehicleHasTag,carParked)
 
     if(res==-1):
         # Exception occured
