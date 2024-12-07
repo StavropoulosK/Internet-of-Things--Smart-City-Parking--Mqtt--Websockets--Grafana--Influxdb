@@ -1,0 +1,218 @@
+import openmeteo_requests
+from openmeteo_sdk.Variable import Variable
+from datetime import datetime
+
+import paho.mqtt.client as mqtt_client
+import random
+
+import json
+import uuid
+import time
+
+
+broker = "150.140.186.118"
+port = 1883
+client_id = "smartCityParkingFaker"
+topic = "smartCityParking"
+
+
+# Gia tin prosomiosi lambanei tin thermokrasia stin Patra apo to open meteo api kai me gkaousiani katanomi anatheti stous aisthitires thermokrasies.
+# Kapoioi aisthitires briskontai se skiastra/dentra opote exoun mikroteri thermokrasia ti diarkia tis imeras.
+#
+from locations import locations
+from sensor import ParkingSensor
+
+
+def getCurrentTemp():
+    om = openmeteo_requests.Client()
+    params = {
+        "latitude": 38.246403475045675,
+        "longitude": 21.731728987305722,
+        "current": ["temperature_2m"],
+    }
+
+    responses = om.weather_api("https://api.open-meteo.com/v1/forecast", params=params)
+    response = responses[0]
+
+    # Current values
+    current = response.Current()
+    current_variables = list(
+        map(lambda i: current.Variables(i), range(0, current.VariablesLength()))
+    )
+    current_temperature_2m = next(
+        filter(
+            lambda x: x.Variable() == Variable.temperature and x.Altitude() == 2,
+            current_variables,
+        )
+    )
+    return current_temperature_2m.Value()
+
+
+def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitude):
+    message = {
+        "deduplicationId": str(uuid.uuid4()),
+        "time": str(datetime.today()),
+        "deviceInfo": {
+            "tenantId": "063a0ecb-e8c2-4a13-975a-93d791e8d40c",
+            "tenantName": "Smart City Parking",
+            "applicationId": "f3b95a1b-d510-4ff3-9d8c-455c59139e0g",
+            "applicationName": "Smart City Parking",
+            "deviceProfileId": "1f6e3708-6d76-4e0f-a5cb-30d27bc78158",
+            "deviceProfileName": "Cicicom S-LG3T",
+            "deviceName": f"cicicom-s-lg3t:{id}",
+            "devEui": "0004a30b00e95f14",
+            "tags": {
+                "deviceId": f"cicicom-s-lg3t:{id}",
+                "apiKey": "apikey",
+                "model": "S_LG3T",
+                "manufacturer": "Cicicom",
+            },
+        },
+        "devAddr": "01046891",
+        "adr": True,
+        "dr": 4,
+        "fCnt": 471,
+        "fPort": 1,
+        "confirmed": True,
+        "data": "NzMuMjgwAAAAGCsxOS4w",
+        "object": {
+            "batteryVoltage": battery,
+            "carStatus": carStatus,
+            "tag": tag,
+            "temperature": temperature,
+        },
+        "rxInfo": [
+            {
+                "gatewayId": "1dee04170f93c058",
+                "uplinkId": 10206,
+                "rssi": -114,
+                "snr": random.randint(-5, -1),
+                "rfChain": 1,
+                "location": {"latitude": latitude, "longitude": longitude},
+                "context": "3J+HLA==",
+                "metadata": {
+                    "region_config_id": "eu868",
+                    "region_common_name": "EU868",
+                },
+                "crcStatus": "CRC_OK",
+            }
+        ],
+        "txInfo": {
+            "frequency": 868100000,
+            "modulation": {
+                "lora": {
+                    "bandwidth": 125000,
+                    "spreadingFactor": 8,
+                    "codeRate": "CR_4_5",
+                }
+            },
+        },
+    }
+    return message
+
+
+# kathe posa lepta tha trexei i prosomiosi
+simulation_update_time_in_minutes = 0.5
+
+
+def simulate():
+
+    # Kapoioi aisthitires theoroume oti briskontai se skiera meri
+    sensors_with_shadow = [1, 4, 12, 20, 30, 45]
+
+    # mesi thermokrasia stin patra apo to open meteo
+    temperature = getCurrentTemp()
+    print(f"Current temperature {temperature}")
+
+    init_battery_voltage = 5
+
+    meres_aixmis = ["Friday", "Saturday", "Sunday"]
+
+    sensors = []
+    for sensor_id, loc in enumerate(locations):
+        has_shadow = sensor_id in sensors_with_shadow
+        sensors.append(
+            ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, has_shadow)
+        )
+
+    # Gia tis metablites orizoume oti akolouthoun mia gkaousiani katanomi
+    
+    # Parameters for the Gaussian distribution
+    mean_temp = temperature  # Mean of the temperature distribution
+    std_dev_temp = 0.3  # Standard deviation of the temperature distribution
+
+    mean_voltage_drop = 0.1  # mean of the voltage drop per simulation cycle
+    std_dev_volt = 0.1  # Standard deviation of the voltage drop distribution
+
+    current_time = datetime.now()
+
+    # Get the current day of the week and time
+    current_day = current_time.strftime("%A")  # Full weekday name (e.g., 'Monday')
+    local_time = current_time.strftime(
+        "%H:%M:%S"
+    )  # Current time in 24-hour format (hours:minutes:seconds)
+
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            print("Connected to MQTT Broker!")
+        else:
+            print(f"Failed to connect, return code {rc}\n")
+
+    client = mqtt_client.Client(client_id)
+    client.on_connect = on_connect
+    client.connect(broker, port)
+
+    # print(f"Current Day: {current_day}")
+    # print(f"Current Time: {local_time}")
+
+    # Prosomiosi
+    # O kodikas autos trexei epanalambanomena se xrono pou kathorizetai apo to simulation_update_time_in_minutes
+    # kathe fora pou trexei merikes thesis pou itan adies gemizoun kai kapoies pou einai gemates adiazoun analoga me to an ine ora aixmis
+    # kathe fora pou adiazi i pianete mia thesi oi aisthitires stelnoun dedomena sto lora gateway.
+    while True:
+        for sensor in sensors:
+            sensor: ParkingSensor
+            sensor.update_temp(mean_temp, std_dev_temp)
+            # ta dentra elatonoun kata meso oro tin thermokrasia kata 3 bathmous. Auto afora mono tis ores pou exei ilio
+            # https://www.nature.com/articles/s41598-024-51921-y#:~:text=By%20blocking%20incoming%20solar%20radiation,characteristics%20and%20other%20factors18.
+            if sensor.has_shadow and "11:00" <= local_time and local_time <= "17:00":
+                sensor.temperature -= 3
+
+            sensor.update_voltage(mean_voltage_drop, std_dev_volt)
+
+            if (
+                local_time >= "13:00"
+                and local_time <= "15:30"
+                and current_day in meres_aixmis
+            ):
+                epipedo_aixmis = 2
+            elif (
+                local_time >= "13:00" and local_time <= "15:30"
+            ) or current_day in meres_aixmis:
+                epipedo_aixmis = 1
+            else:
+                epipedo_aixmis = 0
+                
+            changed = sensor.update_parking_status(epipedo_aixmis)
+
+            tag = str(uuid.uuid4()) if random.random() < 0.16 else ""
+            
+            if sensor.voltage >= 1:
+                message = generateMessage(
+                    sensor.id,
+                    sensor.voltage,
+                    1.0 if sensor.occupied else 0.0,
+                    tag,
+                    sensor.temperature,
+                    sensor.location[0],
+                    sensor.location[1],
+                )
+                
+                message_json = json.dumps(message)
+                client.publish(topic, message_json)
+
+       
+        time.sleep(simulation_update_time_in_minutes * 60)
+
+if __name__ == "__main__":
+    simulate()
