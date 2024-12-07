@@ -14,109 +14,93 @@ const httpPort = process.env.SERVERPORT || 8080; // HTTP port
 const httpsPort = 443; // HTTPS port
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
- 
+
 
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 
 // HTTPS options
 const options = {
-  key: fs.readFileSync('./certificates/key.pem'),   
-  cert: fs.readFileSync('./certificates/cert.pem')  
+    key: fs.readFileSync('./certificates/key.pem'),
+    cert: fs.readFileSync('./certificates/cert.pem')
 };
 
-function redirectToHttps(req,res,next){
+function redirectToHttps(req, res, next) {
     if (!req.secure) {
-      const location = req.headers.host;
-      const domain = location.slice(0, location.indexOf(':'));
-      const secureUrl = 'https://' + domain + ':' + httpsPort + req.url;
-      return res.redirect(secureUrl);
-  }
-  next()
+        const location = req.headers.host;
+        const domain = location.slice(0, location.indexOf(':'));
+        const secureUrl = 'https://' + domain + ':' + httpsPort + req.url;
+        return res.redirect(secureUrl);
+    }
+    next()
 }
 
-function sendFile(req,res){
-  res.sendFile(path.join(__dirname, '/public/html/index.html'));
+function sendFile(req, res) {
+    res.sendFile(path.join(__dirname, '/public/html/index.html'));
 }
 
 app.use(redirectToHttps)
 
-app.get('/getMap',(req,res)=>{
+app.get('/getMap', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/html/parkingMap.html'));
-  }
-)
+})
 
-app.get('/getDashboards',(req,res)=>{
-  res.sendFile(path.join(__dirname, '/public/html/dashboards.html'));
-}
-)
+app.get('/getHeatMap', (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/html/heatMap.html'));
+})
 
-app.get('/APIKEY',(req,res)=>{
+app.get('/getDashboards', (req, res) => {
+    res.sendFile(path.join(__dirname, '/public/html/dashboards.html'));
+})
+
+app.get('/APIKEY', (req, res) => {
     res.send(GOOGLE_MAPS_API_KEY)
 })
 
-async function getCurrentStatusOfParkingSpots(){
-  const data=[]
-
-    for (let i=0;i<104;i++){
-
+async function getCurrentStatusOfParkingSpots() {
     
-
-        const url = `http://150.140.186.118:1026/v2/entities?id=SmartCityParking_${i}`;
-
-        const headers = {
-            "Accept": "application/json",
-            "FIWARE-ServicePath": "/SmartCityParking"
-        };
-
-        try {
-            // Perform the fetch call
-            const response = await fetch(url, { headers });
-
-            if (!response.ok) {
-                // Handle non-OK responses
-                const error = await response.json();
-                throw new Error(`Failed to retrieve entity: ${response.status} - ${JSON.stringify(error)}`);
-            }
-
-            // Parse the JSON response
-            const entity = await response.json();
-
-            const location = entity[0].location?.value?.coordinates;
-            const carParked = entity[0].carParked?.value;
-            const katigoria= entity[0].category?.value
-            const temperature= entity[0]?.temperature?.value
-            const id = (entity[0].id).split('_').pop();
-
+    const url = `http://150.140.186.118:1026/v2/entities?idPattern=^SmartCityParking_&limit=999`;
+    
+    const headers = {
+        "Accept": "application/json",
+        "FIWARE-ServicePath": "/SmartCityParking"
+    };
+    const data = []
+    
+    try {
+        const response = await fetch(url, { headers } );
+        const entities = await response.json();
+        
+        for (const  sensorData of entities) {
+            const location = sensorData.location?.value?.coordinates;
+            const carParked = sensorData.carParked?.value;
+            const category = sensorData.category?.value
+            const temperature = sensorData?.temperature?.value
+            const id = (sensorData.id).split('_').pop();
+            
             data.push({
                 coordinates: location,
-                category: katigoria,
+                category: category,
                 temperature: temperature,
-                carParked:carParked,
-                id:id
-              })
-
-
-        } catch (error) {
-            // Handle any errors
-            console.error(error.message);
+                carParked: carParked,
+                id: id
+            })
         }
+        return data
 
+    } catch (error) {
+        console.error(error.message);
     }
-
-    return data
 }
 
 app.get('/api/data', async (req, res) => {
-
-  const data= await getCurrentStatusOfParkingSpots()
-  res.json(data); // Send the JSON data to the client
+    const data = await getCurrentStatusOfParkingSpots()
+    res.json(data); // Send the JSON data to the client
 });
 
-app.get('/',sendFile)
+app.get('/', sendFile)
 
 https.createServer(options, app).listen(httpsPort, () => {
-  console.log(`HTTPS server running at https://127.0.0.1:${httpsPort}`);
+    console.log(`HTTPS server running at https://127.0.0.1:${httpsPort}`);
 });
 
 app.listen(httpPort, () => console.log(`HTTP server running at  http://127.0.0.1:${httpPort}/`));
-
