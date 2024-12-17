@@ -1,3 +1,35 @@
+import requests
+
+def get_locations():
+    url = "https://patra.smartiscity.gr/api/api.php?func=parkingAll"
+
+    try:
+        response = requests.get(url)
+        if response.status_code != 200:
+            print("Error: ", response.status_code)
+            return None
+
+        data = response.json()
+        
+        locations = [{
+            "id": parking["id"],
+            "lat": parking["Lat"],
+            "lng": parking["Lon"],
+            "isAmea": parking["Type"] == "ΑΜΕΑ"
+            # "isAmea": parking["IsAmea"]
+            } for parking in data
+        ]
+        
+        return locations
+
+    except Exception as e:
+        print("Error: ", e)
+        return None
+
+if __name__ == "__main__":
+    locations = get_locations()
+    print(sum([1 for location in locations if location["isAmea"]]), "Amea spots")
+
 locations = [
     (38.24452980649084, 21.72979870807786),
     (38.24449898766099, 21.729837948928942),

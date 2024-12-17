@@ -17,3 +17,6 @@ Server
     - Heatmaps
     - Frontend
     - (διπλοπαρκάρισμα)
+
+Patras Smart Parking:
+    sensor data: "https://patra.smartiscity.gr/api/api.php?func=parkingAll"
