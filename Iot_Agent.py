@@ -232,7 +232,7 @@ def sendDataToInflux(deviceId, location, parkingStatus, temperature, batteryVolt
     write_api.write(bucket=bucket, org=org, record=longitude_point)
 
     if int(deviceId) in ameaThesisId:
-        illegal_parking = 1 if parkingStatus == 1 else int(not bluetoothTag)
+        illegal_parking = 0 if parkingStatus == 0 else int(not bluetoothTag)
         illegal_parking_point = (
             Point(measurement)
             .tag("sensor", int(deviceId))
