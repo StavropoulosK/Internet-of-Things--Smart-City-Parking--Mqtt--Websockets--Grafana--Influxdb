@@ -47,7 +47,6 @@ const options = {
 };
 
 function redirectToHttps(req, res, next) {
-
     if (!req.secure) {
         const location = req.headers.host;
         const domain = location.slice(0, location.indexOf(':'));
@@ -65,7 +64,6 @@ app.use(redirectToHttps)
 
 app.get('/getMap', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/html/parkingMap.html'));
-
 })
 
 app.get('/getHeatMap', (req, res) => {
@@ -203,12 +201,12 @@ function extractData(messageString) {
     return { time, id, battery, carStatus, temperature, latitude, longitude };
 }
 
+const mqttClientPublish = asyncMqtt.connect(broker);
+
 try {
 
     // akoui tis alages apo ton mqtt broker kai tis stelni san push notifications stous clients pou briskontai stin antistixi poli
     const mqttClientSubscribe = asyncMqtt.connect(broker);
-
-    const mqttPublish =  asyncMqtt.connect('ws://150.140.186.118:9001')
 
     // Subscribe to the topic
     await mqttClientSubscribe.subscribe(topic);
@@ -227,8 +225,7 @@ try {
         notifications.forEach(notification=>{
             if (notification.city===city){
                 topic=notification.sessionId
-                mqttPublish.publish(topic, data);
-                console.log('published')
+                mqttClientPublish.publish(topic, data);
             }
         })
         

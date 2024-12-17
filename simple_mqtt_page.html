@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MQTT WebSocket Client</title>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body>
+
+  <h1>MQTT Client</h1>
+  <p id="status">Connecting...</p>
+  <ul id="messages"></ul>
+
+  <script>
+    // Connect to the MQTT broker using WebSockets
+    const client = mqtt.connect('wss://150.140.186.118:9001', {
+      reconnectPeriod: 1000,
+      connectTimeout: 30000
+    });
+
+    // When connected to the broker
+    client.on('connect', () => {
+      document.getElementById('status').textContent = 'Connected!';
+
+      // Subscribe to the topic
+      let topic = "test_topic";  // Remove the leading slash
+      client.subscribe(topic, (err) => {
+        if (!err) {
+          // Publish a message to the topic "test_topic"
+          client.publish("test_topic", "Hello from MQTT WebSocket!");
+        }
+      });
+    });
+
+    // Handle incoming messages on subscribed topics
+    client.on('message', (topic, message) => {
+      console.log(`Received message on topic: ${topic}`);
+      const item = document.createElement('li');
+      item.textContent = `Topic: ${topic}, Message: ${message.toString()}`;
+      document.getElementById('messages').appendChild(item);
+    });
+
+    // Handle error events
+    client.on('error', () => document.getElementById('status').textContent = 'Error!');
+    client.on('reconnect', () => document.getElementById('status').textContent = 'Reconnecting...');
+  </script>
+
+</body>
+</html>

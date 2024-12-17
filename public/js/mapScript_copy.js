@@ -9,6 +9,10 @@ let markerCluster = -1
 let parkingIdDestination = -1
 
 
+const broker = "mqtt://150.140.186.118";
+
+
+
 let sessionId
 
 async function sendNotificationParamsToServer(){
@@ -57,20 +61,17 @@ async function initMap() {
     directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer();
     directionsRenderer.setMap(map);
-    console.log(sessionId)
+
 
     await sendNotificationParamsToServer()
 
-    const client = mqtt.connect('wss://150.140.186.118:9001');
+    const mqttClientSubscribe = asyncMqtt.connect(broker);
 
-      client.on('connect', () => {
-            console.log('aaa ',sessionId)
-            client.subscribe(sessionId)
-      });
+    await mqttClientSubscribe.subscribe(sessionId);
 
-      client.on('message', (topic, message) => {
-        console.log(message.toString())
-      });
+    mqttClientSubscribe.on('message',  (topic, message) => {
+        console.log('received message ',message.toString())
+    })
 
 
 }

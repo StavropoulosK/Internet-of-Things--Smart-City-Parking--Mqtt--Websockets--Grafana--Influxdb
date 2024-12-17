@@ -8,13 +8,12 @@ from datetime import datetime
 import requests
 
 
-counter = 0
 
 # mqtt broker
 broker = "150.140.186.118"
 port = 1883
 client_id = "smartCityParking"
-topic = "smartCityParking"
+topic = "smartCityParking/Patras"
 
 
 # influx
@@ -231,8 +230,14 @@ def sendDataToInflux(deviceId, location, parkingStatus, temperature, batteryVolt
     write_api.write(bucket=bucket, org=org, record=latitute_point)
     write_api.write(bucket=bucket, org=org, record=longitude_point)
 
+<<<<<<< HEAD
+    if int(deviceId) in ameaThesisId and parkingStatus==1 and bluetoothTag==0:
+        illegal_parking = 1 
+
+=======
     if int(deviceId) in ameaThesisId:
         illegal_parking = 0 if parkingStatus == 0 else int(not bluetoothTag)
+>>>>>>> 7d441aeb3f61dd13d68a2b161c2936cf382e2f45
         illegal_parking_point = (
             Point(measurement)
             .tag("sensor", int(deviceId))
@@ -277,8 +282,7 @@ def process_func(message):
 
 
 def on_message(client, userdata, message):
-    global counter
-    counter += 1
+
     """Callback function for processing received messages."""
 
     value = process_func(message.payload.decode())

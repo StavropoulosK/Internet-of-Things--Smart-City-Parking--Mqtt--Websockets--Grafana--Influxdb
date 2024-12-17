@@ -13,7 +13,7 @@ import time
 broker = "150.140.186.118"
 port = 1883
 client_id = "smartCityParkingFaker"
-topic = "smartCityParking"
+topic = "smartCityParking/Patras"
 
 
 # Gia tin prosomiosi lambanei tin thermokrasia stin Patra apo to open meteo api kai me gkaousiani katanomi anatheti stous aisthitires thermokrasies.
@@ -112,7 +112,7 @@ def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitud
 
 
 # kathe posa lepta tha trexei i prosomiosi
-simulation_update_time_in_minutes = 0.5
+simulation_update_time_in_minutes = 0.3
 
 
 def simulate():
@@ -194,10 +194,9 @@ def simulate():
                 epipedo_aixmis = 0
                 
             changed = sensor.update_parking_status(epipedo_aixmis)
-
             tag = str(uuid.uuid4()) if random.random() < 0.16 else ""
             
-            if sensor.voltage >= 1:
+            if sensor.voltage >= 1 and changed is True:
                 message = generateMessage(
                     sensor.id,
                     sensor.voltage,
@@ -210,6 +209,7 @@ def simulate():
                 
                 message_json = json.dumps(message)
                 client.publish(topic, message_json)
+                print('send')
 
        
         time.sleep(simulation_update_time_in_minutes * 60)
