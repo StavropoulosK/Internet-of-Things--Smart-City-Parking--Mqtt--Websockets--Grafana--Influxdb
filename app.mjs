@@ -21,6 +21,7 @@ const httpsPort = 443; // HTTPS port
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
+// Pinakas tis morfis [ { sessionId: 'HgZI9DM5yz3TzwLvDtNr59XSuMqOvjPP', city: 'Patras' , alive:2 } ]
 let notifications=[]
 
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
@@ -32,10 +33,13 @@ app.use(session({
     secret: process.env.SESSION_SECRET, // κλειδί για κρυπτογράφηση του cookie
     resave: false, // δεν χρειάζεται να αποθηκεύεται αν δεν αλλάξει
     saveUninitialized: true, //  αποθήκευση session id για κάθε client
+    rolling:true,
     cookie: {
-      secure:true,
+      secure:false,         // TRUE AN einai i sindesh httpS
       sameSite: true,
       httpOnly:true,
+      maxAge: 15 * 60 * 1000    // 15 min
+
     }
   }));
 
@@ -47,7 +51,8 @@ const options = {
 };
 
 function redirectToHttps(req, res, next) {
-
+    next()
+    return
     if (!req.secure) {
         const location = req.headers.host;
         const domain = location.slice(0, location.indexOf(':'));
@@ -86,27 +91,6 @@ app.get('/getSession',(req,res)=>{
     res.json(sessionId)
 })
 
-app.post('/endSession',express.text(),(req,res)=>{
-    let body = req.body;
-    if (typeof body === 'string') {
-        try {
-            body = JSON.parse(body);
-        } catch (error) {
-            console.error('Invalid JSON in request body');
-            return res.status(400).send('Invalid JSON');
-        }
-    }
-
-    req.session.destroy();
-
-    const sessionId = body.sessionId;
-
-    notifications = notifications.filter(notification => notification.sessionId !== sessionId);
-    console.log('delete ',notifications)
-
-    res.status(200).send('Session ended');
-})
-
 
 app.post('/createNotification',(req,res)=>{
     const sessionId=req.sessionID
@@ -115,24 +99,23 @@ app.post('/createNotification',(req,res)=>{
     const notificationExists = notifications.find(notification => notification.sessionId === sessionId);
 
     if (!notificationExists){
-        notifications.push({sessionId:sessionId,city:city})
+        notifications.push({sessionId:sessionId,city:city,alive:2})
         console.log('created',sessionId,city);
 
     }
     console.log(notifications)
 
-    // Optionally send a response or just end the request
     res.status(204).end(); // No Content
 })
 
 
-async function getCurrentStatusOfParkingSpots() {
+async function getCurrentStatusOfParkingSpots(city) {
     
-    const url = `http://150.140.186.118:1026/v2/entities?idPattern=^SmartCityParking_&limit=999`;
+    const url = `http://150.140.186.118:1026/v2/entities?idPattern=^smartCityParking_&limit=999`;
     
     const headers = {
         "Accept": "application/json",
-        "FIWARE-ServicePath": "/SmartCityParking"
+        "FIWARE-ServicePath": `/smartCityParking/${city}`
     };
     const data = []
     
@@ -146,13 +129,22 @@ async function getCurrentStatusOfParkingSpots() {
             const category = sensorData.category?.value
             const temperature = sensorData?.temperature?.value
             const id = (sensorData.id).split('_').pop();
-            
+            const utcTime= sensorData.occcupancyModified?.value
+            const time= convertUtcTimeToLocalTime(utcTime)
+
+            const timeOfLastReservation= convertUtcTimeToLocalTime(sensorData.timeOfLastReservation.value)
+            const maximumParkingDuration= sensorData.maximumParkingDuration.value
+
+
             data.push({
                 coordinates: location,
                 category: category,
                 temperature: temperature,
                 carParked: carParked,
-                id: id
+                id: id,
+                time:time,
+                timeOfLastReservation:timeOfLastReservation,
+                maximumParkingDuration:maximumParkingDuration
             })
         }
         return data
@@ -163,31 +155,56 @@ async function getCurrentStatusOfParkingSpots() {
 }
 
 app.get('/api/data', async (req, res) => {
-    const data = await getCurrentStatusOfParkingSpots()
-    res.json(data); // Send the JSON data to the client
+    const id=req.sessionID
+    const notif=notifications.find(notification=>notification.sessionId===id)
+    const city=notif.city 
+    const data = await getCurrentStatusOfParkingSpots(city)
+    res.json(data)
 });
 
 app.get('/', sendFile)
 
 
-app.post('/action', async (req, res) => {
-    const { action, message } = req.body;
-    if (action === 'publish') {
-        try {
-            await mqttClient.publish(topic, message);
-            res.json({ status: 'Message published', message });
-        } catch (err) {
-            res.status(500).json({ error: 'Failed to publish message', details: err.message });
+// O server exei mia lista me tous clients stous opious stelni notifications meso ws kai mqtt kathe fora pou alazi i katastasi enos aisthitira stin poli tou client.
+// Otan enas client aposindeetai prepei o server na stamatai na stelni notifications se auton
+// H methodos navigator.sendBeacon mporei na stili ena aitima http ston server otan klini i efarmogi 
+// gia na stamatisi ta notifications. Ostoso litourgi mono se desktop clients. Diladi an i efarmogi einai se
+// kinito den stelnete to http request ston server otan klisi. https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon
+// Omoios kai otan xrisimopoiithi i methodos fetch me keepalive: true 
+// Gia auto ilopoiisame mia methodo opou o client stelni pings ston server ana 10 lepta oti i efarmogi einai anixti
+// O server kathe 15 lepta kitai poies efarmoges stamatisan na stelnoun kai termatizi ta notifications.
+
+// Arxika notifications.alive=2. An o server ektelesi to deleteDeadConnections (ginetai kathe 15 lepta) prin stalthi to epomeno ping oti i sindesi einai zontani
+// tote tha gini notifications.alive=1. Meta tha stalthi to ping (ginetai kathe 10 lepta) kai tha ksanagini  notifications.alive=2, kai auto tha epanalambanetai.
+
+app.get('/showAlive',(req,res)=>{
+
+    const notification= notifications.find(notification=>notification.sessionId==req.sessionID)
+    notification.alive=2
+    res.end()
+})
+
+setInterval(deleteDeadConnections, 1000*60*15);
+
+function deleteDeadConnections(){
+
+    const updatedNotifications = notifications.filter(notification => {
+        if (notification.alive == 2) {
+            notification.alive -= 1; // Reduce alive by 1
+            return true; // Keep the item in the array
         }
-    } else if (action === 'clear') {
-        sharedState.mqttMessages = [];
-        res.json({ status: 'Messages cleared' });
-    } else {
-        res.status(400).json({ error: 'Unknown action' });
-    }
-});
+        return false; // Remove the item 
+    });
+
+    notifications=[...updatedNotifications]
+    // console.log('aaaa ',notifications)
+    // console.log('\n\n\n\n')
+
+}
+
 
 function extractData(messageString) {
+
     const message = JSON.parse(messageString);
 
     // Extract the required values
@@ -200,8 +217,25 @@ function extractData(messageString) {
     const longitude = message.rxInfo[0].location.longitude;
 
     // Return the extracted data as an object
-    return { time, id, battery, carStatus, temperature, latitude, longitude };
+    return { time, id, carStatus, temperature, latitude, longitude };
 }
+
+function convertUtcTimeToLocalTime(utcTime) {
+    const date = new Date(utcTime); // Parse the UTC date string
+
+    // Get individual components of the local time
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+
+    const localTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+    return localTime;
+}
+
 
 try {
 
@@ -218,7 +252,6 @@ try {
     mqttClientSubscribe.on('message',  (topic, message) => {
         const city=topic.split("/")[1]
         const extractedData=extractData(message.toString())
-        // [ { sessionId: 'HgZI9DM5yz3TzwLvDtNr59XSuMqOvjPP', city: 'Patras' } ]
 
 
 
@@ -228,7 +261,7 @@ try {
             if (notification.city===city){
                 topic=notification.sessionId
                 mqttPublish.publish(topic, data);
-                console.log('published')
+
             }
         })
         
@@ -243,10 +276,8 @@ try {
     console.error('Error initializing MQTT client:', err.message);
 }
 
-
-https.createServer(options, app).listen(httpsPort, () => {
-    console.log(`HTTPS server running at https://127.0.0.1:${httpsPort}`);
-});
-
 app.listen(httpPort, () => console.log(`HTTP server running at  http://127.0.0.1:${httpPort}/`));
 
+// https.createServer(options, app).listen(httpsPort, () => {
+//     console.log(`HTTPS server running at https://127.0.0.1:${httpsPort}`);
+// });

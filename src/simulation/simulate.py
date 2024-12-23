@@ -10,16 +10,18 @@ import uuid
 import time
 
 
+
 broker = "150.140.186.118"
 port = 1883
 client_id = "smartCityParkingFaker"
 topic = "smartCityParking/Patras"
 
-
 # Gia tin prosomiosi lambanei tin thermokrasia stin Patra apo to open meteo api kai me gkaousiani katanomi anatheti stous aisthitires thermokrasies.
 # Kapoioi aisthitires briskontai se skiastra/dentra opote exoun mikroteri thermokrasia ti diarkia tis imeras.
 #
-from locations import locations
+# from locations import locations
+from locations import get_locations
+
 from sensor import ParkingSensor
 
 
@@ -112,28 +114,42 @@ def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitud
 
 
 # kathe posa lepta tha trexei i prosomiosi
-simulation_update_time_in_minutes = 0.3
+simulation_update_time_in_minutes = 0.2
 
 
 def simulate():
 
     # Kapoioi aisthitires theoroume oti briskontai se skiera meri
-    sensors_with_shadow = [1, 4, 12, 20, 30, 45]
+    # sensors_with_shadow = [1, 4, 12, 20, 30, 45]
+    sensors_with_shadow = [101318, 101309, 101307, 101295, 101287, 100508]
 
     # mesi thermokrasia stin patra apo to open meteo
     temperature = getCurrentTemp()
     print(f"Current temperature {temperature}")
 
-    init_battery_voltage = 5
+    init_battery_voltage = 5.0
 
     meres_aixmis = ["Friday", "Saturday", "Sunday"]
+    
+    data=get_locations()
 
     sensors = []
-    for sensor_id, loc in enumerate(locations):
+
+    for sensor in data:
+        sensor_id=sensor['id']
+        loc=(sensor['lat'],sensor['lng'])
         has_shadow = sensor_id in sensors_with_shadow
         sensors.append(
             ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, has_shadow)
         )
+
+    # for sensor_id, loc in enumerate(locations):
+    #     print(sensor_id,loc)
+    #     has_shadow = sensor_id in sensors_with_shadow
+    #     sensors.append(
+    #         ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, has_shadow)
+    #     )
+    
 
     # Gia tis metablites orizoume oti akolouthoun mia gkaousiani katanomi
     
@@ -194,6 +210,10 @@ def simulate():
                 epipedo_aixmis = 0
                 
             changed = sensor.update_parking_status(epipedo_aixmis)
+
+            # peripou to 16% tou plithismou einai AMEA
+            # https://www.who.int/news-room/fact-sheets/detail/disability-and-health#:~:text=An%20estimated%201.3%20billion%20people%20–%20or%2016%25%20of%20the%20global,diseases%20and%20people%20living%20longer.
+            
             tag = str(uuid.uuid4()) if random.random() < 0.16 else ""
             
             if sensor.voltage >= 1 and changed is True:

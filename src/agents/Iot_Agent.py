@@ -4,41 +4,37 @@ import json
 import paho.mqtt.client as mqtt
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 
-from datetime import datetime
+from datetime import datetime, timezone
 import requests
 
+
+# import locations for amea id
+import sys,os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+simulation_path = os.path.join(parent_dir, 'simulation')
+sys.path.insert(1,simulation_path)
+from locations import getAmea_sensorId 
 
 
 # mqtt broker
 broker = "150.140.186.118"
 port = 1883
-client_id = "smartCityParking"
+client_id = "SmartCityParking"
 topic = "smartCityParking/Patras"
-
-
-# influx
-influxdb_url = "http://150.140.186.118:8086"
-bucket = "smartCityParking"
-org = "students"
-token = "lkEcJ7KcBzsVgImhMUCeK8azt9YakzKDKztTYuKKofsgVlfJruJU1kbEqQtmTzGmSQgBnFF7sL3XNVxWIxmRQA=="
-measurement = "data"
 
 # FIWARE Orion Context Broker details
 orion_url = "http://150.140.186.118:1026/v2/entities"
-fiware_service_path = "/SmartCityParking"
-entity_type = "sensor"  # Entity Type
+fiware_service_path = "/smartCityParking/Patras"
 
 
-# Gia to Fiware xrisimopoioume attributes pou orizei to smart data models (id,location,type)
+# Gia to Fiware xrisimopoioume attributes pou orizei to smart data models (id,location,type) kai  merika ala
 # https://github.com/smart-data-models/dataModel.Parking/blob/master/OnStreetParking/doc/spec.md
-client = InfluxDBClient(url=influxdb_url, token=token, org=org)
-write_api = client.write_api()  # No need to pass WritePrecision here
 
 
 # Kapoies thesis parking theoroume oti proorizontai mono gia atoma AMEA
-# Oi aisthitires den gnorizoun an ine topothetimeni se thesis gia amea ala o iot agent to kseri
-ameaThesisId = [3, 12, 30, 56, 76, 84, 92]
 
+ameaThesisId=getAmea_sensorId()
 
 def check_and_create_entity(
     entity_id,
@@ -49,6 +45,7 @@ def check_and_create_entity(
     formatted_utc_time,
     parkedVehicleHadTag,
     carParked,
+    batteryVoltage
 ):
     """Check if the entity exists in FIWARE, and create it if it does not."""
     headers = {"Fiware-ServicePath": fiware_service_path}
@@ -70,10 +67,13 @@ def check_and_create_entity(
                 "value": {"type": "Point", "coordinates": [latitude, longitude]},
             },
             "category": {"type": "Array", "value": parkingType},
-            "dateModified": {"type": "DateTime", "value": formatted_utc_time},
+            "occcupancyModified": {"type": "DateTime", "value": formatted_utc_time},
             "temperature": {"type": "Number", "value": temperature},
             "carParked": {"type": "Boolean", "value": carParked},
             "parkedVehicleHadTag": {"type": "Boolean", "value": parkedVehicleHadTag},
+            "batteryVoltage":{"type": "Number", "value": batteryVoltage},
+            "maximumParkingDuration": {"type": "string", "value": "PT2H"},                  # parkometro 2 oron. To format einai ISO8601 simfona me ta smart data models
+            "timeOfLastReservation": {"type": "DateTime", "value": formatted_utc_time}      # authereti axikopoiisi se mia ora
         }
 
         # Send the creation request
@@ -94,9 +94,9 @@ def check_and_create_entity(
     return
 
 
-def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus):
+def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus,formatted_utc_time,batteryVoltage):
 
-    # Gia to Fiware xrisimopoioume attributes pou orizei to smart data models (id,location,type)
+    # Gia to Fiware xrisimopoioume attributes pou orizei to smart data models (id,location,type,occupancyModified) kai ala pou to epektinoun
     # https://github.com/smart-data-models/dataModel.Parking/blob/master/OnStreetParking/doc/spec.md
 
     """Send data to FIWARE Orion Context Broker, checking entity existence each time."""
@@ -105,10 +105,7 @@ def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus
         "Fiware-ServicePath": fiware_service_path,
     }
 
-    # print('asdasd ',sensor_id,latitude,longitude,temperature,tag,tag=='',parkingStatus)
-    # Get current UTC time
-    utc_time = datetime.utcnow()
-    
+
     latitude = location["latitude"]
     longitude = location["longitude"]    
 
@@ -119,32 +116,24 @@ def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus
         parkedVehicleHadTag = True
 
     if int(sensor_id) in ameaThesisId:
-        parkingType = ["free", "forDisabled"]
+        parkingType = ["feeCharged", "forDisabled"]
     else:
-        parkingType = ["free"]
+        parkingType = ["feeCharged"]
 
     carParked = False
 
     if parkingStatus == 1.0:
         carParked = True
 
-    # Format the UTC time in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)
-    formatted_utc_time = utc_time.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-    # print('asdasdasd', sensor_id,parkingType,formatted_utc_time,parkingStatus,carParked,tag,tag=='',parkedVehicleHadTag)
-
     payload = {
-        "location": {
-            "type": "GeoProperty",
-            "value": {"type": "Point", "coordinates": [latitude, longitude]},
-        },
-        "category": {"type": "Array", "value": parkingType},
+        "occcupancyModified": {"type": "DateTime", "value": formatted_utc_time},
         "temperature": {"type": "Number", "value": temperature},
-        "dateModified": {"type": "DateTime", "value": formatted_utc_time},
-        "parkedVehicleHadTag": {"type": "Boolean", "value": parkedVehicleHadTag},
         "carParked": {"type": "Boolean", "value": carParked},
+        "parkedVehicleHadTag": {"type": "Boolean", "value": parkedVehicleHadTag},
+        "batteryVoltage":{"type": "Number", "value": batteryVoltage},
     }
-    entity_id = "SmartCityParking_" + sensor_id
+
+    entity_id = "smartCityParking_" + sensor_id
 
     res = check_and_create_entity(
         entity_id,
@@ -155,6 +144,7 @@ def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus
         formatted_utc_time,
         parkedVehicleHadTag,
         carParked,
+        batteryVoltage
     )
 
     if res == -1:
@@ -175,76 +165,7 @@ def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus
         print(f"Failed to send data to FIWARE: {response.status_code} - {response.text}")
 
     return
-
-
-def sendDataToInflux(deviceId, location, parkingStatus, temperature, batteryVoltage, tag):
-    bluetoothTag = 1 if tag != "" else 0
-    lat = location["latitude"]
-    lon = location["longitude"]
-
-    # Create a data point
-    parking_status_point = (
-        Point(measurement)
-        .tag("sensor", int(deviceId))
-        .field("parkingStatus", parkingStatus)
-        .time(time.time_ns(), WritePrecision.NS)
-    )
-    temperature_point = (
-        Point(measurement)
-        .tag("sensor", int(deviceId))
-        .field("temperature", temperature)
-        .time(time.time_ns(), WritePrecision.NS)
-    )
-    battery_voltage_point = (
-        Point(measurement)
-        .tag("sensor", int(deviceId))
-        .field("voltage", batteryVoltage)
-        .time(time.time_ns(), WritePrecision.NS)
-    )
-
-    # bluetooth_tag_point = (
-    #     Point(measurement)
-    #     .tag("sensor", int(deviceId))
-    #     .field("bluetoothTagStatus", bluetoothTag)
-    #     .time(time.time_ns(), WritePrecision.NS)
-    # )
-
-    latitute_point = (
-        Point(measurement)
-        .tag("sensor", int(deviceId))
-        .field("latitude", lat)
-        .time(time.time_ns(), WritePrecision.NS)
-    )
-    longitude_point = (
-        Point(measurement)
-        .tag("sensor", int(deviceId))
-        .field("longitude", lon)
-        .time(time.time_ns(), WritePrecision.NS)
-    )
-    
-    # Write the point to the database
-    write_api.write(bucket=bucket, org=org, record=parking_status_point)
-    write_api.write(bucket=bucket, org=org, record=temperature_point)
-    write_api.write(bucket=bucket, org=org, record=battery_voltage_point)
-    
-    # write_api.write(bucket=bucket, org=org, record=latitute_point)
-    # write_api.write(bucket=bucket, org=org, record=longitude_point)
-
-
-    if int(deviceId) in ameaThesisId:
-        if parkingStatus == 1 and not bluetoothTag:
-            illegal_parking = 1
-        else:
-            illegal_parking = 0
-
-        illegal_parking_point = (
-            Point(measurement)
-            .tag("sensor", int(deviceId))
-            .field("illegalParking", illegal_parking)
-            .time(time.time_ns(), WritePrecision.NS)
-        )
-        write_api.write(bucket=bucket, org=org, record=illegal_parking_point)
-        
+     
 
 def process_func(message):
     """Process the json message and extract temperature data."""
@@ -253,6 +174,11 @@ def process_func(message):
         data = json.loads(message)
 
         # Extract data
+        time=data['time']
+        local_time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
+        utc_time = local_time.astimezone(timezone.utc)
+        iso_utc_time = utc_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+
         device_id = data["deviceInfo"]["tags"]["deviceId"].split(":")[1]
         sensor_object = data["object"]
         location = data["rxInfo"][0]["location"]
@@ -270,6 +196,7 @@ def process_func(message):
             "parkingStatus": parkingStatus,
             "tag": tag,
             "temperature": temperature,
+            'time':iso_utc_time
         }
 
     except json.JSONDecodeError:
@@ -285,20 +212,22 @@ def on_message(client, userdata, message):
     """Callback function for processing received messages."""
 
     value = process_func(message.payload.decode())
+    
     if value is not None:
+
         deviceId = value["device_id"]
 
-        batteryVoltage = value["batteryVoltage"]
+        batteryVoltage = round(value["batteryVoltage"],2)
         parkingStatus = value["parkingStatus"]
         tag = value["tag"]
         temperature = value["temperature"]
 
         location = value["location"]
+        time= value["time"]
 
-        # print(batteryVoltage,parkingStatus,tag,temperature,latitude,longitude,deviceId)
-        sendDataToInflux(deviceId, location, parkingStatus, temperature, batteryVoltage, tag)
-        sendDataToContextBroker(deviceId, location, temperature, tag, parkingStatus)
+        sendDataToContextBroker(deviceId, location, temperature, tag, parkingStatus,time,batteryVoltage)
 
+        return
 
 def main():
     # Create an MQTT client instance
@@ -314,7 +243,6 @@ def main():
     mqtt_client.subscribe(topic)
 
     # Start the MQTT client loop
-    print("1")
     mqtt_client.loop_forever()
 
 

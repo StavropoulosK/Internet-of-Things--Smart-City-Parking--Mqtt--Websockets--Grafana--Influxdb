@@ -8,7 +8,7 @@ import mysql.connector
 # Define the base URL and headers
 base_url = "http://150.140.186.118:1026/v2/entities"
 headers = {
-    "FIWARE-ServicePath": "/SmartCityParking"
+    "FIWARE-ServicePath": "/SmartCityParking/Patras"
 }
 
 prefix="SmartCityParking_"

@@ -13,7 +13,7 @@ class ParkingSensor:
         
         
     def update_voltage(self, mean_voltage_drop, std_voltage):
-        self.voltage -= np.random.normal(mean_voltage_drop, std_voltage)
+        self.voltage =float(self.voltage- abs(np.random.normal(mean_voltage_drop, std_voltage)))
         self.voltage = max(0.0, self.voltage)
         
         

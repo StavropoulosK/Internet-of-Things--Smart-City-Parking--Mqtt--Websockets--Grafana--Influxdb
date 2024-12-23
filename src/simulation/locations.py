@@ -1,15 +1,22 @@
 import requests
 
+def getAmea_sensorId():
+    locations = get_locations()
+    amea_ids = [item['id'] for item in locations if item['isAmea']]
+    return amea_ids
+
 def get_locations():
     url = "https://patra.smartiscity.gr/api/api.php?func=parkingAll"
 
     try:
         response = requests.get(url)
         if response.status_code != 200:
+            print('2')
             print("Error: ", response.status_code)
             return None
 
         data = response.json()
+        
         
         locations = [{
             "id": parking["id"],
@@ -20,15 +27,20 @@ def get_locations():
             } for parking in data
         ]
         
-        return locations
+        return locations[:100]
 
     except Exception as e:
         print("Error: ", e)
         return None
 
 if __name__ == "__main__":
-    locations = get_locations()
-    print(sum([1 for location in locations if location["isAmea"]]), "Amea spots")
+    print(get_locations())
+    # locations = get_locations()
+    # print(locations)
+    # amea_ids = [item['id'] for item in locations if item['isAmea']]
+
+    # print(amea_ids)
+    # print(sum([1 for location in locations if location["isAmea"]]), "Amea spots")
 
 locations = [
     (38.24452980649084, 21.72979870807786),

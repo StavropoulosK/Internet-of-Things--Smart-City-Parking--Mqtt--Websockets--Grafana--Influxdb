@@ -4,12 +4,12 @@ let map;
 let markers = [];
 let directionsService;
 let directionsRenderer;
-let markerCluster = -1
+let markerCluster = ''
 
 let parkingIdDestination = -1
 
-
 let sessionId
+let AdvancedMarkerElement
 
 async function sendNotificationParamsToServer(){
 
@@ -28,6 +28,8 @@ async function getSessionId() {
         const response = await fetch('/getSession');
         if (response.ok) {
             const sessionId = await response.json();
+            document.body.innerHTML += sessionId;
+
             return sessionId; 
         } else {
             console.error('Session not found');
@@ -35,10 +37,13 @@ async function getSessionId() {
     } catch (error) {
         console.error('Error fetching session:', error);
     }
+
+
 }
 
 
 async function initMap() {
+
     const apiKey = await fetchKey();
 
     (g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
@@ -46,6 +51,7 @@ async function initMap() {
 
 
     const { Map } = await google.maps.importLibrary("maps");
+
     sessionId= await getSessionId();
 
     map = new Map(document.getElementById("map"), {
@@ -54,29 +60,55 @@ async function initMap() {
         mapId: "b6232a7f7073d846",
     });
 
+    AdvancedMarkerElement = (await google.maps.importLibrary("marker")).AdvancedMarkerElement;
+
+
     directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer();
     directionsRenderer.setMap(map);
-    console.log(sessionId)
 
     await sendNotificationParamsToServer()
 
-    const client = mqtt.connect('wss://150.140.186.118:9001');
+    await readInitialValues()
 
-      client.on('connect', () => {
-            console.log('aaa ',sessionId)
-            client.subscribe(sessionId)
-      });
+    //The function repeats every 10 min . Eksigisi ti kanei sto app.mjs
+    setInterval(showAlive, 1000*60*10);
 
-      client.on('message', (topic, message) => {
-        console.log(message.toString())
-      });
+    const client = mqtt.connect('ws://150.140.186.118:9001');
+
+    client.on('connect', () => {
+        client.subscribe(sessionId)
+    });
+
+    client.on('message', (topic, message) => {
+        message=JSON.parse(message.toString())
+        const id=message.id
+        const time=message.time
+        const parked=message.carStatus
+        const temperature=(parseFloat(message.temperature)).toFixed(2)
+        console.log(id,time,parked,temperature)
+
+
+        const el=markers.find(el=>el.id===id)
+        el.temperature=temperature
+        el.time=time
+
+        if(parked===1){
+            el.marker.content.style.visibility= 'hidden'
+            markerCluster.removeMarker(el.marker)
+        }
+        else{
+            el.marker.content.style.visibility= 'visible'
+            markerCluster.addMarker(el.marker)
+        }
+
+    });
 
 
 }
 
 
-async function fetchData() {
+async function readInitialValues() {
     try {
         const response = await fetch('/api/data');
         if (!response.ok) {
@@ -84,68 +116,97 @@ async function fetchData() {
         }
         const newMarkerData = await response.json();
         // Display the data in the HTML
-        updateMarkers(newMarkerData);
+        initiateMarkers(newMarkerData);
 
     } catch (error) {
         console.error('Error fetching data:', error);
     }
 }
 
-async function updateMarkers(newMarkerData) {
+function createMarker(visible,latitude,longitude,title=''){
+
+    const position = { lat: latitude, lng: longitude }
+
+    const pin = document.createElement('div')
+    pin.innerHTML = `<img src="./resources/icons/car.png" alt="free parking icon" style="width: 100%; height: auto;">`
+    pin.className = 'marker'
+
+    const marker = new AdvancedMarkerElement({
+        position: position,
+        map: map,
+        title: title,
+        content: pin
+    });
+    marker.addListener("click", () => {
+        getDirectionsToMarker(marker);
+    });
+
+    if(visible===false){
+        pin.style.visibility = 'hidden';
+    }
+    else{
+        pin.style.visibility='visible'
+    }
+
+    return marker
+}
+
+async function initiateMarkers(newMarkerData) {
 
 
-    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+    newMarkerData.forEach((markerData) => {
 
-    markers.forEach((marker, index) => {
-        marker.map = null;
-    })
-
-    markers = []
-
-
-    newMarkerData.forEach((markerData, index) => {
+        const id=markerData.id
         const latitude = markerData.coordinates[0]
         const longitude = markerData.coordinates[1]
         const carParked = markerData.carParked
+        const time=markerData.time
+        const temperature=markerData.temperature
+        let category=markerData.category
+        const timeOfLastReservation= markerData.timeOfLastReservation
+        const maximumParkingDuration=markerData.maximumParkingDuration
 
-        if (carParked == false) {
 
-            const position = { lat: latitude, lng: longitude }
-
-            const pin = document.createElement('div')
-            pin.innerHTML = `<img src="./resources/icons/car.png" alt="free parking icon" style="width: 100%; height: auto;">`
-            pin.className = 'marker'
-
-            const marker = new AdvancedMarkerElement({
-                position: position,
-                map: map,
-                title: `Marker ${index}`,
-                content: pin
-            });
-            marker.addListener("click", () => {
-                getDirectionsToMarker(marker);
-            });
-
-            markers.push(marker)
+        if(category.includes('forDisabled')){
+            category='forDisabled'
         }
+        else{
+            category=''
+        }
+
+        let visible= !carParked
+        markers.push({id:id,time:time,temperature:temperature,category:category,marker:createMarker(visible,latitude,longitude,id),timeOfLastReservation:timeOfLastReservation,maximumParkingDuration:maximumParkingDuration})
+
     })
 
-    const clusterOptions = {
-        // gridSize: 3,   // Lower gridSize to make clusters form more aggressively
-        minZoom: 4,     // Set max zoom level to show individual markers, clusters at zoom < 15
-        minPoints: 2
-    };
+    initiateCluster()
+    
 
-    if (markerCluster != -1) {
-        markerCluster.clearMarkers();  // Clears the clusterer
-        markerCluster.addMarkers(markers);  // Adds the updated markers to the clusterer
-    }
-    else {
-        markerCluster = new markerClusterer.MarkerClusterer({ markers, map, ...clusterOptions });
-    }
+    // function myFunction(){
+    //     markers.forEach(marker=>{
+    //         const vis=marker.marker.content.style.visibility
+    //         marker.marker.content.style.visibility= vis=='hidden'?'visible':'hidden'
+    //     })
+    //     updateClusters()
+    // }
+
+    
 }
 
-// Function to get directions to a marker
+function initiateCluster(){
+    const markerElements = markers.filter(elem => elem.marker.content.style.visibility=='visible')
+                                  .map(el=>el.marker)
+     
+    const clusterOptions = {
+    // gridSize: 3,   // Lower gridSize to make clusters form more aggressively
+    minZoom: 4,     // Set max zoom level to show individual markers, clusters at zoom < 15
+    minPoints: 2
+    };
+
+    markerCluster = new markerClusterer.MarkerClusterer({markers: markerElements, map, ...clusterOptions });
+    
+}
+
 function getDirectionsToMarker(marker) {
     const destination = marker.position
 
@@ -192,14 +253,17 @@ async function fetchKey() {
     }
 }
 
-window.onbeforeunload = endSession;
+async function showAlive() {
+    try {
+        const response = await fetch('/showAlive'); // Make the GET request
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-function endSession(ev) {
-    // stop the server from pushing notifications for this client when client exits application
-    const session = JSON.stringify({sessionId });
-    navigator.sendBeacon('/endSession', session);
+    } catch (error) {
+        console.error("Error pinging:", error); // Handle any errors
+    }
 }
-
 
 
 window.onload = initMap;
