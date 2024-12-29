@@ -73,7 +73,7 @@ def check_and_create_entity(
             "parkedVehicleHadTag": {"type": "Boolean", "value": parkedVehicleHadTag},
             "batteryVoltage":{"type": "Number", "value": batteryVoltage},
             "maximumParkingDuration": {"type": "string", "value": "PT2H"},                  # parkometro 2 oron. To format einai ISO8601 simfona me ta smart data models
-            "timeOfLastReservation": {"type": "DateTime", "value": formatted_utc_time}      # authereti axikopoiisi se mia ora
+            "timeOfLastReservation": {"type": "DateTime", "value": formatted_utc_time}      # authereti axikopoiisi se mia ora. Ektelitai mono tin proti fora pou dimiourgountai oi aisthitires.
         }
 
         # Send the creation request

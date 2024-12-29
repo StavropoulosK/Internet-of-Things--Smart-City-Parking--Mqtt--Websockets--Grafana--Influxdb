@@ -1,17 +1,236 @@
+:root{
+    font-size:16px;
+  }
+
+.container{
+    flex: 1;
+
+    position: relative;
+}
+
 #map {
-    height: 80%;
     width: 100%;
+    height: 100%; 
 }
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    height: 100%; /* Occupy the full height of the viewport */
+}
+
+#compass {
+    position: absolute;
+    bottom: 3.5em;  /* Distance from the bottom of the map */
+    left: 2.5em;    /* Distance from the left side of the map */
+    width:3.5em;
+    height:3.5em;
+    background-color: transparent; /* Remove background */
+    border: none;  /* Remove the border */
+    padding: 0;    /* Remove any padding */
+    cursor: pointer;
+    display: inline-block; /* This allows the button to size based on its content (the image) */
 }
 
 
+#compass img {
+    border:none;
+    width: 100%; /* Make the image fill the button's width */
+    height: 100%; /* Make the image fill the button's height */
+    object-fit: cover; /* Ensures the image covers the entire button area while maintaining aspect ratio */
+}
+
+  
 .marker{
-    width:25px;
-    height:25px;
+    width:1.5rem;
+    height:1.5rem;
     border-radius: 50%;
+}
+
+.disabilitymarker{
+    width:4rem;
+    height:4rem;
+    border-radius: 50%;
+}
+
+.autocomplete {
+    position: absolute;
+    top: 20px; /* Space from the top of the page */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Offset by half of its width to truly center */
+    z-index: 1; /* Ensure it's above the map */
+    background-color: #C9E6F0;
+    /* background-color: #a8d8e8; */
+
+    padding: 1em;
+    padding-bottom:1em;
+    border-radius: 0.7em;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3); /* Optional, adds shadow for better visibility */
+}
+
+#reservationInfo{
+    display: inline-flex;
+    align-items: center;  
+    height:100%;
+    font-size: 1.2em;
+    margin-left:0.5em;
+    max-width:50vw;
+}
+
+.autocomplete input{
+    width:350px;
+    border: none;
+    border-radius: 0.25em;
+    max-width:65vw;
+    font-size:1rem;
+
+
+}
+
+.autocomplete input:focus {
+    outline: none; /* Removes the outline (usually the blue highlight) */
+    border: none;  /* Removes the border on focus */
+}
+
+.options{
+    font-size: 1.2rem;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-top:0.8rem;
+    /* background-color: red; */
+}
+
+.options label{
     /* background-color: blue; */
 }
+
+.options input{
+    display:inline-block;
+    width:fit-content;
+    border:none;
+    padding:0.5em;
+
+}
+
+#radius{
+    font-size: 0.85rem;
+    background-color: white;
+    border:none;
+    border-radius: 10px;
+    padding:0.3em;
+    padding-left:0.5em;
+}
+
+.dialogWindow{
+    position: absolute;
+    top: 44%; /* Space from the top of the page */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Offset by half of its width to truly center */
+    width:20rem;
+    z-index: 1; /* Ensure it's above the map */
+    background-color: white;
+    padding: 0.2em;
+    border-radius: 0.7rem;
+    font-size:1rem;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3); /* Optional, adds shadow for better visibility */
+}
+
+.dialogWindow p{
+    margin-top: 0.8rem;
+    margin-left:0.4rem;
+    margin-right:0.4rem;
+    margin-bottom:0.2rem;
+    font-family: 'Arial', sans-serif;
+    font-weight: 300; 
+
+}
+
+.invisible{
+    display:none
+}
+
+.dialogWindow button{
+    border:none;
+    padding:0.3rem;
+    border-radius: 1rem;
+    margin-bottom:0.2rem;
+    font-size:1rem;
+    background-color: white;
+    float:right;
+    margin-right:0.8rem
+}
+
+.dialogWindow button:hover{
+    cursor:pointer;
+}
+
+
+button.gm-ui-hover-effect {
+    width:35px !important;
+    height:35px !important;
+  }
+
+button.gm-ui-hover-effect span {
+    mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M19%206.41L17.59%205%2012%2010.59%206.41%205%205%206.41%2010.59%2012%205%2017.59%206.41%2019%2012%2013.41%2017.59%2019%2019%2017.59%2013.41%2012z%22/%3E%3Cpath%20d%3D%22M0%200h24v24H0z%22%20fill%3D%22none%22/%3E%3C/svg%3E") !important;
+
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M19%206.41L17.59%205%2012%2010.59%206.41%205%205%206.41%2010.59%2012%205%2017.59%206.41%2019%2012%2013.41%2017.59%2019%2019%2017.59%2013.41%2012z%22/%3E%3Cpath%20d%3D%22M0%200h24v24H0z%22%20fill%3D%22none%22/%3E%3C/svg%3E") !important;
+}
+
+.bottomContainer{
+    display:flex;
+    flex-direction: column;
+}
+
+button#directionsBtn{
+
+    width:7em;
+    height:2.5em;
+    float:right;
+    margin-right:1em;   /* Distance from the right */
+    margin-bottom:0.4em;
+    margin-top:0.5em;
+    padding: 10px 60px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;      
+    align-items: center; 
+    justify-content: center; 
+}
+
+button#directionsBtn.disabled{
+    background-color: #b3b1b1;
+    cursor: auto;
+}
+
+#directions {
+    box-sizing:border-box;
+    width:100%;
+    height: 2.5em;
+    margin: 0.5em auto 0.4em;
+    padding: 5px 10px; 
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;      
+    align-items: center; 
+    justify-content: center; 
+}
+
+
+@media (max-width: 500px) {
+    .InfoWindow{
+        font-size: 0.75rem;  
+    }
+  }

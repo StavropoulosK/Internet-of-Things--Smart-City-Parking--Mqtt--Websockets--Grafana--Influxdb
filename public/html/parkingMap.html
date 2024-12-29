@@ -3,14 +3,69 @@
 
 <head>
     <title>Google Maps API Example</title>
-    <script src="../js/mapScript.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="../js/mapScript.js" defer></script>
     <link href="../css/map.css" rel="stylesheet" />
     <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
 <body>
 
-    <div id="map"></div>
+    
+        <!-- <div id="map"></div> -->
+
+    <div class="container">
+        
+        <div id="map"></div>
+        <div class="autocomplete invisible" id="autocomplete">
+            <input type="text" id="searchInput">
+
+            <div class="options">
+                <label class="checkboxLabel">
+                    <span>ΑμεΑ</span>
+    
+                    <input type="checkbox" id="amea">
+                </label>
+
+                <label class="checkboxLabel" id="labelSkia">
+                    <span>Με σκιά</span>
+                    <input type="checkbox" id="skia">
+                </label>
+                <label>
+                    <select class="dropdown" id="radius">
+                        <option value="-" selected>Απόσταση</option>
+                        <option value="20">20m</option>
+                        <option value="50">50m</option>
+                        <option value="100">100m</option>
+                    </select>
+    
+                </label>
+    
+            </div>
+        </div>
+
+        <div class="dialogWindow invisible">
+            <p id="dialogText"></p>
+            <button id="dialogBtn" onclick="hideDialog()">Οκ</button>
+        </div>
+
+        <button id="compass" onclick="focusMap()">
+            <img src="../resources/icons/piksida.png" alt="Compass" />
+        </button>
+
+    </div>    
+
+    <div class="bottomContainer">
+        <div class="firstRow">
+            <span id="reservationInfo"></span>
+            <button id="directionsBtn" class="disabled" onclick="startDirections()"> Κράτηση</button>
+        </div>
+
+        <div id="directions"></div>
+    </div>
+
+
 
 </body>
 

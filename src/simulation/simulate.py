@@ -114,7 +114,7 @@ def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitud
 
 
 # kathe posa lepta tha trexei i prosomiosi
-simulation_update_time_in_minutes = 0.2
+simulation_update_time_in_minutes = 25/60
 
 
 def simulate():
@@ -143,14 +143,6 @@ def simulate():
             ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, has_shadow)
         )
 
-    # for sensor_id, loc in enumerate(locations):
-    #     print(sensor_id,loc)
-    #     has_shadow = sensor_id in sensors_with_shadow
-    #     sensors.append(
-    #         ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, has_shadow)
-    #     )
-    
-
     # Gia tis metablites orizoume oti akolouthoun mia gkaousiani katanomi
     
     # Parameters for the Gaussian distribution
@@ -166,7 +158,7 @@ def simulate():
     current_day = current_time.strftime("%A")  # Full weekday name (e.g., 'Monday')
     local_time = current_time.strftime(
         "%H:%M:%S"
-    )  # Current time in 24-hour format (hours:minutes:seconds)
+    )  
 
     def on_connect(client, userdata, flags, rc):
         if rc == 0:

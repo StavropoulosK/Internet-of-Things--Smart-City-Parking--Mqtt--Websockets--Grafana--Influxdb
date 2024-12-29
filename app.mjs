@@ -12,7 +12,7 @@ const broker = "mqtt://150.140.186.118";
 const topic = "smartCityParking/#";
 
 // File path setup
-const __filename = fileURLToPath(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);  
 const __dirname = path.dirname(__filename);
 
 const app = express();
@@ -108,6 +108,70 @@ app.post('/createNotification',(req,res)=>{
     res.status(204).end(); // No Content
 })
 
+app.post('/makeReservation', async (req,res)=>{
+
+    // otan ginetai kratisi enimeroni ton context broker kai tous xristes
+
+    const id=req.sessionID
+    const notif=notifications.find(notification=>notification.sessionId===id)
+    const city=notif.city
+
+    const { time,markerId } = req.body;
+
+    const entity_id='smartCityParking_'+markerId
+
+    const url = `http://150.140.186.118:1026/v2/entities/${entity_id}/attrs`;
+
+    // Headers for the request
+    const headers = {
+        "Accept": "application/json",
+        "FIWARE-ServicePath": `/smartCityParking/${city}`,
+        "Content-Type": "application/json"
+    };
+
+    const payload = {
+        "timeOfLastReservation": {
+            "value": time,
+            "type": "DateTime"
+        }
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'PATCH',  
+            headers: headers,
+            body: JSON.stringify(payload)
+        });
+
+        // Check if the response is ok
+        if (!response.ok) {
+            console.error('Failed to update timeOfLastReservation',response);
+        }
+
+    } catch (error) {
+        console.error('Error updating entity:', error);
+    }
+
+    // enimerosi xriston
+
+    const data={
+        markerId:markerId,
+        reservationTime:time
+    }
+    const message=JSON.stringify(data)
+    const idOfTheUserWhoMadeTheReservation=req.sessionID
+
+    notifications.forEach(notification=>{
+        const idOfUser=notification.sessionId
+        if (notification.city===city && idOfTheUserWhoMadeTheReservation!==idOfUser){
+
+            const topic=notification.sessionId+'Reservation'+city
+            mqttPublish.publish(topic, message);
+
+        }
+    })
+
+})
 
 async function getCurrentStatusOfParkingSpots(city) {
     
@@ -130,9 +194,8 @@ async function getCurrentStatusOfParkingSpots(city) {
             const temperature = sensorData?.temperature?.value
             const id = (sensorData.id).split('_').pop();
             const utcTime= sensorData.occcupancyModified?.value
-            const time= convertUtcTimeToLocalTime(utcTime)
 
-            const timeOfLastReservation= convertUtcTimeToLocalTime(sensorData.timeOfLastReservation.value)
+            const timeOfLastReservation= sensorData.timeOfLastReservation.value
             const maximumParkingDuration= sensorData.maximumParkingDuration.value
 
 
@@ -142,7 +205,7 @@ async function getCurrentStatusOfParkingSpots(city) {
                 temperature: temperature,
                 carParked: carParked,
                 id: id,
-                time:time,
+                time:utcTime,
                 timeOfLastReservation:timeOfLastReservation,
                 maximumParkingDuration:maximumParkingDuration
             })
@@ -163,6 +226,47 @@ app.get('/api/data', async (req, res) => {
 });
 
 app.get('/', sendFile)
+
+app.get('/getTemperature', async (req, res) => {
+    const id=req.sessionID
+    const notif=notifications.find(notification=>notification.sessionId===id)
+    const city=notif.city 
+    let temperature, latitude, longitude
+
+    if(city=='Patras'){
+        latitude = 38.246403475045675;
+        longitude = 21.731728987305722;
+
+    }
+    temperature = await fetchWeather(latitude,longitude);
+
+    res.json({ temperature: temperature }); // Send the number in JSON format
+});
+
+async function fetchWeather(latitude,longitude) {
+    const apiUrl = `https://api.open-meteo.com/v1/forecast`;
+    const params = new URLSearchParams({
+        latitude: latitude,
+        longitude: longitude,
+        current_weather: true, 
+    });
+    try {
+
+        const response = await fetch(`${apiUrl}?${params.toString()}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        const currentTemperature2m = data.current_weather.temperature;
+
+        return currentTemperature2m
+    } catch (error) {
+        console.error("Error fetching weather data:", error);
+    }
+}
+
 
 
 // O server exei mia lista me tous clients stous opious stelni notifications meso ws kai mqtt kathe fora pou alazi i katastasi enos aisthitira stin poli tou client.
@@ -202,13 +306,22 @@ function deleteDeadConnections(){
 
 }
 
+function convertGreeceTimeToUTCTime(greeceTime){
+
+    // Create a new Date object from the local time string
+    const localTime = new Date(greeceTime);
+    
+    // Convert to UTC and get the ISO string representation in UTC format
+    const utcTime = localTime.toISOString();
+
+    return utcTime
+}
 
 function extractData(messageString) {
 
     const message = JSON.parse(messageString);
 
-    // Extract the required values
-    const time = message.time;
+    const time = convertGreeceTimeToUTCTime(message.time);
     const id = message.deviceInfo.deviceName.split(":")[1]; // Assuming id is part of the deviceName
     const battery = message.object.batteryVoltage;
     const carStatus = message.object.carStatus;
@@ -220,29 +333,32 @@ function extractData(messageString) {
     return { time, id, carStatus, temperature, latitude, longitude };
 }
 
-function convertUtcTimeToLocalTime(utcTime) {
-    const date = new Date(utcTime); // Parse the UTC date string
+// function convertUtcTimeToLocalTime(utcTime) {
+//     // metatrepi to utc time se ora elados
 
-    // Get individual components of the local time
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+//     const date = new Date(utcTime); // Parse the UTC date string
 
-    const localTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
-    return localTime;
-}
+//     // Get individual components of the local time
+//     const year = date.getFullYear();
+//     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+//     const day = String(date.getDate()).padStart(2, '0');
+//     const hours = String(date.getHours()).padStart(2, '0');
+//     const minutes = String(date.getMinutes()).padStart(2, '0');
+//     const seconds = String(date.getSeconds()).padStart(2, '0');
+//     const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
 
+//     const localTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+//     return localTime;
+// }
+
+let mqttPublish
 
 try {
 
     // akoui tis alages apo ton mqtt broker kai tis stelni san push notifications stous clients pou briskontai stin antistixi poli
     const mqttClientSubscribe = asyncMqtt.connect(broker);
 
-    const mqttPublish =  asyncMqtt.connect('ws://150.140.186.118:9001')
+    mqttPublish =  asyncMqtt.connect('ws://150.140.186.118:9001')
 
     // Subscribe to the topic
     await mqttClientSubscribe.subscribe(topic);

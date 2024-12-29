@@ -21,6 +21,7 @@ class ParkingSensor:
         self.temperature = np.random.normal(mean_temp, std_temp)
         
     def update_parking_status(self, epipedo_aixmis):
+        a=self.occupied
         if epipedo_aixmis == 2:
             probability_to_free_spot = 0.1
             probability_to_take_spot = 0.3
@@ -34,10 +35,12 @@ class ParkingSensor:
         if self.occupied:
             if np.random.rand() < probability_to_free_spot:
                 self.occupied = False
+
                 return True
         else:
             if np.random.rand() < probability_to_take_spot:
                 self.occupied = True
+
                 return True
 
         return False

@@ -4,3 +4,5 @@ node_modules/
 t.py
 t2.py
 src/agents/t.py
+t.mjs
+t.html
