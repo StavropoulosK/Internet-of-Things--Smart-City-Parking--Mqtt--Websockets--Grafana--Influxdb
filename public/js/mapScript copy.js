@@ -2,7 +2,6 @@ import { fetchKey, getSessionId, getCurrentPosition, getCityTemperature } from '
 import { sendNotificationParamsToServer, showAlive } from './sessionUtils.js';
 
 "use strict";
-let sessionId = undefined;
 
 async function initMap() {
 
@@ -13,9 +12,6 @@ async function initMap() {
 
 
     const { Map } = await google.maps.importLibrary("maps");
-    const { Places } = await google.maps.importLibrary("places");
-    
-    AdvancedMarkerElement = (await google.maps.importLibrary("marker")).AdvancedMarkerElement;
 
     sessionId = await getSessionId();
     

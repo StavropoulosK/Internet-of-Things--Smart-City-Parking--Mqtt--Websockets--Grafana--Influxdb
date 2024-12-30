@@ -31,7 +31,6 @@ function createMarker(parkingSpot) {
     const time = markerData.time      // i ora pou parkare kapoios teleutea fora
     const temperature = (markerData.temperature).toFixed(1)
     let category = markerData.category
-    const timeOfLastReservation = markerData.timeOfLastReservation
 
     if (category.contains("forDisabled")) {
         category = "forDisabled"

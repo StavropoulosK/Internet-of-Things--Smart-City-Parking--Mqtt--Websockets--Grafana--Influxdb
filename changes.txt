@@ -1,0 +1,6 @@
+/showAlive -> /mqtt/showAlive
+/createNotification -> /mqtt/createNotification
+
+router = Application router
+apiRouter = API Router
+mqttRouter = Router for notifications, also handles sessionId's
