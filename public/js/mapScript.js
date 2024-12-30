@@ -640,8 +640,6 @@ function isReserved(utcTimeOfLastReservation){
     else{
         return true
     }
-    
-
 }
 
 async function initiateMarkers(newMarkerData) {
