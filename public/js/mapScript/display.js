@@ -1,5 +1,5 @@
-let AdvancedMarkerElement = await google.maps.importLibrary("marker").AdvancedMarkerElement;
-let PinElement = await google.maps.importLibrary("marker").PinElement;
+// let AdvancedMarkerElement = googleMaps.AdvancedMarkerElement;
+// let PinElement = googleMaps.PinElement;
 
 async function displayMarkers(map) {
     getParkingSpotData().forEach(parkingSpot => {
@@ -37,6 +37,8 @@ function createMarker(parkingSpot) {
     } else {
         category = "normal"
     }
+}
 
-
+export async function test(){
+    const { Map } = await google.maps.importLibrary("maps");
 }
