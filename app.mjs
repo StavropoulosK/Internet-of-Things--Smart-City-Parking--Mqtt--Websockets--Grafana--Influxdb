@@ -55,13 +55,15 @@ function redirectToHttps(req, res, next) {
 
 app.use(redirectToHttps)
 
-
+// router gia tin efarmogi
 import router from "./src/backend/router.mjs";
 app.use('/', router);
 
+// router gia to api
 import apiRouter from "./src/backend/api/apiRouter.mjs";
 app.use('/api', apiRouter);
 
+// router gia ta active sessions kai ta sesssion Ids
 import { mqttRouter } from "./src/backend/mqttClient.mjs";
 app.use('/mqtt', mqttRouter);
 

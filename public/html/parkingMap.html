@@ -5,26 +5,23 @@
     <title>Google Maps API Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- <script type="module" src="../js/mapScript.js" defer></script> -->
     <script type="module" src="../js/mapScript copy.js" defer></script>
     <link href="../css/map.css" rel="stylesheet" />
     <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
 <body>
-
-    
-        <!-- <div id="map"></div> -->
-
+    <!-- <div id="map"></div> -->
     <div class="container">
-        
         <div id="map"></div>
-        <div class="autocomplete invisible" id="autocomplete">
+        <div class="autocomplete" id="autocomplete">
             <input type="text" id="searchInput">
 
             <div class="options">
                 <label class="checkboxLabel">
                     <span>ΑμεΑ</span>
-    
+
                     <input type="checkbox" id="amea">
                 </label>
 
@@ -39,9 +36,9 @@
                         <option value="50">50m</option>
                         <option value="100">100m</option>
                     </select>
-    
+
                 </label>
-    
+
             </div>
         </div>
 
@@ -54,19 +51,15 @@
             <img src="../resources/icons/piksida.png" alt="Compass" />
         </button>
 
-    </div>    
+    </div>
 
     <div class="bottomContainer">
         <div class="firstRow">
             <span id="reservationInfo"></span>
-            <button id="directionsBtn" class="disabled" onclick="startDirections()"> Κράτηση</button>
+            <button id="directionsBtn" onclick="startDirections()"> Κράτηση</button>
         </div>
-
         <div id="directions"></div>
     </div>
 
-
-
 </body>
-
 </html>

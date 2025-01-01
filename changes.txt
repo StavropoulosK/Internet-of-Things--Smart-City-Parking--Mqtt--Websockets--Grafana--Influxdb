@@ -1,6 +1,11 @@
+## BACKEND ##
+
 /showAlive -> /mqtt/showAlive
 /createNotification -> /mqtt/createNotification
+/api/data -> /api/data?city=Patras
 
 router = Application router
 apiRouter = API Router
 mqttRouter = Router for notifications, also handles sessionId's
+
+## FRONTEND ##

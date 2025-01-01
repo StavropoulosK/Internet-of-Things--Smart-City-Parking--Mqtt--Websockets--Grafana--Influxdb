@@ -1,9 +1,12 @@
 "use strict";
 
 import { loadGoogleMaps } from './googleMapsLoader.js';
+import { placeMarkers } from './mapScript/markers.js';
+import { closeInfoWindow } from './mapScript/eventHandlers.js';
 
 
 const defaultPosition = {
+    city: "Patras",
     coords: {
         lat: 38.2552478,
         lng: 21.7461463
@@ -22,6 +25,12 @@ async function initMap() {
         fullscreenControl: false,  // Disable the fullscreen control button
         streetViewControl: false, // Disable the Street View control
     });
+
+    map.addListener('click', () => {
+        closeInfoWindow()
+    });
+
+    await placeMarkers(map, defaultPosition.city);
 }
 
 window.onload = initMap;

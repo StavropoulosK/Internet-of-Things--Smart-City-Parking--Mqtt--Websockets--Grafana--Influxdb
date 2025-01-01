@@ -103,9 +103,9 @@ html, body {
     /* background-color: red; */
 }
 
-.options label{
-    /* background-color: blue; */
-}
+/* .options label{
+    background-color: blue;
+} */
 
 .options input{
     display:inline-block;
@@ -193,21 +193,21 @@ button#directionsBtn{
     margin-bottom:0.4em;
     margin-top:0.5em;
     padding: 10px 60px;
-    background-color: #007bff;
+    background-color: #b3b1b1;
     color: white;
     border: none;
     border-radius: 25px;
     font-size: 1em;
-    cursor: pointer;
+    cursor: auto;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;      
     align-items: center; 
     justify-content: center; 
 }
 
-button#directionsBtn.disabled{
-    background-color: #b3b1b1;
-    cursor: auto;
+button#directionsBtn.active{
+    background-color: #007bff;
+    cursor: pointer;
 }
 
 #directions {

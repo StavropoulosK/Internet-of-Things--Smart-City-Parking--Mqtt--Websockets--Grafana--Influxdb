@@ -286,7 +286,6 @@ function closeInfoWindow() {
     infoWindow.close();
     selectedMarkerId = -1
     if (!directionsBtn.classList.contains('disabled')) {
-
         directionsBtn.classList.add('disabled')
     }
 }
@@ -521,17 +520,12 @@ function createAutocomplete() {
     const panel = document.getElementById('autocomplete')
     panel.classList.remove('invisible')
 
-
     const input = document.getElementById('searchInput')
-
     input.addEventListener("keydown", enterHandler)
-
-
+    
     const autocomplete = new google.maps.places.Autocomplete(input, {
         componentRestrictions: { country: 'gr' } // Restrict results to Greece
     })
-
-
 
     autocomplete.addListener("place_changed", function () {
         const place = autocomplete.getPlace();
@@ -540,16 +534,11 @@ function createAutocomplete() {
             return;
         }
         else {
-
             const lat = place.geometry.location.lat();
             const lng = place.geometry.location.lng();
             createDestinationLocationPin(lat, lng)
             findClosestMarker(lat, lng)
-
         }
-
-
-
     });
 
 }
