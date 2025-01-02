@@ -2,6 +2,7 @@ import { enterHandler } from "./eventHandlers.js"
 import { createDestinationLocationPin } from "./markers.js"
 
 let destination = null;
+let destinationCircle = null;
 
 async function createAutocomplete(map) {
     const geocoder = new google.maps.Geocoder();
@@ -29,6 +30,30 @@ async function createAutocomplete(map) {
         createDestinationLocationPin(map, destination)
 
         input.value = ""
+    });
+
+    // raius slider
+    const slider = document.getElementById("radiusSlider");
+    slider.addEventListener("input", () => {
+        if (destination === null) {
+            return;
+        }
+        const radius = slider.value;
+
+        if (destinationCircle !== null) {
+            destinationCircle.setMap(null)
+        }
+
+        destinationCircle = new google.maps.Circle({
+            map: map,
+            radius: parseInt(radius, 10), // Convert radius to integer
+            center: destination,
+            fillColor: '#AA0000',
+            fillOpacity: 0.35,
+            strokeColor: '#AA0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2
+        });
     });
 }
 
