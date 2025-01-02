@@ -3,6 +3,7 @@
 import { loadGoogleMaps } from './googleMapsLoader.js';
 import { placeMarkers } from './mapScript/markers.js';
 import { closeInfoWindow } from './mapScript/eventHandlers.js';
+import { createAutocomplete } from './mapScript/directions.js';
 
 
 const defaultPosition = {
@@ -12,6 +13,7 @@ const defaultPosition = {
         lng: 21.7461463
     }
 };
+
 
 async function initMap() {
     await loadGoogleMaps();
@@ -25,12 +27,12 @@ async function initMap() {
         fullscreenControl: false,  // Disable the fullscreen control button
         streetViewControl: false, // Disable the Street View control
     });
-
     map.addListener('click', () => {
         closeInfoWindow()
     });
 
     await placeMarkers(map, defaultPosition.city);
+    await createAutocomplete(map);
 }
 
 window.onload = initMap;

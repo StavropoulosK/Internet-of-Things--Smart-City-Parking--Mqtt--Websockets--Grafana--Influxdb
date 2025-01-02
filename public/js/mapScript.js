@@ -467,8 +467,7 @@ function findClosestMarker(destinationLat, destinationLng) {
 
 }
 
-function createDestinationLocationPin(lat, lng) {
-
+function createDestinationLocationPin(map, lat, lng) {
     // Center the map to the selected address
     map.panTo({ lat, lng });
     map.setZoom(18);
@@ -478,17 +477,14 @@ function createDestinationLocationPin(lat, lng) {
         destinationMarkerPin.setMap(null);
     }
 
-
     const pinScaled = new PinElement({
         scale: 0.8,
     });
-
 
     destinationMarkerPin = new AdvancedMarkerElement({
         position: { lat: lat, lng: lng },
         map: map,
         content: pinScaled.element,
-
     });
 }
 
@@ -522,7 +518,7 @@ function createAutocomplete() {
 
     const input = document.getElementById('searchInput')
     input.addEventListener("keydown", enterHandler)
-    
+
     const autocomplete = new google.maps.places.Autocomplete(input, {
         componentRestrictions: { country: 'gr' } // Restrict results to Greece
     })
@@ -540,7 +536,6 @@ function createAutocomplete() {
             findClosestMarker(lat, lng)
         }
     });
-
 }
 
 async function readInitialValues() {

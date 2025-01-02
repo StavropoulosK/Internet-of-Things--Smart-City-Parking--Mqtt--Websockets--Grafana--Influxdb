@@ -2,6 +2,7 @@ import { getParkingSpotData, willVacateSoon } from './dataFetch.js';
 import { openMarker } from './eventHandlers.js';
 
 let AdvancedMarkerElement;
+let destinationMarkerPin;
 
 async function placeMarkers(map, city) {
     AdvancedMarkerElement = (await google.maps.importLibrary("marker")).AdvancedMarkerElement;
@@ -72,5 +73,21 @@ function updateMarker(markers, parkingSpot) {
 }
 
 
+function createDestinationLocationPin(map, destination) {
+    // Center the map to the selected address
+    map.panTo(destination);
+    map.setZoom(18);
 
-export { placeMarkers };
+    // Remove previous marker if any
+    if (destinationMarkerPin) {
+        destinationMarkerPin.setMap(null);
+    }
+
+    const { lat, lng } = destination;
+    destinationMarkerPin = new AdvancedMarkerElement({
+        position: { lat: lat, lng: lng },
+        map: map,
+    });
+}
+
+export { placeMarkers, createDestinationLocationPin };

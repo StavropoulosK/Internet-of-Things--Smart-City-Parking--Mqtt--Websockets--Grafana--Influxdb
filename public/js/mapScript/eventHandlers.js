@@ -1,3 +1,5 @@
+import { createDestinationLocationPin } from "./markers.js";
+
 let infoWindow;
 let selectedMarkerId = null;
 
@@ -34,6 +36,26 @@ function openMarker(marker, id, katigoria, temperature, hasShadow, distance = nu
     }, 500);
 }
 
+function enterHandler(geocoder, event) {
+    if (event.key === "Enter") {
+        const input = document.getElementById('searchInput')
+
+        const address = input.value;
+
+        geocoder.geocode({ address: address }, function (results, status) {
+            if (status === google.maps.GeocoderStatus.OK) {
+                const lat = results[0].geometry.location.lat();
+                const lng = results[0].geometry.location.lng();
+
+                createDestinationLocationPin(lat, lng)
+                // findClosestMarker(lat, lng)
+            } else {
+                console.log("Geocode failed due to: " + status);
+            }
+        });
+    }
+}
+
 function closeInfoWindow() {
     if (selectedMarkerId) {
         flipDirectionsBtn();
@@ -47,4 +69,4 @@ function flipDirectionsBtn() {
     directionsBtn.classList.toggle('active');
 }
 
-export { closeInfoWindow, openMarker };
+export { closeInfoWindow, openMarker, enterHandler };
