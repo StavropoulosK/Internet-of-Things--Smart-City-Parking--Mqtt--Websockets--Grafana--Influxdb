@@ -22,20 +22,27 @@ let selectedMarkerId = -1;            // to id tou marker pou exi aniksi to info
 
 let userPosition;
 
+let selectedMarkerId=-1;            // to id tou marker pou exi aniksi to info window
 
-const orangeThreshold = 10
+
+let userPosition ;
+
+
+const orangeThreshold=10
 
 // ta emfanizi portokali ean (minutesAllowedToPark-minutesPassedFromParking)<orangeThreshold)
 // minutesAllowedToPark=120 lepta afou exoume theorisi parkometro  2 oron
 // minutes passedFromParking posin ora exei perasi apo otan parkare o teleutaios stin thesi
 
-const city = 'Patras'
+const city='Patras'
 
 // arxikopoiisi se mia timi gia tin periptosi pou den iparxi access se topothesia
 userPosition = {
     coords: {
         latitude: 38.2552478,
         longitude: 21.7461463
+        latitude: 38.2552478,
+        longitude:  21.7461463
     }
 };
 
@@ -107,11 +114,57 @@ function focusMap() {
         lat: userPosition.coords.latitude,
         lng: userPosition.coords.longitude,
     });
+async function sendNotificationParamsToServer(){
+
+
+    fetch('/createNotification', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ city:city })
+    });
+}
+
+async function getSessionId() {
+    try {
+        const response = await fetch('/getSession');
+        if (response.ok) {
+            const sessionId = await response.json();
+
+            return sessionId; 
+        } else {
+            console.error('Session not found');
+        }
+    } catch (error) {
+        console.error('Error fetching session:', error);
+    }
+
+}
+
+async function getCityTemperature(){
+    try {
+        const response = await fetch('/getTemperature');
+        if (response.ok) {
+            cityTemperature = (await response.json()).temperature;
+        } else {
+            console.error('Error getting temperature');
+        }
+    } catch (error) {
+        console.error('Error fetching session:', error);
+    }
+}
+
+function focusMap(){
+    map.panTo({ lat: userPosition.coords.latitude,
+                lng: userPosition.coords.longitude, });
 }
 
 function makeReservation(destinationMarkerId) {
     const isoDateString = new Date().toISOString();
     
+
+
     fetch('/makeReservation', {
         method: 'POST',
         headers: {
@@ -150,8 +203,22 @@ async function initMap() {
         lng: userPosition.coords.longitude,
     };
 
+    sessionId= await getSessionId();
+
+    try {
+        userPosition = await getCurrentPosition();
+    } catch (error) {
+        console.error(error);
+    }
+
+    const userLocation = {
+        lat: userPosition.coords.latitude,
+        lng: userPosition.coords.longitude,
+    };
+
     map = new Map(document.getElementById("map"), {
         center: { lat: userLocation.lat, lng: userLocation.lng },
+        center: { lat: userLocation.lat, lng:userLocation.lng},
         zoom: 15,
         mapId: "b6232a7f7073d846",
         mapTypeControl: false,
@@ -165,9 +232,9 @@ async function initMap() {
 
 
     map.addListener('click', () => {
-
+        
         closeInfoWindow()
-    });
+      });
 
     directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer({
@@ -222,6 +289,8 @@ async function initMap() {
     });
 
     console.log('Map initialized');
+
+
 }
 
 function handleUpdateParkingSpot(message) {
@@ -418,7 +487,7 @@ function findClosestMarker(destinationLat, destinationLng) {
 
     // chosenMarker={id:id,hasShadow:hasShadow,time:time,temperature:temperature,category:category,marker:createMarker(visible,latitude,longitude,category,temperature,hasShadow,id),timeOfLastReservation:timeOfLastReservation,maximumParkingDuration:maximumParkingDuration}
 
-    const message = 'Δεν βρέθηκε θέση με τα συγκεκριμένα κριτήρια. Παρακαλώ πολύ δοκιμάστε άλλα κριτήρια.'
+    const message='Δεν βρέθηκε θέση με τα συγκεκριμένα κριτήρια. Παρακαλώ πολύ δοκιμάστε άλλα κριτήρια.'
 
 
     if (chosenMarker != -1) {
@@ -511,12 +580,17 @@ function createAutocomplete() {
     const panel = document.getElementById('autocomplete')
     panel.classList.remove('invisible')
 
-    const input = document.getElementById('searchInput')
+
+    const input=document.getElementById('searchInput')
+    
     input.addEventListener("keydown", enterHandler)
 
-    const autocomplete = new google.maps.places.Autocomplete(input, {
+    
+    const autocomplete= new google.maps.places.Autocomplete(input, {
         componentRestrictions: { country: 'gr' } // Restrict results to Greece
     })
+
+    
 
     autocomplete.addListener("place_changed", function () {
         const place = autocomplete.getPlace();
@@ -531,6 +605,11 @@ function createAutocomplete() {
             findClosestMarker(lat, lng)
         }
     });
+
+       
+
+        });
+
 }
 
 async function readInitialValues() {
@@ -564,9 +643,9 @@ function openMarker(marker, id, katigoria, temperature, hasShadow, distance = -1
     }
 
     infoWindow.open({
-        anchor: marker,
-        map,
-        shouldFocus: false,
+      anchor: marker,
+      map,
+      shouldFocus: false,
     });
 
     setTimeout(() => {
@@ -775,22 +854,26 @@ function openDialog(message) {
 function getCurrentPosition() {
     return new Promise((resolve, reject) => {
         if (navigator.geolocation) {
+
             navigator.geolocation.getCurrentPosition(
                 (userPosition) => {
-                    resolve(userPosition);
+
+
+                    resolve(userPosition); 
                 },
                 (error) => {
-                    alert("Error: Could not get your location. " + error.code + error.message)
+                    alert("Error: Could not get your location. "+error.code+ error.message)
                     reject("Error: Could not get your location.");
                 }
             );
         } else {
+
             reject("Geolocation not supported.");
         }
     });
 }
 
-function startDirections() {
+function startDirections(){
 
     if (directionsBtn.classList.contains('disabled')) {
         return
@@ -950,6 +1033,31 @@ async function fetchKey() {
 async function showAlive() {
     try {
         const response = await fetch('/mqtt/showAlive'); // Make the GET request
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+    } catch (error) {
+        console.error("Error pinging:", error); // Handle any errors
+    }
+}
+
+
+window.onload = initMap;
+async function fetchKey() {
+    //kanei fetch to api key
+    try {
+        const response = await fetch('/APIKEY');
+        const key = await response.text(); // Parse response as text
+        return key
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+async function showAlive() {
+    try {
+        const response = await fetch('/showAlive'); // Make the GET request
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
