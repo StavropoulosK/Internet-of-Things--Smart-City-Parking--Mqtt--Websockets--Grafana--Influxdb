@@ -1,6 +1,7 @@
 import { getSessionId } from "./sessionUtils.js";
 import { updateReservedSpot, selectedMarkerWasOccupied } from "./markers.js";
 import { spotWasOccupied } from "./directions.js";
+import { showAlive } from "./sessionUtils.js";
 
 async function initMQTTClinet() {
     const sessionId = await getSessionId();
@@ -40,9 +41,9 @@ function handleUpdateParkingSpot(message) {
     // console.log(id,time,parked,temperature,destinationMarkerId,destinationMarkerId==id)
 
     
-    const message = spotWasOccupied(id)
-    if (message && parked == 1) {
-        openDialog(message)
+    const occupiedWarning = spotWasOccupied(id)
+    if (occupiedWarning && parked == 1) {
+        openDialog(occupiedWarning)
     }
     
     selectedMarkerWasOccupied(id, time, parked, temperature)

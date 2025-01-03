@@ -58,6 +58,9 @@ async function startDirections(map) {
 }
 
 function stopRoute() {
+    if (!directionsRenderer) {
+        return
+    }
     clearInterval(intervalIdForMapCenteringWhenDriving)
     clearInterval(intervalIdForShowingDirections)
     directionsRenderer.setDirections({ routes: [] }); // Safely clear directions
@@ -184,4 +187,4 @@ function spotWasOccupied(id) {
     return message
 }
 
-export { startDirections, spotWasOccupied }
+export { startDirections, spotWasOccupied, stopRoute }

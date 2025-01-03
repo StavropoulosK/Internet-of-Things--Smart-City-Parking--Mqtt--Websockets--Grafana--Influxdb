@@ -1,5 +1,6 @@
 import { selectMarker, filterMarkers, closeInfoWindow } from "./markers.js"
 import { findBestParkingSpot } from "./dataFetch.js";
+import { stopRoute } from "./directions.js";
 
 let destination = null;
 let destinationMarkerPin;
@@ -63,9 +64,9 @@ async function createAutocomplete(map) {
             return;
         }
         const radius = slider.value;
-        const filters = { forAmEA: ameaCheckbox.checked, withShadow: skiaCheckbox.checked, onlyFree: !diathesimoCheckbox.checked }
-        const bestSpot = await findBestParkingSpot(destination, radius, filters)
-        map.panTo({ lat: bestSpot.coordinates[0], lng: bestSpot.coordinates[1] })
+        const filters = { forAmEA: ameaCheckbox.checked, withShadow: skiaCheckbox.checked, onlyFree: !diathesimoCheckbox.checked };
+        const bestSpot = await findBestParkingSpot(destination, radius, filters);
+        map.panTo({ lat: bestSpot.coordinates[0], lng: bestSpot.coordinates[1] });
         map.setZoom(18);
         selectMarker(bestSpot.id)
     });
@@ -73,9 +74,11 @@ async function createAutocomplete(map) {
     const clearBtn = document.getElementById("clearBtn");
     clearBtn.addEventListener("click", () => {
         destination = null;
-        destinationCircle.setMap(null)
-        clearDestinationLocationPin()
-        closeInfoWindow()
+        if (destinationCircle !== null)
+            destinationCircle.setMap(null);
+        clearDestinationLocationPin();
+        closeInfoWindow();
+        stopRoute();
     });
 }
 
