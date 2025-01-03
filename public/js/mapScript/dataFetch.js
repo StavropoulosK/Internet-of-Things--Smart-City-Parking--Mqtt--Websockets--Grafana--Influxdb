@@ -60,12 +60,7 @@ async function sendReservation(city, parkingSpotId) {
     }
 }
 
-async function sendCancelReservation(city, parkingSpotId) {
-    
-}
-
-
-function getReservationTime() {
+function getReservationTime(parkingSpotId = null) {
     const now = new Date(); // Get the current local time
     now.setMinutes(now.getMinutes() + 15); // Add 15 minutes to the current time
 
@@ -76,4 +71,4 @@ function getReservationTime() {
     return `${hours}:${minutes}`; // Return time in "HH:MM" format
 }
 
-export { getParkingSpotData, willVacateSoon, findBestParkingSpot, sendReservation, sendCancelReservation, getReservationTime };
+export { getParkingSpotData, willVacateSoon, findBestParkingSpot, sendReservation, getReservationTime };

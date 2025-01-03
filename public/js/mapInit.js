@@ -3,7 +3,8 @@
 import { loadGoogleMaps } from './googleMapsLoader.js';
 import { placeMarkers, closeInfoWindow } from './mapScript/markers.js';
 import { createAutocomplete } from './mapScript/searchUI.js';
-
+import { startDirections } from './mapScript/directions.js';
+import { initMQTTClinet } from './mapScript/mqttclient.js';
 
 const defaultPosition = {
     city: "Patras",
@@ -32,6 +33,10 @@ async function initMap() {
 
     await placeMarkers(map, defaultPosition.city);
     await createAutocomplete(map);
+    await initMQTTClinet();
+
+    const directionsButton = document.getElementById('directionsBtn');
+    directionsButton.addEventListener('click', () => startDirections(map));
 }
 
 window.onload = initMap;

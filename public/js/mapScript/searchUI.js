@@ -65,8 +65,9 @@ async function createAutocomplete(map) {
         const radius = slider.value;
         const filters = { forAmEA: ameaCheckbox.checked, withShadow: skiaCheckbox.checked, onlyFree: !diathesimoCheckbox.checked }
         const bestSpot = await findBestParkingSpot(destination, radius, filters)
-        selectMarker(bestSpot.id)
         map.panTo({ lat: bestSpot.coordinates[0], lng: bestSpot.coordinates[1] })
+        map.setZoom(18);
+        selectMarker(bestSpot.id)
     });
 
     const clearBtn = document.getElementById("clearBtn");

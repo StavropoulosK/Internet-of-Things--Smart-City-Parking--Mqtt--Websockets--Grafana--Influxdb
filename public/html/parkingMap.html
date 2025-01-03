@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- <script type="module" src="../js/mapScript.js" defer></script> -->
-    <script type="module" src="../js/mapScript copy.js" defer></script>
+    <script type="module" src="../js/mapInit.js" defer></script>
     <link href="../css/map.css" rel="stylesheet" />
     <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
@@ -49,9 +49,9 @@
             <button id="dialogBtn" onclick="hideDialog()">Οκ</button>
         </div>
 
-        <button id="compass" onclick="focusMap()">
+        <!-- <button id="compass" onclick="focusMap()">
             <img src="../resources/icons/piksida.png" alt="Compass" />
-        </button>
+        </button> -->
 
     </div>
 
@@ -59,7 +59,6 @@
         <div class="firstRow">
             <span id="reservationInfo"></span>
             <button id="directionsBtn"> Κράτηση</button>
-            <button id="cancelBtn">Ακύρωση</button>
         </div>
         <div id="directions"></div>
     </div>

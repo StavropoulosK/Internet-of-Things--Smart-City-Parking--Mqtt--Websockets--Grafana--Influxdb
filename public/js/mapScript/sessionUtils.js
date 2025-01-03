@@ -20,4 +20,18 @@ async function showAlive() {
     }
 }
 
-export {sendNotificationParamsToServer, showAlive};
+async function getSessionId() {
+    try {
+        const response = await fetch('/getSession');
+        if (response.ok) {
+            const sessionId = await response.json();
+            return sessionId;
+        } else {
+            console.error('Session not found');
+        }
+    } catch (error) {
+        console.error('Error fetching session:', error);
+    }
+}
+
+export {sendNotificationParamsToServer, showAlive, getSessionId };

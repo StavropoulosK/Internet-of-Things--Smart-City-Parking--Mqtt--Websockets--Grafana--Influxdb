@@ -87,7 +87,6 @@ async function getSessionId() {
     } catch (error) {
         console.error('Error fetching session:', error);
     }
-
 }
 
 async function getCityTemperature() {
@@ -349,7 +348,6 @@ async function placeUserPositionPin(init = 0) {
     }
 
     if (distance < 500) {
-
         map.panTo(userLocation)
     }
 
@@ -363,7 +361,6 @@ async function placeUserPositionPin(init = 0) {
         map: map,
         content: blueDotElement,
     });
-
 }
 
 function findClosestMarker(destinationLat, destinationLng) {
@@ -778,11 +775,8 @@ function openDialog(message) {
 function getCurrentPosition() {
     return new Promise((resolve, reject) => {
         if (navigator.geolocation) {
-
             navigator.geolocation.getCurrentPosition(
                 (userPosition) => {
-
-
                     resolve(userPosition);
                 },
                 (error) => {
@@ -791,7 +785,6 @@ function getCurrentPosition() {
                 }
             );
         } else {
-
             reject("Geolocation not supported.");
         }
     });
@@ -933,7 +926,6 @@ async function getDirectionsToMarker(destination, first = '') {
                         // ean briskete se apostasi 5 metra apo tin thesi, exi ftasi ston proorismo.
                         stopRoute()
                         directionsDiv.textContent = 'Φτάσατε στον προορισμό σας'
-
                     }
                 }
             } else {

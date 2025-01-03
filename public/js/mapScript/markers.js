@@ -1,18 +1,22 @@
-import { getCity } from '../utils.js';
 import { getParkingSpotData, willVacateSoon } from './dataFetch.js';
-import { makeReservation } from './reservation.js';
 
 let AdvancedMarkerElement;
+
 let parkingSpots;
 let markers = {};
+let markerCluster;
+
 let selectedSpotId = null;
 let infoWindow;
 
+
 async function placeMarkers(map, city) {
     AdvancedMarkerElement = (await google.maps.importLibrary("marker")).AdvancedMarkerElement;
-
+    
     // Array of parking spot data. [{coordinates: [0: lat, 1:, lng], category: [], temperature: , carParked: , id: , timeOfLastReservation: , maximumParkingDuration: }]
     parkingSpots = await getParkingSpotData(city);
+    
+    createCluster(map);
 
     parkingSpots.forEach(parkingSpot => {
         markers[parkingSpot.id] = createMarker(map, parkingSpot);
@@ -21,6 +25,7 @@ async function placeMarkers(map, city) {
     parkingSpots.forEach(parkingSpot => {
         updateMarker(parkingSpot);
     });
+
 }
 
 function createMarker(map, parkingSpot) {
@@ -53,6 +58,15 @@ function createMarker(map, parkingSpot) {
     }) 
 
     return marker
+}
+
+function createCluster(map) {    
+    const clusterOptions = {
+        minZoom: 4,
+        minPoints: 2
+    };
+
+    markerCluster = new markerClusterer.MarkerClusterer({ markers: [], map, ...clusterOptions });
 }
 
 function openMarker(marker, id, katigoria, temperature, hasShadow, distance = null) {
@@ -88,10 +102,10 @@ function openMarker(marker, id, katigoria, temperature, hasShadow, distance = nu
         }
     }, 500);
 
-    const makeReservationBtn = document.getElementById('directionsBtn');
-    makeReservationBtn.addEventListener('click', async () => {
-        await makeReservation(getCity(), id);
-    });
+    window.selectedParkingSpot = {
+        id: id,
+        location: marker.position,
+    } 
 }
 
 function updateMarker(parkingSpot) {
@@ -99,15 +113,18 @@ function updateMarker(parkingSpot) {
         markers[parkingSpot.id].isFree = false;
         if (willVacateSoon(parkingSpot.timeOfLastReservation, parkingSpot.maximumParkingDuration)) {
             markers[parkingSpot.id].content.style.visibility = "visible";
+            markerCluster.addMarker(markers[parkingSpot.id]);
             // Emfanizetai to portokali, krivetai to mple
             markers[parkingSpot.id].content.querySelector("#orange").style.display = "block";
             markers[parkingSpot.id].content.querySelector("#blue").style.display = "none";
         } else {
             markers[parkingSpot.id].content.style.visibility = "hidden";
+            markerCluster.removeMarker(markers[parkingSpot.id]);
         }
     } else {
         markers[parkingSpot.id].isFree = true;
         markers[parkingSpot.id].content.style.visibility = "visible";
+        markerCluster.addMarker(markers[parkingSpot.id]);
         // Emfanizetai to mple, krivetai to portokali
         markers[parkingSpot.id].content.querySelector("#blue").style.display = "block";
         markers[parkingSpot.id].content.querySelector("#orange").style.display = "none";
@@ -132,26 +149,32 @@ function selectMarker(parkingSpotId) {
     google.maps.event.trigger(marker, "click");
 }
 
-function hardSelectMarker(parkingSpotId) {
-    selectedSpotId = parkingSpotId;
-    const marker = markers[parkingSpotId];
-    for (const marker in markers) {
-        markers[marker].content.style.opacity = "0";
+function updateReservedSpot(parkingSpotId, timeOfLastReservation) {
+    let parkingSpot = parkingSpots.find(parkingSpot => parkingSpot.id === parkingSpotId);
+    parkingSpot.timeOfLastReservation = timeOfLastReservation;
+
+    markerCluster.removeMarker(markers[parkingSpotId]);
+
+    if (selectedSpotId === parkingSpotId) {
+        closeInfoWindow();
     }
-    selectMarker(parkingSpotId);
 }
+
 
 function filterMarkers(map, forAmEA, shadow, onlyFree) {
     parkingSpots.forEach(parkingSpot => {
         if (!forAmEA && parkingSpot.category.includes("forDisabled")) {
             markers[parkingSpot.id].setMap(null);
+            markerCluster.removeMarker(markers[parkingSpot.id]);
             // // Shadow not implemented yet
             // } else if (shadow && !parkingSpot.hasShadow) {
             //     markers[parkingSpot.id].setMap(null);
         } else if (onlyFree && parkingSpot.carParked) {
             markers[parkingSpot.id].setMap(null);
+            markerCluster.removeMarker(markers[parkingSpot.id]);
         } else {
             markers[parkingSpot.id].setMap(map);
+            markerCluster.addMarker(markers[parkingSpot.id]);
         }
     });
 }
@@ -165,7 +188,7 @@ function resetMarkers() {
 }
 
 function closeInfoWindow() {
-    if (selectedSpotId) {
+    if (selectedSpotId && infoWindow) {
         resetMarkers();
         flipDirectionsBtn(false);
         infoWindow.close();
@@ -182,4 +205,16 @@ function flipDirectionsBtn(active) {
     }
 }
 
-export { placeMarkers, highlightMarker, resetMarkers, selectMarker, hardSelectMarker, filterMarkers, closeInfoWindow };
+function selectedMarkerWasOccupied(parkingSpotId, time, parked, temperature) {
+    if (selectedSpotId === parkingSpotId) {
+        closeInfoWindow();
+    }
+    let parkingSpot = parkingSpots.find(parkingSpot => parkingSpot.id === parkingSpotId);
+    parkingSpot.time = time;
+    parkingSpot.carParked = parked;
+    parkingSpot.temperature = temperature;
+
+    updateMarker(parkingSpot);
+}
+
+export { placeMarkers, highlightMarker, resetMarkers, selectMarker, filterMarkers, closeInfoWindow, updateReservedSpot, selectedMarkerWasOccupied};
