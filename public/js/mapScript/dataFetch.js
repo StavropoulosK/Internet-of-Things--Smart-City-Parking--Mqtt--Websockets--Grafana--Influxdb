@@ -29,10 +29,10 @@ function willVacateSoon(timeOfLastReservation, maximumParkingDuration) {
     return getMinutesFromDuration(maximumParkingDuration) - minspassed < soonVacateThreshold;
 }
 
-async function findBestParkingSpot(destination, radius) {
+async function findBestParkingSpot(destination, radius, filters) {
     const city = await getCity(destination);
     try {
-        const response = await fetch(`/api/bestParkingSpot?city=${city}&destination=${destination.lat},${destination.lng}&radius=${radius}`);
+        const response = await fetch(`/api/bestParkingSpot?city=${city}&destination=${destination.lat},${destination.lng}&radius=${radius}&filters=${JSON.stringify(filters)}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -44,4 +44,36 @@ async function findBestParkingSpot(destination, radius) {
     }
 }
 
-export { getParkingSpotData, willVacateSoon, findBestParkingSpot };
+async function sendReservation(city, parkingSpotId) {
+    const isoDateString = new Date().toISOString();
+    return;
+    try{
+        await fetch(`/api/makeReservation?city=${city}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ time: isoDateString, parkingSpotId: parkingSpotId })
+        });
+    } catch (error) {
+        console.error('Error making reservation:', error);
+    }
+}
+
+async function sendCancelReservation(city, parkingSpotId) {
+    
+}
+
+
+function getReservationTime() {
+    const now = new Date(); // Get the current local time
+    now.setMinutes(now.getMinutes() + 15); // Add 15 minutes to the current time
+
+    // Extract hours and minutes
+    const hours = now.getHours().toString().padStart(2, '0'); // Ensure 2-digit format
+    const minutes = now.getMinutes().toString().padStart(2, '0'); // Ensure 2-digit format
+
+    return `${hours}:${minutes}`; // Return time in "HH:MM" format
+}
+
+export { getParkingSpotData, willVacateSoon, findBestParkingSpot, sendReservation, sendCancelReservation, getReservationTime };

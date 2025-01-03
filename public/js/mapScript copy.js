@@ -1,9 +1,8 @@
 "use strict";
 
 import { loadGoogleMaps } from './googleMapsLoader.js';
-import { placeMarkers } from './mapScript/markers.js';
-import { closeInfoWindow } from './mapScript/eventHandlers.js';
-import { createAutocomplete } from './mapScript/autocomplete.js';
+import { placeMarkers, closeInfoWindow } from './mapScript/markers.js';
+import { createAutocomplete } from './mapScript/searchUI.js';
 
 
 const defaultPosition = {
@@ -13,7 +12,6 @@ const defaultPosition = {
         lng: 21.7461463
     }
 };
-
 
 async function initMap() {
     await loadGoogleMaps();

@@ -141,4 +141,6 @@ async function updateMqtt(markerId, time, reservationUserId, city) {
         }
     });
 }
+
+
 export { mqttRouter, setupMQTTClient, updateMqtt };

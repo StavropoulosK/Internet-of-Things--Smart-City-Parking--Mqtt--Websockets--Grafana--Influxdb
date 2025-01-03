@@ -46,18 +46,25 @@ async function currentParkingSpotsData(city) {
     }
 }
 
-async function findBestParkingSpot(city, destination, radius) {
+async function findBestParkingSpot(city, destination, radius, filters) {
     const parkignSpotData = await currentParkingSpotsData(city);
 
     const [ destLat, destLng ] = destination.split(',').map(parseFloat);
-    // filter parking spots that are within the radius using havarsine
+    // filter parking spots that are within the radius using havarsine and fullfill the filters
     let filteredParkingSpotData = parkignSpotData.filter(parkingSpot => {
         const distance = haversine(parkingSpot.coordinates[0], parkingSpot.coordinates[1], destLat, destLng);
+        if (!filters.forAmEA && parkingSpot.category.includes("forDisabled")) {
+            return false;
+        // } else if (filters.withShadow && !parkingSpot.hasShadow) {
+        //     return false;
+        } else if (filters.onlyFree && parkingSpot.carParked) {
+            return false;
+        }
         return distance <= radius;
     });
 
     // rank the remaining parking spots, lower score is better
-    filteredParkingSpotData = filteredParkingSpotData.sort((a, b) => rankParkingSpots(a, destination) - rankParkingSpots(b, destination));
+    filteredParkingSpotData = filteredParkingSpotData.sort((a, b) => rankParkingSpots(b, destination) - rankParkingSpots(a, destination));
 
     // return the best parking spot
     return filteredParkingSpotData[0];

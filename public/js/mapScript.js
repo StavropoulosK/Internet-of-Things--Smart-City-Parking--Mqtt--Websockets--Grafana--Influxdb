@@ -112,8 +112,7 @@ function focusMap() {
 
 function makeReservation(destinationMarkerId) {
     const isoDateString = new Date().toISOString();
-
-
+    
     fetch('/makeReservation', {
         method: 'POST',
         headers: {
@@ -812,8 +811,6 @@ function startDirections() {
 
     reservationTimeSpan.textContent = 'Έχει γίνει κράτηση μέχρι της ' + getReservationTime()
     reservationTimeSpan.style.visibility = 'visible'
-
-
 
 
     const marker = (markers.find(el => el.id === selectedMarkerId)).marker

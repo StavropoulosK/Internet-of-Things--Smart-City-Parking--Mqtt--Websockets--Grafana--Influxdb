@@ -1,19 +1,32 @@
-import { enterHandler, closeInfoWindow } from "./eventHandlers.js"
-import { createDestinationLocationPin, clearDestinationLocationPin, selectMarker, filterMarkers } from "./markers.js"
+import { selectMarker, filterMarkers, closeInfoWindow } from "./markers.js"
 import { findBestParkingSpot } from "./dataFetch.js";
 
 let destination = null;
+let destinationMarkerPin;
+
+let AdvancedMarkerElement;
 
 async function createAutocomplete(map) {
+    AdvancedMarkerElement = (await google.maps.importLibrary("marker")).AdvancedMarkerElement;
     const geocoder = new google.maps.Geocoder();
+
     // na fortoni to autocomplete meta ton xarti (gia na exi kai sostes times sxetika me to an iparxi skia gia to checkbox gia tin skia)
     const panel = document.getElementById('autocomplete')
     panel.classList.remove('invisible')
-
+    
     const input = document.getElementById('searchInput')
-    input.addEventListener("keydown", (event) => enterHandler(geocoder, event))
+    // input.addEventListener("keydown", (event) => enterHandler(geocoder, event))
+    
+    const ameaCheckbox = document.getElementById("amea");
+    ameaCheckbox.addEventListener("change", () => filterParkingSpots(map));
+    const skiaCheckbox = document.getElementById("skia");
+    skiaCheckbox.addEventListener("change", () => filterParkingSpots(map));
+    const diathesimoCheckbox = document.getElementById("diathesimo");
+    diathesimoCheckbox.addEventListener("change", () => filterParkingSpots(map));
+    
+    filterParkingSpots(map);
 
-    // raius slider
+    // radius slider
     let destinationCircle = null;
     const slider = document.getElementById("radiusSlider");
 
@@ -33,7 +46,7 @@ async function createAutocomplete(map) {
         destination = { lat, lng }
         createDestinationLocationPin(map, destination)
 
-        destinationCircle = drawCircle(map, destination, slider.value, destinationCircle)
+        destinationCircle = drawDestinationCircle(map, destination, slider.value, destinationCircle)
     });
 
     slider.addEventListener("input", () => {
@@ -41,7 +54,7 @@ async function createAutocomplete(map) {
             return;
         }
         const radius = slider.value;
-        destinationCircle = drawCircle(map, destination, radius, destinationCircle)
+        destinationCircle = drawDestinationCircle(map, destination, radius, destinationCircle)
     });
 
     const searchBtn = document.getElementById("searchBtn");
@@ -50,7 +63,8 @@ async function createAutocomplete(map) {
             return;
         }
         const radius = slider.value;
-        const bestSpot = await findBestParkingSpot(destination, radius)
+        const filters = { forAmEA: ameaCheckbox.checked, withShadow: skiaCheckbox.checked, onlyFree: !diathesimoCheckbox.checked }
+        const bestSpot = await findBestParkingSpot(destination, radius, filters)
         selectMarker(bestSpot.id)
         map.panTo({ lat: bestSpot.coordinates[0], lng: bestSpot.coordinates[1] })
     });
@@ -62,26 +76,30 @@ async function createAutocomplete(map) {
         clearDestinationLocationPin()
         closeInfoWindow()
     });
-
-    const ameaCheckbox = document.getElementById("amea");
-    ameaCheckbox.addEventListener("change", () => filterParkingSpots(map));
-    const skiaCheckbox = document.getElementById("skia");
-    skiaCheckbox.addEventListener("change", () => filterParkingSpots(map));
-    const diathesimoCheckbox = document.getElementById("diathesimo");
-    diathesimoCheckbox.addEventListener("change", () => filterParkingSpots(map));
-
-    filterParkingSpots(map);
 }
 
-function filterParkingSpots(map) {
-    const forAmEA = document.getElementById("amea").checked;
-    const withShadow = document.getElementById("skia").checked;
-    const onlyFree = document.getElementById("diathesimo").checked;
+function createDestinationLocationPin(map, destination) {
+    // Center the map to the selected address
+    map.panTo(destination);
+    map.setZoom(18);
 
-    filterMarkers(map, forAmEA, withShadow, onlyFree);
+    // Remove previous marker if any
+    clearDestinationLocationPin();
+
+    const { lat, lng } = destination;
+    destinationMarkerPin = new AdvancedMarkerElement({
+        position: { lat: lat, lng: lng },
+        map: map,
+    });
 }
 
-function drawCircle(map, destination, radius, destinationCircle = null) {
+function clearDestinationLocationPin() {
+    if (destinationMarkerPin) {
+        destinationMarkerPin.setMap(null);
+    }
+}
+
+function drawDestinationCircle(map, destination, radius, destinationCircle = null) {
     if (destinationCircle !== null) {
         destinationCircle.setMap(null)
     }
@@ -95,6 +113,14 @@ function drawCircle(map, destination, radius, destinationCircle = null) {
         strokeOpacity: 0.8,
         strokeWeight: 2
     });
+}
+
+function filterParkingSpots(map) {
+    const forAmEA = document.getElementById("amea").checked;
+    const withShadow = document.getElementById("skia").checked;
+    const onlyFree = !(document.getElementById("diathesimo").checked);
+    
+    filterMarkers(map, forAmEA, withShadow, onlyFree);
 }
 
 export { createAutocomplete }

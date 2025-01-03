@@ -207,8 +207,7 @@ button.gm-ui-hover-effect span {
     flex-direction: column;
 }
 
-button#directionsBtn{
-
+button#directionsBtn, button#cancelBtn{
     width:7em;
     height:2.5em;
     float:right;
@@ -226,6 +225,15 @@ button#directionsBtn{
     display: flex;      
     align-items: center; 
     justify-content: center; 
+}
+button#cancelBtn{
+    display: none;
+}
+
+button#cancelBtn.active{
+    background-color: #dc3545;
+    display: flex;
+    cursor: pointer;
 }
 
 button#directionsBtn.active{
