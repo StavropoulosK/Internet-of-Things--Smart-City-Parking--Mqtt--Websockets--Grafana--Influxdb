@@ -1,4 +1,4 @@
-import { createDestinationLocationPin } from "./markers.js";
+import { createDestinationLocationPin, highlightMarker, resetMarkers } from "./markers.js";
 
 let infoWindow;
 let selectedMarkerId = null;
@@ -8,6 +8,8 @@ function openMarker(marker, id, katigoria, temperature, hasShadow, distance = nu
     closeInfoWindow();
     infoWindow = new google.maps.InfoWindow();
     selectedMarkerId = id
+
+    highlightMarker(id);
 
     flipDirectionsBtn();
 
@@ -58,6 +60,7 @@ function enterHandler(geocoder, event) {
 
 function closeInfoWindow() {
     if (selectedMarkerId) {
+        resetMarkers();
         flipDirectionsBtn();
         infoWindow.close();
         selectedMarkerId = null;

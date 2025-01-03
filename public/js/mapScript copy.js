@@ -3,7 +3,7 @@
 import { loadGoogleMaps } from './googleMapsLoader.js';
 import { placeMarkers } from './mapScript/markers.js';
 import { closeInfoWindow } from './mapScript/eventHandlers.js';
-import { createAutocomplete } from './mapScript/directions.js';
+import { createAutocomplete } from './mapScript/autocomplete.js';
 
 
 const defaultPosition = {
@@ -27,8 +27,9 @@ async function initMap() {
         fullscreenControl: false,  // Disable the fullscreen control button
         streetViewControl: false, // Disable the Street View control
     });
-    map.addListener('click', () => {
+    map.addListener('click', (event) => {
         closeInfoWindow()
+        event.stop()
     });
 
     await placeMarkers(map, defaultPosition.city);

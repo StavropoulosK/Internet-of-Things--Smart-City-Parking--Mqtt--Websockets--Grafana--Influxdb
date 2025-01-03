@@ -1,4 +1,4 @@
-export async function fetchKey() {
+async function fetchKey() {
     //kanei fetch to api key
     console.log("fetching key")
     try {
@@ -10,46 +10,32 @@ export async function fetchKey() {
     }
 }
 
-export async function getSessionId() {
-    try {
-        const response = await fetch('/getSession');
-        if (response.ok) {
-            const sessionId = await response.json();
+async function getCity(location) {
+    return "Patras";
 
-            return sessionId; 
+    // Tried to automatically find the city name. 
+    // Unfortunately, the Geocoder API returns Patra, not Patras...
+    // And the whole system breaks...
+    const geocoder = new google.maps.Geocoder();
+
+    try {
+        const response = await geocoder.geocode({ location: location , language : 'en'});
+        if (response.results.length > 0) {
+            // Loop through address components to find the city
+            const addressComponents = response.results[0].address_components;
+            for (const component of addressComponents) {
+                if (component.types.includes("locality")) {
+                    return component.long_name; // This is the city name
+                }
+            }
+            return "City not found in address components.";
         } else {
-            console.error('Session not found');
+            return "No results found.";
         }
     } catch (error) {
-        console.error('Error fetching session:', error);
+        console.error("Error fetching city:", error);
+        return "Error fetching city.";
     }
 }
 
-export async function getCurrentPosition() {
-    if (!navigator.geolocation) {
-        throw new Error("Geolocation not supported.");
-    }
-    return navigator.geolocation.getCurrentPosition(
-        (position) => {
-            console.log("Got location", position);
-            return position;
-        },
-        (error) => {
-            throw new Error("Error: Could not get your location.");
-        }
-    );
-}
-
-export async function getCityTemperature(){
-    try {
-        const response = await fetch('/getTemperature');
-        if (response.ok) {
-            cityTemperature = (await response.json()).temperature;
-            return cityTemperature;
-        } else {
-            console.error('Error getting temperature');
-        }
-    } catch (error) {
-        console.error('Error fetching session:', error);
-    }
-}
+export { fetchKey, getCity };

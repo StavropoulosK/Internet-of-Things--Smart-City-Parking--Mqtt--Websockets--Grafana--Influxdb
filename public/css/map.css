@@ -80,7 +80,7 @@ html, body {
 }
 
 .autocomplete input{
-    width:350px;
+    width: 100%;
     border: none;
     border-radius: 0.25em;
     max-width:65vw;
@@ -101,6 +101,29 @@ html, body {
     justify-content: space-evenly;
     margin-top:0.8rem;
     /* background-color: red; */
+}
+
+.buttonsDiv{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-top:0.2rem;
+    /* background-color: red; */
+}
+
+.autocompleteButton{
+    width: auto;
+    height: 2.0em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1em;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;      
+    align-items: center; 
+    justify-content: center; 
 }
 
 /* .options label{

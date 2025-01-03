@@ -313,7 +313,6 @@ function haversine(lat1, lon1, lat2, lon2) {
 
     // to apotelesma einai se metra
     return rad * c * 1000;
-
 }
 
 async function placeUserPositionPin(init = 0) {

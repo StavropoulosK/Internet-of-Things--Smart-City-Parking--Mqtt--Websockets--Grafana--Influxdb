@@ -3,14 +3,15 @@ import { openMarker } from './eventHandlers.js';
 
 let AdvancedMarkerElement;
 let destinationMarkerPin;
+let parkingSpots;
+let markers = {};
 
 async function placeMarkers(map, city) {
     AdvancedMarkerElement = (await google.maps.importLibrary("marker")).AdvancedMarkerElement;
 
     // Array of parking spotr data. [{coordinates: [0: lat, 1:, lng], category: [], temperature: , carParked: , id: , timeOfLastReservation: , maximumParkingDuration: }]
-    let parkingSpots = await getParkingSpotData(city);
+    parkingSpots = await getParkingSpotData(city);
 
-    let markers = {}
     parkingSpots.forEach(parkingSpot => {
         markers[parkingSpot.id] = createMarker(map, parkingSpot);
     });
@@ -79,9 +80,7 @@ function createDestinationLocationPin(map, destination) {
     map.setZoom(18);
 
     // Remove previous marker if any
-    if (destinationMarkerPin) {
-        destinationMarkerPin.setMap(null);
-    }
+    clearDestinationLocationPin();
 
     const { lat, lng } = destination;
     destinationMarkerPin = new AdvancedMarkerElement({
@@ -90,4 +89,52 @@ function createDestinationLocationPin(map, destination) {
     });
 }
 
-export { placeMarkers, createDestinationLocationPin };
+function clearDestinationLocationPin() {
+    if (destinationMarkerPin) {
+        destinationMarkerPin.setMap(null);
+    }
+}
+
+function highlightMarker(parkingSpotId) {
+    for (const marker in markers) {
+        markers[marker].content.style.opacity = "0.2";
+    }
+    
+    const marker = markers[parkingSpotId];
+    marker.content.style.opacity = "1";
+    marker.content.style.zIndex = "1000";
+    marker.content.style.transform = "scale(1.5)";
+}
+
+function selectMarker(parkingSpotId) {
+    for (const marker in markers) {
+        if (marker === parkingSpotId) {
+            google.maps.event.trigger(markers[marker], "click");
+        }
+    }
+}
+
+function filterMarkers(map, forAmEA, shadow, onlyFree) {
+    parkingSpots.forEach(parkingSpot => {
+        if (!forAmEA && parkingSpot.category.includes("forDisabled")) {
+            markers[parkingSpot.id].setMap(null);
+        // // Shadow not implemented yet
+        // } else if (shadow && !parkingSpot.hasShadow) {
+        //     markers[parkingSpot.id].setMap(null);
+        } else if (!onlyFree && parkingSpot.carParked) {
+            markers[parkingSpot.id].setMap(null);
+        } else {
+            markers[parkingSpot.id].setMap(map);
+        }
+    });
+}
+
+function resetMarkers() {
+    for (const marker in markers) {
+        markers[marker].content.style.opacity = "1";
+        markers[marker].content.style.zIndex = "0";
+        markers[marker].content.style.transform = "scale(1)";
+    }
+}
+
+export { placeMarkers, createDestinationLocationPin, clearDestinationLocationPin, highlightMarker, resetMarkers, selectMarker, filterMarkers };

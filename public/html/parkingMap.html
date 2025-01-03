@@ -29,10 +29,18 @@
                     <span>Με σκιά</span>
                     <input type="checkbox" id="skia">
                 </label>
-                <label>
-                    <input type="range" id="radiusSlider" min="10" max="310" step="20" value="50">
+                <label class="checkboxLabel">
+                    <span>Σύντομα Ελεύθερες</span>
+                    <input type="checkbox" id="diathesimo">
                 </label>
-
+            </div>
+            <label>
+                <span>Απόσταση</span>
+                <input type="range" id="radiusSlider" min="10" max="310" step="20" value="50">
+            </label>
+            <div class="buttonsDiv">
+                <button class="autocompleteButton" id="searchBtn">Αναζήτηση</button>
+                <button class="autocompleteButton" id="clearBtn">Καθαρισμός</button>
             </div>
         </div>
 

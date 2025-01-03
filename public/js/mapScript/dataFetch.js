@@ -1,3 +1,5 @@
+import { getCity } from "../utils.js";
+
 async function getParkingSpotData(city) {
     try {
         const response = await fetch('/api/data?city=' + city);
@@ -27,4 +29,19 @@ function willVacateSoon(timeOfLastReservation, maximumParkingDuration) {
     return getMinutesFromDuration(maximumParkingDuration) - minspassed < soonVacateThreshold;
 }
 
-export { getParkingSpotData, willVacateSoon };
+async function findBestParkingSpot(destination, radius) {
+    const city = await getCity(destination);
+    try {
+        const response = await fetch(`/api/bestParkingSpot?city=${city}&destination=${destination.lat},${destination.lng}&radius=${radius}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const bestParkingSpot = await response.json();
+        return bestParkingSpot;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return null;
+    }
+}
+
+export { getParkingSpotData, willVacateSoon, findBestParkingSpot };
