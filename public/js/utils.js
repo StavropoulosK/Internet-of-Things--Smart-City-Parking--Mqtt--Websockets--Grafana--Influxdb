@@ -28,7 +28,10 @@ function getCurrentPosition() {
     });
 }
 
-async function getCity(location) {
+async function getCity(location = null) {
+    if (location === null) {
+        return "Patras";
+    }
     return "Patras";
 
     // Tried to automatically find the city name. 

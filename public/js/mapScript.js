@@ -22,11 +22,6 @@ let selectedMarkerId = -1;            // to id tou marker pou exi aniksi to info
 
 let userPosition;
 
-let selectedMarkerId=-1;            // to id tou marker pou exi aniksi to info window
-
-
-let userPosition ;
-
 
 const orangeThreshold=10
 
@@ -41,8 +36,6 @@ userPosition = {
     coords: {
         latitude: 38.2552478,
         longitude: 21.7461463
-        latitude: 38.2552478,
-        longitude:  21.7461463
     }
 };
 
@@ -114,6 +107,8 @@ function focusMap() {
         lat: userPosition.coords.latitude,
         lng: userPosition.coords.longitude,
     });
+}
+
 async function sendNotificationParamsToServer(){
 
 
@@ -191,19 +186,6 @@ async function initMap() {
     infoWindow = new google.maps.InfoWindow();
 
     sessionId = await getSessionId();
-
-    try {
-        userPosition = await getCurrentPosition();
-    } catch (error) {
-        console.error(error);
-    }
-
-    const userLocation = {
-        lat: userPosition.coords.latitude,
-        lng: userPosition.coords.longitude,
-    };
-
-    sessionId= await getSessionId();
 
     try {
         userPosition = await getCurrentPosition();
@@ -605,10 +587,6 @@ function createAutocomplete() {
             findClosestMarker(lat, lng)
         }
     });
-
-       
-
-        });
 
 }
 

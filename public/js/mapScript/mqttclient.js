@@ -1,11 +1,11 @@
-import { getSessionId } from "./sessionUtils.js";
+import { getSessionId, showAlive} from "./sessionUtils.js";
 import { updateReservedSpot, selectedMarkerWasOccupied } from "./markers.js";
 import { spotWasOccupied } from "./directions.js";
-import { showAlive } from "./sessionUtils.js";
+import { getCity } from "../utils.js";
 
 async function initMQTTClinet() {
     const sessionId = await getSessionId();
-    const city = 'Patras';
+    const city = getCity();
 
     //The function repeats every 10 min . Eksigisi ti kanei sto app.mjs
     setInterval(showAlive, 1000 * 60 * 10);

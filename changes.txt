@@ -1,11 +1,39 @@
 ## BACKEND ##
 
-/showAlive -> /mqtt/showAlive
-/createNotification -> /mqtt/createNotification
-/api/data -> /api/data?city=Patras
+Ομαδοποίηση των Urls με βάση την λειτουργία τους.
+    - "/" ->  urls που χρειάζονται για την εφαρμογή
+    - "/api" -> urls που σχετίζονται με το api. Θα μπορούσε και κάποιος εκτός της εφαρμογής να τα χρησιμοποιεί.
+                Πχ. /data, /makeReservation και /findBestParkingSpot (<- μεταφέρθηκε στο backend από το frontend)
+    - "/mqtt" -> urls που σχετίζονται με το mqtt και τα notifications.
+    - "/admin" -> Λειτουργίες του admin, login-logout, authentication και getDashboard
 
-router = Application router
-apiRouter = API Router
-mqttRouter = Router for notifications, also handles sessionId's
+Ένα router για το καθένα, ενώνονται στο app.mjs
+
+src/backend/api/parkingSpots.mjs: Fetch data from context broker και υπολογισμός καλύτερης θέσης. Χρειάζεται προσθήκη των φίλτρων που υπάρχουν και στο frontend. Φίλτρο maximum απόστασης ήδη υλοποιημένο.
+
+Admin: Ορίζεται ADMIN_USERNAME και ADMIN_PASSWORD (προσορινό) στο .env και ελέγχεται αν είναι ίδια με την login form του user. Αν ναι, προστήθεται στο cookie το req.session.isAdmin = true. Allow access στο /getDashboards μόνο αν είναι admin.
 
 ## FRONTEND ##
+
+Λειτουργικές Αλλαγές:
+    Η αυτόματη επιλογή της θέσης δεν κάνει κατευθείαν την κράτηση. Την δείχνει πρώτα στον χρήστη και έπειτα κάνει την κράτηση αν του αρέσει.
+    Όταν επιλέγεται μία θέση γίνεται highlighted και οι υπόλοιπες θολώνουν.
+    Εμφανίζονται μόνο οι θέσεις που ικανοποιούν τα checked φίλτρα (ΑμεΑ, Σκιά (μη υλοποιημένη), Σύντομα Ελεύθερες)
+    Επιλογή μέγιστης απόστασης από προορισμό με slider και καλύτερη εμφάνιση με κύκλο.
+    Καθαρισμός επιλεγμένου προορισμού
+
+    Νέο κουμπί στο frontpage για admin login και logout. (no css ακόμα)
+
+Refactoring:
+    mapInit.js -> Καλείται για την αρχικοποίηση του χάρτη.
+    googleMapsLoader.js -> Φορτώνει το goolge maps api για να το χρησιμοποιούν τα άλλα αρχεία
+    utils.js -> Κάποιες κοινές συναρτήσεις που δεν μου ταίριαζαν τόσο σε άλλα αρχεία.
+
+    mapScript: φάκελος με αρχεία που υλοποιούν τις λειτουργίες του χάρτη
+        dataFetch.js -> Επικοινωνία με το backend. Φορτώνει δεδομένα, βρίσκει τις καλύτερες θέσεις κλπ
+        directions.js -> Όλες τις λειτουργίες και το ui για την καθοδήγηση του χρήστη στην επιλεγμένη θέση
+        sessionUtils.js -> Λειτιυργίες για το session όπως fetchSessionId, showAlive
+        mqttclient.js -> Αρχικοποίηση και λειτουργίες του mqtt client. Not tested
+        
+        searchUi.js -> Ui και λειτουγίες για τα φίλτρα και την εύρεση θέσης με βάση τοποθεσία και απόσταση
+        markers.js -> Όλες οι λειτουργίες των markers, create, highlight, select, update, filter κλπ. Η επιλεγμένη θέση αποθηκεύεται στο selectedSpotId. Access από άλλα αρχεία μέσω του "window.selectedSpotId" ή περνώντας το σαν παράμετρο σε συναρτήσεις που χρειάζεται.

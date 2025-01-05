@@ -19,6 +19,8 @@ const httpsPort = 443; // HTTPS port
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 app.use(express.json())
 
+app.use(express.urlencoded({ extended: true })); // required for admin login post request
+
 
 app.use(session({
     name: 'cookieSid',
@@ -66,6 +68,9 @@ app.use('/api', apiRouter);
 // router gia ta active sessions kai ta sesssion Ids
 import { mqttRouter } from "./src/backend/mqttClient.mjs";
 app.use('/mqtt', mqttRouter);
+
+import { adminRouter } from './src/backend/adminController.mjs';
+app.use('/admin', adminRouter);
 
 // function convertUtcTimeToLocalTime(utcTime) {
 //     // metatrepi to utc time se ora elados

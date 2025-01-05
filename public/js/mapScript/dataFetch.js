@@ -21,6 +21,7 @@ function getMinutesFromDuration(duration) {
 }
 
 function willVacateSoon(timeOfLastReservation, maximumParkingDuration) {
+    // TODO: Move to backend. For example at url /api/willVacateSoon?id=...
     const soonVacateThreshold = 10; // minutes
     
     const now = new Date();
@@ -46,7 +47,6 @@ async function findBestParkingSpot(destination, radius, filters) {
 
 async function sendReservation(city, parkingSpotId) {
     const isoDateString = new Date().toISOString();
-    return;
     try{
         await fetch(`/api/makeReservation?city=${city}`, {
             method: 'POST',

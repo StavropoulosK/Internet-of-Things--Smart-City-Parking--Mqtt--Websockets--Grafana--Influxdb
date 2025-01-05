@@ -3,8 +3,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import 'dotenv/config'
 
-import { updateMqtt } from './mqttClient.mjs';  
-
 // File path setup
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,9 +23,9 @@ router.get('/getHeatMap', (req, res) => {
     res.sendFile(fileLocation + 'heatMap.html');
 })
 
-router.get('/getDashboards', (req, res) => {
-    res.sendFile(fileLocation + 'dashboards.html');
-})
+// router.get('/getDashboards', (req, res) => {
+//     res.sendFile(fileLocation + 'dashboards.html');
+// })
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 router.get('/APIKEY', (req, res) => {
