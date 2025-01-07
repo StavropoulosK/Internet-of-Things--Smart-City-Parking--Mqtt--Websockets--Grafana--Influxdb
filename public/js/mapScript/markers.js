@@ -1,4 +1,5 @@
 import { getParkingSpotData, willVacateSoon } from './dataFetch.js';
+import { disableSkiaCheckbox } from './searchUI.js';
 
 let AdvancedMarkerElement;
 
@@ -26,6 +27,10 @@ async function placeMarkers(map, city) {
         updateMarker(parkingSpot);
     });
 
+    const shadowExists = parkingSpots.some(parkingSpot => parkingSpot.hasShadow);
+    if (!shadowExists) {
+        disableSkiaCheckbox();
+    }
 }
 
 function createMarker(map, parkingSpot) {
@@ -166,9 +171,9 @@ function filterMarkers(map, forAmEA, shadow, onlyFree) {
         if (!forAmEA && parkingSpot.category.includes("forDisabled")) {
             markers[parkingSpot.id].setMap(null);
             markerCluster.removeMarker(markers[parkingSpot.id]);
-            // // Shadow not implemented yet
-            // } else if (shadow && !parkingSpot.hasShadow) {
-            //     markers[parkingSpot.id].setMap(null);
+        } else if (shadow && !parkingSpot.hasShadow) {
+            markers[parkingSpot.id].setMap(null);
+            markerCluster.removeMarker(markers[parkingSpot.id]);
         } else if (onlyFree && parkingSpot.carParked) {
             markers[parkingSpot.id].setMap(null);
             markerCluster.removeMarker(markers[parkingSpot.id]);
@@ -215,6 +220,10 @@ function selectedMarkerWasOccupied(parkingSpotId, time, parked, temperature) {
     parkingSpot.temperature = temperature;
 
     updateMarker(parkingSpot);
+}
+
+function noParkingSpotsWithShadow() {
+
 }
 
 export { placeMarkers, highlightMarker, resetMarkers, selectMarker, filterMarkers, closeInfoWindow, updateReservedSpot, selectedMarkerWasOccupied};

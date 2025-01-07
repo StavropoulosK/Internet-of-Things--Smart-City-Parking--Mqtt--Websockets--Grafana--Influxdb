@@ -3,7 +3,7 @@
 import { loadGoogleMaps } from './googleMapsLoader.js';
 import { placeMarkers, closeInfoWindow } from './mapScript/markers.js';
 import { createAutocomplete } from './mapScript/searchUI.js';
-import { startDirections } from './mapScript/directions.js';
+import { startDirections, mapFocus } from './mapScript/directions.js';
 import { initMQTTClinet } from './mapScript/mqttclient.js';
 
 const defaultPosition = {
@@ -37,6 +37,9 @@ async function initMap() {
 
     const directionsButton = document.getElementById('directionsBtn');
     directionsButton.addEventListener('click', () => startDirections(map));
+
+    const compass = document.getElementById('compass');
+    compass.addEventListener('click', () => mapFocus(map));
 }
 
 window.onload = initMap;

@@ -86,6 +86,13 @@ async function createAutocomplete(map) {
     });
 }
 
+function disableSkiaCheckbox() {   
+    const skiaCheckbox = document.getElementById("skia");
+    const skiaText = document.getElementById("skiaText");
+    skiaText.style.opacity = "0.5";
+    skiaCheckbox.disabled = true;
+}
+
 function updateDistanceText(distanceElement, radius) {
     distanceElement.innerText = "Απόσταση: " + radius + "m";
 }
@@ -168,4 +175,4 @@ function enterHandler(map, geocoder, event) {
     });
 }
 
-export { createAutocomplete }
+export { createAutocomplete, disableSkiaCheckbox }

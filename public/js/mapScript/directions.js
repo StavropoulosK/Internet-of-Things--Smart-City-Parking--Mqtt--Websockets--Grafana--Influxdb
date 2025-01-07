@@ -11,11 +11,7 @@ let userPosition;
 let userPositionPin;
 let blueDotElement;
 
-let AdvancedMarkerElement;
-
 async function startDirections(map) {
-    AdvancedMarkerElement = (await google.maps.importLibrary("marker")).AdvancedMarkerElement;
-
     directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer({
         map: map,
@@ -99,7 +95,8 @@ async function getDirectionsToParkingSpot(map, destination) {
                 directionsRenderer.setDirections(result);
 
                 // mono tin proti fora estiazi o xartis
-                map.panTo({ lat: userLocation.lat, lng: userLocation.lng });
+                // map.panTo({ lat: userLocation.lat, lng: userLocation.lng });
+                mapFocus(map, userLocation);
                 map.setZoom(15);
                 // elegxi an eftase ston proorismo
                 const distanceFromDestination = haversine(userLocation.lat, userLocation.lng, destination.lat, destination.lng)
@@ -150,7 +147,8 @@ async function placeUserPositionPin(map, userPos) {
     }
 
     if (distance < 500) {
-        map.panTo(userLocation)
+        // map.panTo(userLocation)
+        mapFocus(map, userLocation);
     }
 
     // Remove previous marker if any
@@ -158,6 +156,8 @@ async function placeUserPositionPin(map, userPos) {
         userPositionPin.setMap(null);
     }
 
+
+    const AdvancedMarkerElement = (await google.maps.importLibrary("marker")).AdvancedMarkerElement;
     userPositionPin = new AdvancedMarkerElement({
         position: { lat: userLocation.lat, lng: userLocation.lng },
         map: map,
@@ -188,4 +188,16 @@ function spotWasOccupied(id) {
     return message
 }
 
-export { startDirections, spotWasOccupied, stopRoute }
+async function mapFocus(map, location = null) {
+    if (location === null) {
+        if (!userPosition) {
+            userPosition = await getCurrentPosition();
+        }
+        placeUserPositionPin(map, userPosition);
+        location = { lat: userPosition.coords.latitude, lng: userPosition.coords.longitude };
+    }
+    map.panTo(location);
+    map.setZoom(16);
+}
+
+export { startDirections, spotWasOccupied, stopRoute, mapFocus }

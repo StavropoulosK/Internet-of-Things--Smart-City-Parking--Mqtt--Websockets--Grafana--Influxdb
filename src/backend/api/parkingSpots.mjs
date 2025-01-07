@@ -1,5 +1,6 @@
-async function currentParkingSpotsData(city) {
+let parkingSpotData = {};
 
+async function currentParkingSpotsData(city) {
     const url = `http://150.140.186.118:1026/v2/entities?idPattern=^smartCityParking_&limit=999`;
 
     const headers = {
@@ -27,7 +28,6 @@ async function currentParkingSpotsData(city) {
             const timeOfLastReservation = sensorData.timeOfLastReservation.value
             const maximumParkingDuration = sensorData.maximumParkingDuration.value
 
-
             data.push({
                 coordinates: location,
                 category: category,
@@ -39,6 +39,11 @@ async function currentParkingSpotsData(city) {
                 maximumParkingDuration: maximumParkingDuration
             })
         }
+
+        data.forEach(async parkingSpot => {
+            parkingSpot.hasShadow = await parkingSpotHasShadow(city, parkingSpot.id, data);
+        });
+
         return data
 
     } catch (error) {
@@ -68,6 +73,15 @@ async function findBestParkingSpot(city, destination, radius, filters) {
 
     // return the best parking spot
     return filteredParkingSpotData[0];
+}
+
+async function parkingSpotHasShadow(city, parkignSpotId, parkignSpotData = null) {
+    if (!parkignSpotData) {
+        parkignSpotData = await currentParkingSpotsData(city);
+    }
+
+    // return true;
+    return Math.random() >= 0.5;
 }
 
 function rankParkingSpots(parkingSpot, destination) {
@@ -100,4 +114,4 @@ function haversine(lat1, lng1, lat2, lng2) {
     return rad * c * 1000;
 }
 
-export { currentParkingSpotsData, findBestParkingSpot };
+export { currentParkingSpotsData, findBestParkingSpot, parkingSpotHasShadow };
