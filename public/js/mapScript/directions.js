@@ -54,7 +54,8 @@ async function startDirections(map) {
     getDirectionsToParkingSpot(map, destination.location)
 
     // notify server about the reservation
-    sendReservation(getCity(destination.position), destination.id);
+    const city = await getCity(destination.position);
+    sendReservation(city, destination.id);
 }
 
 function stopRoute() {

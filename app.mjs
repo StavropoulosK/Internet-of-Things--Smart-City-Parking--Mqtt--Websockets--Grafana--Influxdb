@@ -72,6 +72,9 @@ app.use('/mqtt', mqttRouter);
 import { adminRouter } from './src/backend/adminController.mjs';
 app.use('/admin', adminRouter);
 
+import { setupMQTTClient } from './src/backend/mqttClient.mjs';
+await setupMQTTClient();
+
 // function convertUtcTimeToLocalTime(utcTime) {
 //     // metatrepi to utc time se ora elados
 

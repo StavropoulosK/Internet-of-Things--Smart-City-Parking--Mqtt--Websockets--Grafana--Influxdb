@@ -19,7 +19,6 @@ let notifications = []
 // tote tha gini notifications.alive=1. Meta tha stalthi to ping (ginetai kathe 10 lepta) kai tha ksanagini  notifications.alive=2, kai auto tha epanalambanetai.
 
 mqttRouter.get('/showAlive', (req, res) => {
-    console.log(notifications)
     const notification = notifications.find(notification => notification.sessionId == req.sessionID)
     notification.alive = 2
     res.end()
@@ -35,7 +34,6 @@ mqttRouter.post('/createNotification', (req, res) => {
         notifications.push({ sessionId: sessionId, city: city, alive: 2 })
         console.log('created', sessionId, city);
     }
-    console.log(notifications)
 
     res.status(204).end(); // No Content
 });

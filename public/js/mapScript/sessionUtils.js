@@ -1,5 +1,5 @@
-async function sendNotificationParamsToServer(){
-    fetch('/createNotification', {
+async function sendNotificationParamsToServer(city){
+    fetch('/mqtt/createNotification', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
