@@ -4,6 +4,7 @@ import { stopRoute } from "./directions.js";
 
 let destination = null;
 let destinationMarkerPin;
+let destinationCircle = null;
 
 let AdvancedMarkerElement;
 
@@ -16,7 +17,7 @@ async function createAutocomplete(map) {
     panel.classList.remove('invisible')
     
     const input = document.getElementById('searchInput')
-    // input.addEventListener("keydown", (event) => enterHandler(geocoder, event))
+    input.addEventListener("keydown", (event) => enterHandler(map, geocoder, event))
     
     const ameaCheckbox = document.getElementById("amea");
     ameaCheckbox.addEventListener("change", () => filterParkingSpots(map));
@@ -28,7 +29,6 @@ async function createAutocomplete(map) {
     filterParkingSpots(map);
 
     // radius slider
-    let destinationCircle = null;
     const slider = document.getElementById("radiusSlider");
 
     const Places = await google.maps.importLibrary("places");
@@ -104,9 +104,8 @@ function clearDestinationLocationPin() {
 }
 
 function drawDestinationCircle(map, destination, radius, destinationCircle = null) {
-    if (destinationCircle !== null) {
-        destinationCircle.setMap(null)
-    }
+    clearDestinationCircle(destinationCircle);
+
     return new google.maps.Circle({
         map: map,
         radius: parseInt(radius, 10), // Convert radius to integer
@@ -119,12 +118,45 @@ function drawDestinationCircle(map, destination, radius, destinationCircle = nul
     });
 }
 
+function clearDestinationCircle(destinationCircle) {
+    if (destinationCircle !== null) {
+        destinationCircle.setMap(null);
+    }
+}
+
 function filterParkingSpots(map) {
     const forAmEA = document.getElementById("amea").checked;
     const withShadow = document.getElementById("skia").checked;
     const onlyFree = !(document.getElementById("diathesimo").checked);
     
     filterMarkers(map, forAmEA, withShadow, onlyFree);
+}
+
+function enterHandler(map, geocoder, event) {
+    if (event.key !== "Enter") {
+        return;
+    }
+
+    const input = document.getElementById('searchInput')
+    const address = input.value;
+
+    geocoder.geocode({ address: address }, function (results, status) {
+        if (status === google.maps.GeocoderStatus.OK) {
+            const searchDestination = {
+                lat: results[0].geometry.location.lat(),
+                lng: results[0].geometry.location.lng()
+            }
+            console.log(searchDestination);
+
+            destination = searchDestination;
+            createDestinationLocationPin(map, searchDestination);
+
+            const radius = document.getElementById("radiusSlider").value;
+            destinationCircle = drawDestinationCircle(map, searchDestination, radius, destinationCircle);
+        } else {
+            console.log("Geocode failed due to: " + status);
+        }
+    });
 }
 
 export { createAutocomplete }
