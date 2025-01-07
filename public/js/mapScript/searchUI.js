@@ -30,6 +30,8 @@ async function createAutocomplete(map) {
 
     // radius slider
     const slider = document.getElementById("radiusSlider");
+    const distanceText = document.getElementById("distance");
+    updateDistanceText(distanceText, slider.value);
 
     const Places = await google.maps.importLibrary("places");
     const autocomplete = new google.maps.places.Autocomplete(input, {
@@ -51,10 +53,12 @@ async function createAutocomplete(map) {
     });
 
     slider.addEventListener("input", () => {
+        const radius = slider.value;
+        updateDistanceText(distanceText, radius);
+        
         if (destination === null) {
             return;
         }
-        const radius = slider.value;
         destinationCircle = drawDestinationCircle(map, destination, radius, destinationCircle)
     });
 
@@ -81,6 +85,11 @@ async function createAutocomplete(map) {
         stopRoute();
     });
 }
+
+function updateDistanceText(distanceElement, radius) {
+    distanceElement.innerText = "Απόσταση: " + radius + "m";
+}
+
 
 function createDestinationLocationPin(map, destination) {
     // Center the map to the selected address
