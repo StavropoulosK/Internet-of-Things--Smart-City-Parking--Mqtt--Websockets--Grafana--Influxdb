@@ -30,10 +30,11 @@ apiRouter.post('/makeReservation', async (req, res) => {
 
     // otan ginetai kratisi enimeroni ton context broker kai tous xristes
 
-    const id = req.sessionID
     const city = req.query.city;
 
-    const { time, markerId: parkingSpotId } = req.body;
+    console.log(req.body);
+
+    const { time, parkingSpotId } = req.body;
 
     const entity_id = 'smartCityParking_' + parkingSpotId
 
