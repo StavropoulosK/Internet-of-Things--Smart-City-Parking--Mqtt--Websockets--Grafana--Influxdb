@@ -1,3 +1,5 @@
+import { currentWeatherData }  from "./weather.mjs";
+
 let parkingSpotData = {};
 
 async function currentParkingSpotsData(city) {
@@ -43,6 +45,8 @@ async function currentParkingSpotsData(city) {
         data.forEach(async parkingSpot => {
             parkingSpot.hasShadow = await parkingSpotHasShadow(city, parkingSpot.id, data);
         });
+        
+        parkingSpotData[city] = data;
 
         return data
 
@@ -60,8 +64,8 @@ async function findBestParkingSpot(city, destination, radius, filters) {
         const distance = haversine(parkingSpot.coordinates[0], parkingSpot.coordinates[1], destLat, destLng);
         if (!filters.forAmEA && parkingSpot.category.includes("forDisabled")) {
             return false;
-        // } else if (filters.withShadow && !parkingSpot.hasShadow) {
-        //     return false;
+        } else if (filters.withShadow && !parkingSpot.hasShadow) {
+            return false;
         } else if (filters.onlyFree && parkingSpot.carParked) {
             return false;
         }
@@ -76,12 +80,14 @@ async function findBestParkingSpot(city, destination, radius, filters) {
 }
 
 async function parkingSpotHasShadow(city, parkignSpotId, parkignSpotData = null) {
-    if (!parkignSpotData) {
-        parkignSpotData = await currentParkingSpotsData(city);
+    if (!(city in parkignSpotData)) {
+        parkignSpotData[city] = await currentParkingSpotsData(city);
     }
+    const cityTemperature = await currentWeatherData(city);
+    
+    const parkingSpot = parkignSpotData[city].find(parkingSpot => parkingSpot.id === parkignSpotId);
 
-    // return true;
-    return Math.random() >= 0.5;
+    return parkingSpot.temperature < cityTemperature - 2;
 }
 
 function rankParkingSpots(parkingSpot, destination) {
