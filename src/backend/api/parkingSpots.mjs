@@ -3,7 +3,9 @@ import { currentWeatherData }  from "./weather.mjs";
 let parkingSpotData = {};
 
 async function currentParkingSpotsData(city) {
-    const url = `http://150.140.186.118:1026/v2/entities?idPattern=^smartCityParking_&limit=999`;
+    // set the limit as much as we like
+    const limit = 250;
+    const url = `http://150.140.186.118:1026/v2/entities?idPattern=^smartCityParking_&limit=${limit}`;
 
     const headers = {
         "Accept": "application/json",
