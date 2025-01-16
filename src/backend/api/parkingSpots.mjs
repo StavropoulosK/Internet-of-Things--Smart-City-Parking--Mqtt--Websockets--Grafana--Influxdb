@@ -42,11 +42,12 @@ async function currentParkingSpotsData(city) {
             })
         }
 
-        data.forEach(async parkingSpot => {
-            parkingSpot.hasShadow = await parkingSpotHasShadow(city, parkingSpot.id, data);
+        parkingSpotData[city] = data;
+
+        parkingSpotData[city].forEach(async parkingSpot => {
+            parkingSpot.hasShadow = await parkingSpotHasShadow(city, parkingSpot.id, parkingSpotData);
         });
         
-        parkingSpotData[city] = data;
 
         return data
 
