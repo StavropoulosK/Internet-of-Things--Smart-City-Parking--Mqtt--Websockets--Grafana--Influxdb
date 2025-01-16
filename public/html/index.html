@@ -20,20 +20,15 @@
 <main>
 
     <h1>Smart City Parking</h1>
-    <select id="city-selector">
-        <option value="patras">Patras</option>
+    <select id="city-selector" onchange="window.city = this.value;">
+        <option value="Patras">Πάτρα</option>
+        <!-- <option value="Athens">Αθήνα</option> -->
     </select>
 
     <div class="buttons">
-        <a href="/getMap">
-            Parking Spots
-        </a>
-        <a href="/getHeatMap">
-            Heat Map
-        </a>
-        <a id="dashboards" href="/admin/getDashboards">
-            Admin Dashboards
-        </a>
+        <a href="/getMap">Εύρεση Θέσης</a>
+        <a href="/getHeatMap">Θερμοκρασία Πόλης</a>
+        <a id="dashboards" href="/admin/getDashboards">Admin Dashboards</a>
     </div>
 </main>
 

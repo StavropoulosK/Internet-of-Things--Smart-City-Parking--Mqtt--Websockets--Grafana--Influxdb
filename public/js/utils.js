@@ -30,9 +30,9 @@ function getCurrentPosition() {
 
 async function getCity(location = null) {
     if (location === null) {
-        return "Patras";
+        return window.city;
     }
-    return "Patras";
+    return window.city;
 
     // Tried to automatically find the city name. 
     // Unfortunately, the Geocoder API returns Patra, not Patras...
