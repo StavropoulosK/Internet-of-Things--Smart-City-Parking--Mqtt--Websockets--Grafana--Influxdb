@@ -1,5 +1,5 @@
 import express from 'express';
-import { currentParkingSpotsData, findBestParkingSpot, parkingSpotHasShadow } from './parkingSpots.mjs';
+import { currentParkingSpotsData, findBestParkingSpot, parkingSpotHasShadow, singParkingSpotData } from './parkingSpots.mjs';
 import { currentWeatherData } from './weather.mjs';
 import  { updateMqtt } from '../mqttClient.mjs';
 
@@ -29,7 +29,13 @@ apiRouter.get("/bestParkingSpot", async (req, res) => {
 apiRouter.get("/hasShadow", async (req, res) => {
     const city = req.query.city;
     const parkingSpotId = req.query.parkingSpotId;
-    const hasShadow = await parkingSpotHasShadow(city, parkingSpotId)
+    const temperature = await currentWeatherData(city);
+    const parkingSpotData = await singParkingSpotData(city, parkingSpotId);
+    if (!parkingSpotData) {
+        res.json("No data found for this parking spot id");
+        return;
+    }
+    const hasShadow = parkingSpotHasShadow(temperature, parkingSpotData.temperature);
     res.json(hasShadow);
 });
 

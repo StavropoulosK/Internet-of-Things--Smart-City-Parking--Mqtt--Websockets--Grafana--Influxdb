@@ -9,6 +9,8 @@ async function currentParkingSpotsData(city) {
         "Accept": "application/json",
         "FIWARE-ServicePath": `/smartCityParking/${city}`
     };
+    const cityTemperature = await currentWeatherData(city);
+
     const data = []
 
     try {
@@ -38,22 +40,56 @@ async function currentParkingSpotsData(city) {
                 id: id,
                 time: utcTime,
                 timeOfLastReservation: timeOfLastReservation,
-                maximumParkingDuration: maximumParkingDuration
+                maximumParkingDuration: maximumParkingDuration,
+                hasShadow: parkingSpotHasShadow(cityTemperature, temperature)
             })
         }
-
         parkingSpotData[city] = data;
-
-        parkingSpotData[city].forEach(async parkingSpot => {
-            parkingSpot.hasShadow = await parkingSpotHasShadow(city, parkingSpot.id, parkingSpotData);
-        });
-        
-
-        return data
+        return data;
 
     } catch (error) {
         console.error(error.message);
     }
+}
+
+async function singParkingSpotData(city, parkingSpotId) {
+    const url = `http://150.140.186.118:1026/v2/entities?idPattern=^smartCityParking_${parkingSpotId}`;
+
+    const headers = {
+        "Accept": "application/json",
+        "FIWARE-ServicePath": `/smartCityParking/${city}`
+    };
+
+    try {
+        const response = await fetch(url, { headers });
+        if (!response.ok) {
+            throw new Error('Failed to fetch data');
+        }
+
+        const entities = await response.json();
+
+        const sensorData = entities[0];
+
+        if (!sensorData) {
+            return;
+        }
+
+        return {
+            coordinates: sensorData.location?.value?.coordinates,
+            category: sensorData.category?.value,
+            temperature: sensorData?.temperature?.value,
+            carParked: sensorData.carParked?.value,
+            id: (sensorData.id).split('_').pop(),
+            time: sensorData.occcupancyModified?.value,
+
+            timeOfLastReservation: sensorData.timeOfLastReservation.value,
+            maximumParkingDuration: sensorData.maximumParkingDuration.value
+        }
+
+    } catch (error) {
+        console.error(error.message);
+    }
+    
 }
 
 async function findBestParkingSpot(city, destination, radius, filters) {
@@ -80,15 +116,8 @@ async function findBestParkingSpot(city, destination, radius, filters) {
     return filteredParkingSpotData[0];
 }
 
-async function parkingSpotHasShadow(city, parkignSpotId, parkignSpotData = null) {
-    if (!(city in parkignSpotData)) {
-        parkignSpotData[city] = await currentParkingSpotsData(city);
-    }
-    const cityTemperature = await currentWeatherData(city);
-    
-    const parkingSpot = parkignSpotData[city].find(parkingSpot => parkingSpot.id === parkignSpotId);
-
-    return parkingSpot.temperature < cityTemperature - 2;
+function parkingSpotHasShadow(cityTemp, parkignSpotTemp) {
+    return parkignSpotTemp < cityTemp - 2;
 }
 
 function rankParkingSpots(parkingSpot, destination) {
@@ -121,4 +150,4 @@ function haversine(lat1, lng1, lat2, lng2) {
     return rad * c * 1000;
 }
 
-export { currentParkingSpotsData, findBestParkingSpot, parkingSpotHasShadow };
+export { currentParkingSpotsData, singParkingSpotData, findBestParkingSpot, parkingSpotHasShadow };

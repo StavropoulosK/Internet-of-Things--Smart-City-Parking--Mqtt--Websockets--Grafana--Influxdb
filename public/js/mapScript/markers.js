@@ -19,15 +19,13 @@ async function placeMarkers(map, city) {
     
     createCluster(map);
 
+    let shadowExists = false;
     parkingSpots.forEach(parkingSpot => {
         markers[parkingSpot.id] = createMarker(map, parkingSpot);
-    });
-
-    parkingSpots.forEach(parkingSpot => {
         updateMarker(parkingSpot);
+        shadowExists = shadowExists || parkingSpot.hasShadow;
     });
 
-    const shadowExists = parkingSpots.some(parkingSpot => parkingSpot.hasShadow);
     if (!shadowExists) {
         disableSkiaCheckbox();
     }
