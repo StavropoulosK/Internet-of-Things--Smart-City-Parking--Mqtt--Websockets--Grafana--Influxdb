@@ -45,6 +45,7 @@ async function currentParkingSpotsData(city) {
             })
         }
         parkingSpotData[city] = data;
+        // return data.slice(0, 100);
         return data;
 
     } catch (error) {
