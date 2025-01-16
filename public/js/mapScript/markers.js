@@ -116,18 +116,15 @@ function updateMarker(parkingSpot) {
         markers[parkingSpot.id].isFree = false;
         if (willVacateSoon(parkingSpot.timeOfLastReservation, parkingSpot.maximumParkingDuration)) {
             markers[parkingSpot.id].content.style.visibility = "visible";
-            markerCluster.addMarker(markers[parkingSpot.id]);
             // Emfanizetai to portokali, krivetai to mple
             markers[parkingSpot.id].content.querySelector("#orange").style.display = "block";
             markers[parkingSpot.id].content.querySelector("#blue").style.display = "none";
         } else {
             markers[parkingSpot.id].content.style.visibility = "hidden";
-            markerCluster.removeMarker(markers[parkingSpot.id]);
         }
     } else {
         markers[parkingSpot.id].isFree = true;
         markers[parkingSpot.id].content.style.visibility = "visible";
-        markerCluster.addMarker(markers[parkingSpot.id]);
         // Emfanizetai to mple, krivetai to portokali
         markers[parkingSpot.id].content.querySelector("#blue").style.display = "block";
         markers[parkingSpot.id].content.querySelector("#orange").style.display = "none";
