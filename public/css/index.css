@@ -1,41 +1,89 @@
-body{
-    margin:0;
-    padding:0;
-    height:100%;
-    background-color: bisque;
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f4f4f9;
 }
 
-:root{
+a {
+    text-decoration: none;
+}
+
+header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+header a {
+    background-color: #444;
+    margin-left: auto;
+    margin-right: 20px;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+header button:hover {
+    background-color: #777;
+}
+
+main {
+    text-align: center;
+}
+
+h1 {
+    font-size: 5rem;
+}
+
+select {
+    padding: 10px;
     font-size: 16px;
+    border: 1px solid #333;
+    border-radius: 10px;
+    background-color: #f4f4f9;
+    color: #333;
+  }
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 2rem;
 }
 
-h1{
-    font-family:"DejaVu Sans","DejaVu Sans Mac Name","DejaVu Sans Unix Name","Times New Roman";
-    margin-top:0;
-    padding-top:1em;
-    padding-left:1em;
-    color: rgb(77, 64, 74);
-
+.buttons a {
+    background-color: #007bff;
+    margin: auto;
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 50px;
+    font-size: 18px;
+    width: 70vw;
+    max-width: 500px;
+    cursor: pointer;
 }
 
-.panel{
-    width:60%;
-    /* background-color: red; */
-    margin:5em auto;
+.buttons a:hover {
+    background-color: #007bff;
 }
 
-.panel a{
-    display: block;
-    width:5em;
-    margin-left:3rem;
-    font-size: 2rem;
-    height:6rem;
-    background-color: rgb(117, 145, 47);
-    display: inline-flex;         
-    justify-content: center;      
-    align-items: center;          
-    color:#1A5319;
-    
-    text-decoration: none;  
-    
+.hidden {
+    display: none;
 }

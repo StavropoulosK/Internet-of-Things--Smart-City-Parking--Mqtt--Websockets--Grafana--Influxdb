@@ -64,6 +64,9 @@ html, body {
     background-color: #C9E6F0;
     /* background-color: #a8d8e8; */
 
+    width: 70vw;
+    max-width: 500px;
+
     padding: 1em;
     padding-bottom:1em;
     border-radius: 0.7em;

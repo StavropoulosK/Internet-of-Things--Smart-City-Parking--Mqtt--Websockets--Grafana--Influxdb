@@ -3,20 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../css/index.css" rel="stylesheet" />
-
-    <title>Document</title>
+    <title>Smart City Parking</title>
+    <link href="../css/index.css" rel="stylesheet">    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="../js/admin/loggedIn.js" defer></script>
 </head>
 <body>
+
+<header>
+    <a id="login-button" href="/admin/login">
+        <i class="fas fa-lock"></i>
+        Admin
+    </a>
+</header>
+
+<main>
+
     <h1>Smart City Parking</h1>
+    <select id="city-selector">
+        <option value="patras">Patras</option>
+    </select>
 
-    <section class="panel">
-        <a href="/getMap">Map</a>
-        <a href="/admin/getDashboards">Dashboards</a>
-        <a href="/getHeatMap">Heatmap</a>
-        <a href="/admin/login" id="loginButton">Admin Login</a>
-    </section>
+    <div class="buttons">
+        <a href="/getMap">
+            Parking Spots
+        </a>
+        <a href="/getHeatMap">
+            Heat Map
+        </a>
+        <a id="dashboards" href="/admin/getDashboards">
+            Admin Dashboards
+        </a>
+    </div>
+</main>
 
-    <script src="../js/admin/loggedIn.js"></script>
 </body>
 </html>
