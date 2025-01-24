@@ -27,7 +27,7 @@ def get_locations():
             } for parking in data
         ]
         
-        return locations#[:100]
+        return locations[:100]
 
     except Exception as e:
         print("Error: ", e)

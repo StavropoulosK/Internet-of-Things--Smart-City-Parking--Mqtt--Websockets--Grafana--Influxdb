@@ -221,7 +221,7 @@ def simulate():
                 
                 message_json = json.dumps(message)
                 client.publish(topic, message_json)
-                print('send')
+                # print('send')
 
        
         time.sleep(simulation_update_time_in_minutes * 60)
