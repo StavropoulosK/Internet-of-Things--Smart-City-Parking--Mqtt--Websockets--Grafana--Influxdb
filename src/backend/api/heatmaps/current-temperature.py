@@ -1,5 +1,5 @@
 import folium.raster_layers
-from utils import connect_to_db, get_sensor_ids
+from utils import connect_to_db, get_sensor_ids, getCurrentTemp
 import json
 import pandas as pd
 import geopandas as gpd
@@ -91,6 +91,11 @@ values = gdf['temperature'].values
 
 # Define a grid over the area of interest
 min_lon, min_lat, max_lon, max_lat = gdf.total_bounds
+min_lon -= 0.001
+min_lat -= 0.001
+max_lon += 0.001
+max_lat += 0.001
+
 num_cols = 1000  # choose resolution (number of pixels horizontally)
 num_rows = 1000  # choose resolution (number of pixels vertically)
 
@@ -104,17 +109,26 @@ grid = griddata(points, values, (lon_grid, lat_grid), method="cubic")
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
-cmap = plt.get_cmap('viridis')
+cmap = plt.get_cmap('plasma')
 
 # Normalize the data to the range [0, 1]
-norm = mcolors.Normalize(vmin=np.nanmin(grid), vmax=np.nanmax(grid))
+norm = mcolors.Normalize(vmin=5, vmax=25)
 
 # Apply the colormap to the normalized data
-filtered_grid = np.where(np.isnan(grid), np.nanmin(grid), grid)
+import openmeteo_requests
+# Get the average location
+avg_lat = df['lat'].mean()
+avg_lon = df['lon'].mean()
+
+# Fetch the temperature from OpenMeteo API
+openmeteo_temp = getCurrentTemp()
+print(f"Current temperature at average location ({avg_lat}, {avg_lon}): {openmeteo_temp}°C")
+
+filtered_grid = np.where(np.isnan(grid), openmeteo_temp, grid)
 colored_grid = cmap(norm(filtered_grid))
 
-# Set NaN values to be fully transparent
-colored_grid[..., 3] = np.where(np.isnan(grid), 0, colored_grid[..., 3])
+# # Set NaN values to be fully transparent
+# colored_grid[..., 3] = np.where(np.isnan(grid), 0, colored_grid[..., 3])
 
 # Save the result as an image
 plt.imsave('heatmap.png', colored_grid, origin='lower')
@@ -123,7 +137,7 @@ plt.imsave('heatmap.png', colored_grid, origin='lower')
 bounds = [[min_lat, min_lon], [max_lat, max_lon]]
 
 # Create a folium map centered around the average coordinates
-m = folium.Map(location=[df['lat'].mean(), df['lon'].mean()], zoom_start=16, tiles='Cartodb Positron')
+m = folium.Map(location=[df['lat'].mean(), df['lon'].mean()], zoom_start=16, tiles='cartodbpositron')
 
 # Overlay the image onto the map
 image_overlay = folium.raster_layers.ImageOverlay(

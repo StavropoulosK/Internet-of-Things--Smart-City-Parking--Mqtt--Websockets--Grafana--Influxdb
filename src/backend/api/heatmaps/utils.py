@@ -31,4 +31,31 @@ def get_sensor_ids():
         print(e)
         return None
 
-    return locations[:100]
+    return locations
+
+def getCurrentTemp():
+    import openmeteo_requests
+    from openmeteo_sdk.Variable import Variable
+    
+    om = openmeteo_requests.Client()
+    params = {
+        "latitude": 38.246403475045675,
+        "longitude": 21.731728987305722,
+        "current": ["temperature_2m"],
+    }
+
+    responses = om.weather_api("https://api.open-meteo.com/v1/forecast", params=params)
+    response = responses[0]
+
+    # Current values
+    current = response.Current()
+    current_variables = list(
+        map(lambda i: current.Variables(i), range(0, current.VariablesLength()))
+    )
+    current_temperature_2m = next(
+        filter(
+            lambda x: x.Variable() == Variable.temperature and x.Altitude() == 2,
+            current_variables,
+        )
+    )
+    return current_temperature_2m.Value()
