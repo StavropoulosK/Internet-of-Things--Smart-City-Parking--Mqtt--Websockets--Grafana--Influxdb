@@ -14,7 +14,7 @@ def get_current_temperature_data(cursor):
     sensors = {}
 
     for id in ids:
-        table = f"SmartCityParking_Patras_smartCityParking_{id}_OnStreetParking"
+        table = f"smartCityParking_Patras_smartCityParking_{id}_OnStreetParking"
 
         temperature, location = None, None
 
@@ -84,13 +84,12 @@ def get_current_temp():
 
 sensors = get_current_temperature_data(cursor)
 
-image_path = "current-temperature.png"
+image_path = "./public/html/heatmaps/current-temperature.png"
 fill_value = get_current_temp()
 
 min_value, max_value = 0, 40
 
 df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value, fill_value)
 
-hmtl_path = "current-temperature.html"
+hmtl_path = "./public/html/heatmaps/current-temperature.html"
 create_html_map(df, bounds, colorbar, image_path, hmtl_path)
-

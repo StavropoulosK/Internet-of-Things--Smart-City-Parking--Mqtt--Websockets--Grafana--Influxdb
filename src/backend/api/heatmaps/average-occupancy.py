@@ -55,10 +55,10 @@ def get_average_occupancy_data(cursor):
 sensors = get_average_occupancy_data(cursor)
 print(len(sensors))
 
-image_path = "average_occupancy.png"
+image_path = "./public/html/heatmaps/average_occupancy.png"
 
 min_value, max_value = 0, 1
 df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value)
 
-html_path = "average_occupancy.html"
+html_path = "./public/html/heatmaps/average_occupancy.html"
 create_html_map(df, bounds, colorbar, image_path, html_path)

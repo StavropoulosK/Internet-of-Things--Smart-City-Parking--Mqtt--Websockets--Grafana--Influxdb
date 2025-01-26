@@ -41,12 +41,10 @@ class ParkingSensor:
         if self.occupied:
             if np.random.rand() < probability_to_free_spot:
                 self.occupied = False
-
                 return True
         else:
             if np.random.rand() < probability_to_take_spot:
                 self.occupied = True
-
                 return True
 
         return False

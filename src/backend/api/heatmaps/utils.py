@@ -47,8 +47,8 @@ def get_sensor_ids():
 def create_heatmap(sensor_data, image_path, min_value, max_value, fill_value=0):
     df = pd.DataFrame.from_dict(sensor_data, orient="index")
 
-    # grid, bounds = interpolate_data(df)
-    grid, bounds = my_interpolation(df, sensor_data)
+    grid, bounds = interpolate_data(df)
+    # grid, bounds = my_interpolation(df, sensor_data)
 
     cmap = plt.get_cmap('plasma')
 
@@ -98,7 +98,7 @@ def interpolate_data(df, num_cols=3000, num_rows=3000):
     lon_grid, lat_grid = np.meshgrid(lon_lin, lat_lin)
 
     # Perform interpolation
-    grid = griddata(points, values, (lon_grid, lat_grid), method="cubic")
+    grid = griddata(points, values, (lon_grid, lat_grid), method="linear")
     bounds = [[min_lat, min_lon], [max_lat, max_lon]]
     
     return grid, bounds
@@ -154,8 +154,8 @@ def my_interpolation(df, sensor_data):
     max_lon = df['lon'].max() + 0.001
     max_lat = df['lat'].max() + 0.001
     
-    num_cols = 500
-    num_rows = 500
+    num_cols = 256
+    num_rows = 256
 
     grid = np.zeros((num_rows, num_cols))
 
