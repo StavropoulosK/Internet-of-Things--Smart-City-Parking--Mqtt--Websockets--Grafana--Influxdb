@@ -3,3 +3,13 @@ matplotlib==3.9.2
 mysql-connector-python==9.0.0
 openmeteo-requests==1.3.0
 paho-mqtt==1.6.1
+
+mysql-connector-python
+geopandas
+shapely
+folium
+numpy
+matplotlib
+requests
+scipy
+openmeteo-requests
