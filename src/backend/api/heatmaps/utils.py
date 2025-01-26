@@ -104,13 +104,8 @@ def interpolate_data(df, num_cols=3000, num_rows=3000):
     return grid, bounds
 
 
-def create_html_map(df, bounds, colorbar, image_path, output_path):
+def create_html_map(df, bounds, colorbar, image_path, output_path, zoom_options):
     # Create a folium map centered around the average coordinates
-    zoom_options = {
-        "max_zoom": 21,
-        "min_zoom": 17,
-        "zoom_start": 19,
-    }
     bound_options = {
         "max_bounds": True,
         "min_lat": bounds[0][0],

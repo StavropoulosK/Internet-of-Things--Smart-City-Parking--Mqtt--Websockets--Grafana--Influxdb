@@ -53,12 +53,17 @@ def get_average_temperature_data(cursor):
 
 sensors = get_average_temperature_data(cursor)
 
-image_path = "./public/html/heatmaps/average_temperature.png"
+image_path = "./public/html/heatmaps/average-temperature.png"
 fill_value = sum(sensors[s]["value"] for s in sensors) / len(sensors)
 
 min_value, max_value = 0, 40
 
 df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value, fill_value)
 
-html_path = "./public/html/heatmaps/average_temperature.html"
-create_html_map(df, bounds, colorbar, image_path, html_path)
+html_path = "./public/html/heatmaps/average-temperature.html"
+zoom_options = {
+    "min_zoom": 16,
+    "max_zoom": 20,
+    "zoom_start": 17
+}
+create_html_map(df, bounds, colorbar, image_path, html_path, zoom_options)
