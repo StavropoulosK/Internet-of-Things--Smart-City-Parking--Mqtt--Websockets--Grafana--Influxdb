@@ -33,7 +33,7 @@ adminRouter.post('/login', (req, res) => {
     const { username, password } = req.body;
     if (username === adminCredentials.username && password === adminCredentials.password) {
         req.session.isAdmin = true;
-        res.redirect('/')
+        res.status(200).send('Successfully logged in');
     } else {
         res.status(401).send('Invalid username or password');
     }
