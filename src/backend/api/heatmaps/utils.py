@@ -1,6 +1,17 @@
 import mysql.connector
 import requests
 
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
+import folium.raster_layers
+import numpy as np
+from scipy.interpolate import griddata
+import folium
+
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
 db_config = {
     "host": "150.140.186.118",
     "port": 3306,
@@ -33,75 +44,148 @@ def get_sensor_ids():
 
     return locations
 
-def create_heatmap(data, bounds, sigma, cutoff, iters, filename):
-    min_lat, min_lon = bounds[0]
-    max_lat, max_lon = bounds[1]
-    
-    import numpy as np
-    from scipy.ndimage import gaussian_filter
+def create_heatmap(sensor_data, image_path, min_value, max_value, fill_value=0):
+    df = pd.DataFrame.from_dict(sensor_data, orient="index")
 
-    min_sensor_data = min(sensor["value"] for sensor in data.values()) * cutoff
-    
-    num_cols = 512  # choose resolution (number of pixels horizontally)
-    num_rows = 512  # choose resolution (number of pixels vertically)
-
-    def get_grid_idx(lat, lon):
-        lat_idx = int((lat - min_lat) / (max_lat - min_lat) * num_rows)
-        lon_idx = int((lon - min_lon) / (max_lon - min_lon) * num_cols)
-        return lat_idx, lon_idx
-
-    starting_spots = [(sensor["lat"], sensor["lon"], sensor["value"]) for sensor in data.values()]
-
-    # Perform interpolation
-    grid = np.zeros((num_rows, num_cols))
-    grid[:] = 10
-
-    for lat, lon, val in starting_spots:
-        lat_idx, lon_idx = get_grid_idx(lat, lon)
-        grid[lat_idx, lon_idx] = val
-
-    mask = (grid == 10)
-
-    for _ in range(iters):
-        smoothed_grid = gaussian_filter(grid, sigma=sigma)
-        grid[mask] = smoothed_grid[mask]
-
-    import matplotlib.pyplot as plt
-    import matplotlib.colors as mcolors
+    grid, bounds = interpolate_data(df)
+    # grid, bounds = my_interpolation(df, sensor_data)
 
     cmap = plt.get_cmap('plasma')
 
-    # rmeove values below cutoff_val
-    small_values = grid < min_sensor_data
-    grid[small_values] = min_sensor_data
-
     # Normalize the data to the range [0, 1]
-    norm = mcolors.Normalize(vmin=np.nanmin(grid), vmax=np.nanmax(grid))
+    norm = mcolors.Normalize(vmin=min_value, vmax=max_value)
 
-    # Apply the colormap to the normalized data
-    colored_grid = cmap(norm(grid))
-
-    colored_grid[..., 3] = np.where(grid == min_sensor_data, 0, colored_grid[..., 3])
+    filtered_grid = np.where(np.isnan(grid), fill_value, grid)
+    colored_grid = cmap(norm(filtered_grid))
 
     # Save the result as an image
-    plt.imsave(filename, colored_grid, origin='lower')
+    plt.imsave(image_path, colored_grid, origin='lower')
+    
+    # create a colorbar to later use in the map
+    colorbar = create_color_bar(cmap, min_value, max_value)
 
-    return min
+    return df, bounds, colorbar
+    
+    
+def interpolate_data(df, num_cols=3000, num_rows=3000):
+    df['lat_tile'] = df['lat'].round(5)
+    df['lon_tile'] = df['lon'].round(5)
 
-def create_html_map(heatmap_filename, html_filename, bounds, avg_pos):
-    import folium
+    # Group by these tile coordinates and average the values
+    grouped = df.groupby(['lat_tile', 'lon_tile'], as_index=False).agg({'value': 'mean'})
 
-    m = folium.Map(location=avg_pos, zoom_start=16, tiles="cartodbpositron")
+    geometry = [Point(xy) for xy in zip(grouped['lon_tile'], grouped['lat_tile'])]
+    gdf = gpd.GeoDataFrame(grouped, geometry=geometry)
+    gdf.set_crs(epsg=4326, inplace=True)  # WGS84
 
+    # Extract coordinates and values
+    points = np.array(list(zip(gdf['lon_tile'], gdf['lat_tile'])))
+    values = gdf['value'].values
+
+    # Define a grid over the area of interest
+    min_lon, min_lat, max_lon, max_lat = gdf.total_bounds
+    #increase the bounds a bit
+    min_lon -= 0.001
+    min_lat -= 0.001
+    max_lon += 0.001
+    max_lat += 0.001
+
+    num_cols = 3000  # choose resolution (number of pixels horizontally)
+    num_rows = 3000  # choose resolution (number of pixels vertically)
+
+    lon_lin = np.linspace(min_lon, max_lon, num_cols)
+    lat_lin = np.linspace(min_lat, max_lat, num_rows)
+    lon_grid, lat_grid = np.meshgrid(lon_lin, lat_lin)
+
+    # Perform interpolation
+    grid = griddata(points, values, (lon_grid, lat_grid), method="linear")
+    bounds = [[min_lat, min_lon], [max_lat, max_lon]]
+    
+    return grid, bounds
+
+
+def create_html_map(df, bounds, colorbar, image_path, output_path, zoom_options):
+    # Create a folium map centered around the average coordinates
+    bound_options = {
+        "max_bounds": True,
+        "min_lat": bounds[0][0],
+        "min_lon": bounds[0][1],
+        "max_lat": bounds[1][0],
+        "max_lon": bounds[1][1],
+    }
+
+    m = folium.Map(location=[df['lat'].mean(), df['lon'].mean()], tiles='cartodbpositron', **zoom_options, **bound_options)
+    
+    # Overlay the image onto the map
     image_overlay = folium.raster_layers.ImageOverlay(
-        name="Heatmap",
-        image=heatmap_filename,
+        image=image_path,
         bounds=bounds,
-        opacity=0.5,
+        opacity=0.6,
         interactive=True,
         cross_origin=False,
         zindex=1,
     )
     image_overlay.add_to(m)
+
+    colorbar.add_to(m)
+
+    # Save the map to an HTML file
+    m.save(output_path)
+
+def create_color_bar(cmap, min_value, max_value):
+    import branca.colormap as cm
+
+    colorbar = cm.LinearColormap(
+        colors=[cmap(i) for i in range(cmap.N)],
+        vmin=min_value,
+        vmax=max_value
+    )
+
+    return colorbar
+
+def my_interpolation(df, sensor_data):
+    min_lon = df['lon'].min() - 0.001
+    min_lat = df['lat'].min() - 0.001
+    max_lon = df['lon'].max() + 0.001
+    max_lat = df['lat'].max() + 0.001
     
-    m.save(html_filename)       
+    num_cols = 256
+    num_rows = 256
+
+    grid = np.zeros((num_rows, num_cols))
+
+    def convert_to_grid(lat, lon):
+        x = int((lon - min_lon) / (max_lon - min_lon) * num_cols)
+        y = int((lat - min_lat) / (max_lat - min_lat) * num_rows)
+        return x, y
+
+    sensor_list = [sensor_data[sensor] for sensor in sensor_data]
+    sensor_idxs = [(convert_to_grid(sensor['lat'], sensor['lon']), sensor['value']) for sensor in sensor_list]
+
+    for (x, y), value in sensor_idxs:
+        grid[y, x] = value
+        # print(value)
+    
+    top = 5
+    for x in range(num_cols):
+        for y in range(num_rows):
+            if grid[y, x] != 0:
+                continue
+            distances = []
+            for (x2, y2), value in sensor_idxs:
+                if x2 == x and y2 == y:
+                    distances.append((1, value))
+                    continue
+                distances.append((np.sqrt((x - x2) ** 2 + (y - y2) ** 2), value))
+            distances.sort(key=lambda x: x[0])
+
+            if distances[0][0] > 50:
+                continue
+                
+            sum_weighted_values = sum(float(value) / distance for distance, value in distances[:top])
+            sum_weights = sum(1 / distance for distance, _ in distances[:top])
+            grid[y, x] = sum_weighted_values / sum_weights
+
+        print(x)
+    
+    return grid, [[min_lat, min_lon], [max_lat, max_lon]]

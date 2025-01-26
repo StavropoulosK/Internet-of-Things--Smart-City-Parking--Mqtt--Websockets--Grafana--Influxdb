@@ -6,13 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script src="../js/heatmap.js"></script>
-    <link href="../css/map.css" rel="stylesheet" />
-    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <link href="../css/heatmap.css" rel="stylesheet"/>
 </head>
 
 <body>
+    <header>
+        <div id="button-container">
+            <button id="back" onclick="window.location.href = '/';">Πίσω</button>
+        </div>
+        <h1>Θερμοκρασία της Πάτρας τώρα </h1>    
+    </header>
 
-    <div id="map"></div>
+    <iframe id="heatmap" src="./html/heatmaps/current-temperature.html"></iframe>
+
 
 </body>
 

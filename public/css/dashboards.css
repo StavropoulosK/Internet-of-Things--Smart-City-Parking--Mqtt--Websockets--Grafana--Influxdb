@@ -1,7 +1,89 @@
-iframe {
-    display: block;      /* Ensures the iframes behave like block elements */
-    width: 80%;         /* Makes the iframes take the full width of the screen */
-    height: 50vh;        /* Sets each iframe to take 50% of the viewport height */
-    margin: 4em;           /* Removes any margin around the iframes */
-    padding: 0;          /* Removes any padding around the iframes */
+body, html {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  background: linear-gradient(30deg, #6e85b7, #f1f1f1);
+}
+
+header {
+  background-color: #333;
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+}
+
+h1 {
+  font-size: 2rem;
+  margin: 0;
+  flex-grow: 1;
+  text-align: center;
+}
+#button-container {
+  position: absolute;
+  flex-shrink: 0;
+}
+
+button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  width: 100px;
+}
+
+/* Flex container to hold the dashboards */
+.dashboard-container {
+  display: flex;
+  flex-wrap: wrap;   /* Allow the items to wrap to the next row */
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Flex item for each dashboard */
+.dashboard {
+  flex: 1 1 calc(50% - 20px - 20px); /* Make each dashboard take up 50% minus the gap */
+  box-sizing: border-box; /* Prevent padding/margin from affecting the layout */
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  margin: 10px;
+}
+
+.dashboard iframe {
+  width: 100%;
+  height: 450px;
+  border: none;
+}
+
+.caption {
+  font-size: 1.5rem;
+}
+
+.caption::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;  /* Adjust the distance of the bar from the text */
+  left: -10px;   /* Moves the bar left to extend it beyond the text */
+  width: 120%;    /* Makes the bar wider than the text */
+  height: 2px;    /* Thickness of the bar */
+  background-color: black;  /* Color of the bar */
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    flex: 1 1 calc(100% - 20px); /* Stacks the dashboards on smaller screens */
   }
+}

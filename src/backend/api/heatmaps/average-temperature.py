@@ -18,7 +18,7 @@ def get_average_temperature_data(cursor):
             SELECT AVG(attrValue) AS temperature
             FROM {table}
             WHERE attrName = 'temperature'
-            AND recvTimeTs >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 1 MONTH));
+            AND recvTimeTs >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 1 WEEK));
         """
         try:
             cursor.execute(query)
@@ -26,13 +26,14 @@ def get_average_temperature_data(cursor):
         except Exception as e:
             print(f"Skipping sensor {id}: {e}")
             continue
-
+    
         query = f"""
             SELECT attrValue AS location
             FROM {table}
             WHERE attrName = 'location'
             LIMIT 1;
         """
+
         try:
             cursor.execute(query)
             location = cursor.fetchall()
@@ -43,26 +44,26 @@ def get_average_temperature_data(cursor):
         if temperature and location:
             lat, lon = json.loads(location[0][0])["coordinates"]
             sensors[id] = {
-            "value": float(temperature[0][0]),
-            "lat": float(lat),
-            "lon": float(lon)
-        }
+                "value": temperature[0][0],
+                "lat": lat,
+                "lon": lon
+            }
+
     return sensors
 
 sensors = get_average_temperature_data(cursor)
-print("Sensor data fetched")
 
-lats = [sensor["lat"] for sensor in sensors.values()]
-lons = [sensor["lon"] for sensor in sensors.values()]
+image_path = "./public/html/heatmaps/average-temperature.png"
+fill_value = sum(sensors[s]["value"] for s in sensors) / len(sensors)
 
-max_lat, max_lon = max(lats) + 0.001, max(lons) + 0.001
-min_lat, min_lon = min(lats) - 0.001, min(lons) - 0.001
+min_value, max_value = 0, 40
 
-bounds = [(min_lat, min_lon), (max_lat, max_lon)]
-avg_pos = [sum(lats) / len(lats), sum(lons) / len(lats)]
+df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value, fill_value)
 
-heatmap_filename = "average-temperature.png"
-create_heatmap(sensors, bounds, sigma=1, cutoff=0.9, iters=1024, filename=heatmap_filename)
-
-html_filename = "average-temperature.html"
-create_html_map(heatmap_filename, html_filename, bounds, avg_pos)
+html_path = "./public/html/heatmaps/average-temperature.html"
+zoom_options = {
+    "min_zoom": 16,
+    "max_zoom": 20,
+    "zoom_start": 17
+}
+create_html_map(df, bounds, colorbar, image_path, html_path, zoom_options)

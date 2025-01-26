@@ -1,5 +1,7 @@
-from utils import connect_to_db, get_sensor_ids, create_heatmap, create_html_map
 import json
+
+from utils import connect_to_db, get_sensor_ids, create_heatmap, create_html_map
+
 
 connector = connect_to_db()
 cursor = connector.cursor()
@@ -14,6 +16,8 @@ def get_current_temperature_data(cursor):
     for id in ids:
         table = f"smartCityParking_Patras_smartCityParking_{id}_OnStreetParking"
 
+        temperature, location = None, None
+
         query = f"""
             SELECT attrValue AS temperature
             FROM {table}
@@ -25,7 +29,7 @@ def get_current_temperature_data(cursor):
             cursor.execute(query)
             temperature = cursor.fetchall()
         except Exception as e:
-            print(f"Skipping sensor {id}: {e}")
+            print(f"Error fetching temperature for sensor {id}: {e}")
             continue
 
         query = f"""
@@ -38,33 +42,59 @@ def get_current_temperature_data(cursor):
             cursor.execute(query)
             location = cursor.fetchall()
         except Exception as e:
-            print(f"Skipping sensor {id}: {e}")
+            print(f"Error fetching location for sensor {id}: {e}")
             continue
 
         if temperature and location:
             lat, lon = json.loads(location[0][0])["coordinates"]
             sensors[id] = {
-            "value": float(temperature[0][0]),
-            "lat": float(lat),
-            "lon": float(lon)
-        }
+                "value": float(temperature[0][0]),
+                "lat": float(lat),
+                "lon": float(lon)
+            }
+
     return sensors
 
+def get_current_temp():
+    import openmeteo_requests
+    from openmeteo_sdk.Variable import Variable
+    
+    om = openmeteo_requests.Client()
+    params = {
+        "latitude": 38.246403475045675,
+        "longitude": 21.731728987305722,
+        "current": ["temperature_2m"],
+    }
+
+    responses = om.weather_api("https://api.open-meteo.com/v1/forecast", params=params)
+    response = responses[0]
+
+    # Current values
+    current = response.Current()
+    current_variables = list(
+        map(lambda i: current.Variables(i), range(0, current.VariablesLength()))
+    )
+    current_temperature_2m = next(
+        filter(
+            lambda x: x.Variable() == Variable.temperature and x.Altitude() == 2,
+            current_variables,
+        )
+    )
+    return current_temperature_2m.Value()
+
 sensors = get_current_temperature_data(cursor)
-print("Sensor data fetched")
 
-lats = [sensor["lat"] for sensor in sensors.values()]
-lons = [sensor["lon"] for sensor in sensors.values()]
+image_path = "./public/html/heatmaps/current-temperature.png"
+fill_value = get_current_temp()
 
-max_lat, max_lon = max(lats) + 0.001, max(lons) + 0.001
-min_lat, min_lon = min(lats) - 0.001, min(lons) - 0.001
+min_value, max_value = 0, 40
 
-bounds = [(min_lat, min_lon), (max_lat, max_lon)]
-avg_pos = [sum(lats) / len(lats), sum(lons) / len(lons)]
+df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value, fill_value)
 
-heatmap_filename = "current-temperature.png"
-create_heatmap(sensors, bounds, sigma=1, cutoff=0.9, iters=1024, filename=heatmap_filename)
-print("Heatmap created")
-
-html_filename = "current-temperature.html"
-create_html_map(heatmap_filename, html_filename, bounds, avg_pos)
+hmtl_path = "./public/html/heatmaps/current-temperature.html"
+zoom_options = {
+    "max_zoom": 21,
+    "min_zoom": 17,
+    "zoom_start": 19,
+}
+create_html_map(df, bounds, colorbar, image_path, hmtl_path, zoom_options)

@@ -14,19 +14,21 @@ def get_average_occupancy_data(cursor):
     for id in ids:
         table = f"smartCityParking_Patras_smartCityParking_{id}_OnStreetParking"
 
+        occupancy, location = None, None
+
         query = f"""
             SELECT AVG(CASE WHEN attrValue = 'True' THEN 1 ELSE 0 END) AS occupancy
             FROM {table}
             WHERE attrName = 'carParked'
-            AND recvTime >= DATE_SUB(NOW(), INTERVAL 1 MONTH);
+            AND recvTimeTs >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 1 DAY));
         """
         try:
             cursor.execute(query)
             occupancy = cursor.fetchall()
         except Exception as e:
-            print(f"Error fetching occupancy for sensor {id}: {e}")
+            print(f"Skipping sensor {id}: {e}")
             continue
-
+    
         query = f"""
             SELECT attrValue AS location
             FROM {table}
@@ -37,36 +39,31 @@ def get_average_occupancy_data(cursor):
             cursor.execute(query)
             location = cursor.fetchall()
         except Exception as e:
-            print(f"Error fetching location for sensor {id}: {e}")
+            print(f"Skipping sensor {id}: {e}")
             continue
 
         if occupancy and location:
             lat, lon = json.loads(location[0][0])["coordinates"]
             sensors[id] = {
-            "occupancy": float(occupancy[0][0]),
-            "lat": float(lat),
-            "lon": float(lon)
+            "value": occupancy[0][0],
+            "lat": lat,
+            "lon": lon
         }
+    
     return sensors
 
-#------------------------------------------------------
-# Step 1: Load and Parse Data
-#------------------------------------------------------
 sensors = get_average_occupancy_data(cursor)
+print(len(sensors))
 
-lats = [sensor["lat"] for sensor in sensors.values()]
-lons = [sensor["lon"] for sensor in sensors.values()]
+image_path = "./public/html/heatmaps/average-occupancy.png"
 
-max_lat, max_lon = max(lats) + 0.001, max(lons) + 0.001
-min_lat, min_lon = min(lats) - 0.001, min(lons) - 0.001
+min_value, max_value = 0, 1
+df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value)
 
-bounds = [(min_lat, min_lon), (max_lat, max_lon)]
-avg_pos = [sum(lats) / len(lats), sum(lons) / len(lats)]
-
-heatmap_filename = "average-occupancy.png"
-create_heatmap(sensors, bounds, sigma=2, cutoff=0.9, iters=512, filename=heatmap_filename)
-print("Heatmap created")
-
-html_filename = "average-occupancy.html"
-create_html_map(heatmap_filename, html_filename, bounds, avg_pos)
-print("HTML map created")
+html_path = "./public/html/heatmaps/average-occupancy.html"
+zoom_options = {
+    "min_zoom": 16,
+    "max_zoom": 20,
+    "zoom_start": 17
+}
+create_html_map(df, bounds, colorbar, image_path, html_path, zoom_options)

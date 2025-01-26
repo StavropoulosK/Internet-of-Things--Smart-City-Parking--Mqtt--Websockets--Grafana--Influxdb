@@ -55,7 +55,7 @@ async function currentParkingSpotsData(city) {
     }
 }
 
-async function singParkingSpotData(city, parkingSpotId) {
+async function singleParkingSpotData(city, parkingSpotId) {
     const url = `http://150.140.186.118:1026/v2/entities?idPattern=^smartCityParking_${parkingSpotId}`;
 
     const headers = {
@@ -88,7 +88,6 @@ async function singParkingSpotData(city, parkingSpotId) {
             timeOfLastReservation: sensorData.timeOfLastReservation.value,
             maximumParkingDuration: sensorData.maximumParkingDuration.value
         }
-
     } catch (error) {
         console.error(error.message);
     }
@@ -153,4 +152,4 @@ function haversine(lat1, lng1, lat2, lng2) {
     return rad * c * 1000;
 }
 
-export { currentParkingSpotsData, singParkingSpotData, findBestParkingSpot, parkingSpotHasShadow };
+export { currentParkingSpotsData, singleParkingSpotData as singParkingSpotData, findBestParkingSpot, parkingSpotHasShadow };

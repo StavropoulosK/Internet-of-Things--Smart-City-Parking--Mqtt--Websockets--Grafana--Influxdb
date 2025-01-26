@@ -23,10 +23,6 @@ router.get('/getHeatMap', (req, res) => {
     res.sendFile(fileLocation + 'heatMap.html');
 })
 
-// router.get('/getDashboards', (req, res) => {
-//     res.sendFile(fileLocation + 'dashboards.html');
-// })
-
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 router.get('/APIKEY', (req, res) => {
     res.send(GOOGLE_MAPS_API_KEY)
