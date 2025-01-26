@@ -1,6 +1,7 @@
 import { selectMarker, filterMarkers, closeInfoWindow } from "./markers.js"
 import { findBestParkingSpot } from "./dataFetch.js";
 import { stopRoute } from "./directions.js";
+import { openDialog } from "./mqttclient.js";
 
 let destination = null;
 let destinationMarkerPin;
@@ -70,6 +71,10 @@ async function createAutocomplete(map) {
         const radius = slider.value;
         const filters = { forAmEA: ameaCheckbox.checked, withShadow: skiaCheckbox.checked, onlyFree: !diathesimoCheckbox.checked };
         const bestSpot = await findBestParkingSpot(destination, radius, filters);
+        if (!bestSpot) {
+            openDialog("Δεν βρέθηκε καμία διαθέσιμη θέση στάθμευσης.");
+            return;
+        }
         map.panTo({ lat: bestSpot.coordinates[0], lng: bestSpot.coordinates[1] });
         map.setZoom(18);
         selectMarker(bestSpot.id)

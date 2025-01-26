@@ -86,4 +86,4 @@ function openDialog(message) {
     }
 }
 
-export { initMQTTClinet };
+export { initMQTTClinet, openDialog };
