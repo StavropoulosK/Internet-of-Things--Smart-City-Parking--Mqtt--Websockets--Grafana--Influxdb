@@ -1,10 +1,7 @@
-import folium.raster_layers
-from utils import connect_to_db, get_sensor_ids, getCurrentTemp
 import json
-import pandas as pd
-import geopandas as gpd
 
-from shapely.geometry import Point
+from utils import connect_to_db, get_sensor_ids, create_heatmap, create_html_map
+
 
 connector = connect_to_db()
 cursor = connector.cursor()
@@ -17,7 +14,9 @@ def get_current_temperature_data(cursor):
     sensors = {}
 
     for id in ids:
-        table = f"smartCityParking_Patras_smartCityParking_{id}_OnStreetParking"
+        table = f"SmartCityParking_Patras_smartCityParking_{id}_OnStreetParking"
+
+        temperature, location = None, None
 
         query = f"""
             SELECT attrValue AS temperature
@@ -49,108 +48,49 @@ def get_current_temperature_data(cursor):
         if temperature and location:
             lat, lon = json.loads(location[0][0])["coordinates"]
             sensors[id] = {
-            "temperature": float(temperature[0][0]),
-            "lat": float(lat),
-            "lon": float(lon)
-        }
+                "value": float(temperature[0][0]),
+                "lat": float(lat),
+                "lon": float(lon)
+            }
+
     return sensors
 
-#------------------------------------------------------
-# Step 1: Load and Parse Data
-#------------------------------------------------------
+def get_current_temp():
+    import openmeteo_requests
+    from openmeteo_sdk.Variable import Variable
+    
+    om = openmeteo_requests.Client()
+    params = {
+        "latitude": 38.246403475045675,
+        "longitude": 21.731728987305722,
+        "current": ["temperature_2m"],
+    }
+
+    responses = om.weather_api("https://api.open-meteo.com/v1/forecast", params=params)
+    response = responses[0]
+
+    # Current values
+    current = response.Current()
+    current_variables = list(
+        map(lambda i: current.Variables(i), range(0, current.VariablesLength()))
+    )
+    current_temperature_2m = next(
+        filter(
+            lambda x: x.Variable() == Variable.temperature and x.Altitude() == 2,
+            current_variables,
+        )
+    )
+    return current_temperature_2m.Value()
+
 sensors = get_current_temperature_data(cursor)
-print(len(sensors))
-df = pd.DataFrame.from_dict(sensors, orient="index")
 
-#------------------------------------------------------
-# Step 2: Round Coordinates to 4 Decimal Places (Tiling)
-#------------------------------------------------------
-df['lat_tile'] = df['lat'].round(5)
-df['lon_tile'] = df['lon'].round(5)
+image_path = "current-temperature.png"
+fill_value = get_current_temp()
 
-# Group by these tile coordinates and average the values
-grouped = df.groupby(['lat_tile', 'lon_tile'], as_index=False).agg({'temperature': 'mean'})
+min_value, max_value = 0, 40
 
-#------------------------------------------------------
-# Step 3: Create a GeoDataFrame of the Averaged Points
-#------------------------------------------------------
-geometry = [Point(xy) for xy in zip(grouped['lon_tile'], grouped['lat_tile'])]
-gdf = gpd.GeoDataFrame(grouped, geometry=geometry)
-gdf.set_crs(epsg=4326, inplace=True)  # WGS84
+df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value, fill_value)
 
-#------------------------------------------------------
-# Step 4: Interpolate to Create a Continuous Scalar Field (Raster)
-#------------------------------------------------------
-import numpy as np
-from scipy.interpolate import griddata
-import folium
-
-# Extract coordinates and values
-points = np.array(list(zip(gdf['lon_tile'], gdf['lat_tile'])))
-values = gdf['temperature'].values
-
-# Define a grid over the area of interest
-min_lon, min_lat, max_lon, max_lat = gdf.total_bounds
-min_lon -= 0.001
-min_lat -= 0.001
-max_lon += 0.001
-max_lat += 0.001
-
-num_cols = 1000  # choose resolution (number of pixels horizontally)
-num_rows = 1000  # choose resolution (number of pixels vertically)
-
-lon_lin = np.linspace(min_lon, max_lon, num_cols)
-lat_lin = np.linspace(min_lat, max_lat, num_rows)
-lon_grid, lat_grid = np.meshgrid(lon_lin, lat_lin)
-
-# Perform interpolation
-grid = griddata(points, values, (lon_grid, lat_grid), method="cubic")
-
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-
-cmap = plt.get_cmap('plasma')
-
-# Normalize the data to the range [0, 1]
-norm = mcolors.Normalize(vmin=5, vmax=25)
-
-# Apply the colormap to the normalized data
-import openmeteo_requests
-# Get the average location
-avg_lat = df['lat'].mean()
-avg_lon = df['lon'].mean()
-
-# Fetch the temperature from OpenMeteo API
-openmeteo_temp = getCurrentTemp()
-print(f"Current temperature at average location ({avg_lat}, {avg_lon}): {openmeteo_temp}°C")
-
-filtered_grid = np.where(np.isnan(grid), openmeteo_temp, grid)
-colored_grid = cmap(norm(filtered_grid))
-
-# # Set NaN values to be fully transparent
-# colored_grid[..., 3] = np.where(np.isnan(grid), 0, colored_grid[..., 3])
-
-# Save the result as an image
-plt.imsave('heatmap.png', colored_grid, origin='lower')
-
-# Define the bounds of the image
-bounds = [[min_lat, min_lon], [max_lat, max_lon]]
-
-# Create a folium map centered around the average coordinates
-m = folium.Map(location=[df['lat'].mean(), df['lon'].mean()], zoom_start=16, tiles='cartodbpositron')
-
-# Overlay the image onto the map
-image_overlay = folium.raster_layers.ImageOverlay(
-    image='heatmap.png',
-    bounds=bounds,
-    opacity=0.6,
-    interactive=True,
-    cross_origin=False,
-    zindex=1,
-)
-
-image_overlay.add_to(m)
-
-# Save the map to an HTML file
-m.save('heatmap_map.html')
+hmtl_path = "current-temperature.html"
+create_html_map(df, bounds, colorbar, image_path, hmtl_path)
 

@@ -200,7 +200,7 @@ def simulate():
                 epipedo_aixmis = 1
             else:
                 epipedo_aixmis = 0
-                
+
             changed = sensor.update_parking_status(epipedo_aixmis)
 
             # peripou to 16% tou plithismou einai AMEA

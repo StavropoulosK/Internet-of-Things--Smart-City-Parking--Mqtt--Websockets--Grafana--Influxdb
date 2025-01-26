@@ -1,41 +1,64 @@
-from utils import connect_to_db, get_sensor_ids
+from utils import connect_to_db, get_sensor_ids, create_heatmap, create_html_map
 import json
 
 connector = connect_to_db()
 cursor = connector.cursor()
 
 print("Connected to DB")
-ids = get_sensor_ids()
 
-sensors = {}
+def get_average_occupancy_data(cursor):
+    ids = get_sensor_ids()
 
-for id in ids:
-    table = f"smartCityParking_Patras_smartCityParking_{id}_OnStreetParking"
+    sensors = {}
 
-    query = f"""
-        SELECT AVG(CASE WHEN attrValue = 'True' THEN 1 ELSE 0 END) AS occupancy
-        FROM {table}
-        WHERE attrName = 'carParked'
-        AND recvTimeTs >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 1 MONTH));
-    """
-    cursor.execute(query)
-    occupancy = cursor.fetchall()
+    for id in ids:
+        table = f"smartCityParking_Patras_smartCityParking_{id}_OnStreetParking"
+
+        occupancy, location = None, None
+
+        query = f"""
+            SELECT AVG(CASE WHEN attrValue = 'True' THEN 1 ELSE 0 END) AS occupancy
+            FROM {table}
+            WHERE attrName = 'carParked'
+            AND recvTimeTs >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 1 DAY));
+        """
+        try:
+            cursor.execute(query)
+            occupancy = cursor.fetchall()
+        except Exception as e:
+            print(f"Skipping sensor {id}: {e}")
+            continue
     
-    query = f"""
-        SELECT attrValue AS location
-        FROM {table}
-        WHERE attrName = 'location'
-        LIMIT 1;
-    """
-    cursor.execute(query)
-    location = cursor.fetchall()
+        query = f"""
+            SELECT attrValue AS location
+            FROM {table}
+            WHERE attrName = 'location'
+            LIMIT 1;
+        """
+        try:
+            cursor.execute(query)
+            location = cursor.fetchall()
+        except Exception as e:
+            print(f"Skipping sensor {id}: {e}")
+            continue
 
-    if occupancy and location:
-        lat, lon = json.loads(location[0][0])["coordinates"]
-        sensors[id] = {
-            "occupancy": occupancy[0][0],
+        if occupancy and location:
+            lat, lon = json.loads(location[0][0])["coordinates"]
+            sensors[id] = {
+            "value": occupancy[0][0],
             "lat": lat,
             "lon": lon
         }
+    
+    return sensors
 
-print(sensors)
+sensors = get_average_occupancy_data(cursor)
+print(len(sensors))
+
+image_path = "average_occupancy.png"
+
+min_value, max_value = 0, 1
+df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value)
+
+html_path = "average_occupancy.html"
+create_html_map(df, bounds, colorbar, image_path, html_path)

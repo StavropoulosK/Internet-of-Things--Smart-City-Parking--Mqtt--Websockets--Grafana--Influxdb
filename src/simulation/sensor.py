@@ -1,5 +1,10 @@
 import numpy as np
 
+hot_spots = {
+    "Plateia Georgiou": (38.246387, 21735002),
+    "Plateia Olgas": (38.249199, 21.737507)
+}
+
 class ParkingSensor:
     def __init__(self, sensor_id, location, voltage, temperature, has_shadow=False):
         self.id = sensor_id
@@ -10,7 +15,8 @@ class ParkingSensor:
         self.has_shadow = has_shadow
 
         self.occupied = False
-        
+
+        self.distance_to_hot_spot = min(haversine(self.location, hot_spots[hot_spot]) for hot_spot in hot_spots)
         
     def update_voltage(self, mean_voltage_drop, std_voltage):
         self.voltage =float(self.voltage- abs(np.random.normal(mean_voltage_drop, std_voltage)))
@@ -44,4 +50,21 @@ class ParkingSensor:
                 return True
 
         return False
+
+
+def haversine(loc1, loc2):
+    lat1, lon1 = loc1
+    lat2, lon2 = loc2
     
+    R = 6371000  # radius of Earth in meters
+    phi_1 = np.radians(lat1)
+    phi_2 = np.radians(lat2)
+
+    delta_phi = np.radians(lat2 - lat1)
+    delta_lambda = np.radians(lon2 - lon1)
+
+    a = np.sin(delta_phi / 2.0) ** 2 + np.cos(phi_1) * np.cos(phi_2) * np.sin(delta_lambda / 2.0) ** 2
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
+
+    meters = R * c  # output distance in meters
+    return meters
