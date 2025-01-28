@@ -62,9 +62,13 @@ def sendDataToInflux(client, userdata, message):
     point1 = Point(measurement).tag("sensor", id_value).field("voltage", voltage).time(time, WritePrecision.NS)
     point2 = Point(measurement).tag("sensor", id_value).field("temperature", temperature).time(time, WritePrecision.NS)
 
-    if car_parked==True and parked_vehicle_had_tag==False and 'forDisabled' in category:
+    if car_parked==True and 'forDisabled' in category:
+        if parked_vehicle_had_tag==False:
+            val = 1
+        else:
+            val = 0
         # an egine paranomi stathmeusi to stelnoume stin influx kai stin grafana gia na stili alert
-        point3 = Point(measurement).tag("sensor", id_value).field("illegalParkingDisabled", 1).time(time, WritePrecision.NS)
+        point3 = Point(measurement).tag("sensor", id_value).field("illegalParkingDisabled", val).time(time, WritePrecision.NS)
         write_api.write(bucket=bucket, org=org, record=point3)
 
 

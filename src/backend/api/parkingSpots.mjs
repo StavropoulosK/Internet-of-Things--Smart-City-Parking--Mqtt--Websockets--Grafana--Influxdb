@@ -111,8 +111,9 @@ async function findBestParkingSpot(city, destination, radius, filters) {
         return distance <= radius;
     });
 
+    let destinationCoords = {"lat": destLat, "lng": destLng};
     // rank the remaining parking spots, lower score is better
-    filteredParkingSpotData = filteredParkingSpotData.sort((a, b) => rankParkingSpots(b, destination) - rankParkingSpots(a, destination));
+    filteredParkingSpotData = filteredParkingSpotData.sort((a, b) => {return rankParkingSpots(a, destinationCoords) - rankParkingSpots(b, destinationCoords)});
 
     // return the best parking spot
     return filteredParkingSpotData[0];
@@ -130,7 +131,6 @@ function rankParkingSpots(parkingSpot, destination) {
 function haversine(lat1, lng1, lat2, lng2) {
     // Gia ton ipologismo tis apostasis dio theseon mporei na xrisimopoiithi i methodos haversine.
     //https://www.geeksforgeeks.org/haversine-formula-to-find-distance-between-two-points-on-a-sphere/
-    // console.log(lat1, lng1, lat2, lng2);
     // distance between latitudes
     // and longitudes
     let dLat = (lat2 - lat1) * Math.PI / 180.0;
