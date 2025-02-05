@@ -100,14 +100,14 @@ async function findBestParkingSpot(city, destination, radius, filters) {
     const [ destLat, destLng ] = destination.split(',').map(parseFloat);
     // filter parking spots that are within the radius using havarsine and fullfill the filters
     let filteredParkingSpotData = parkignSpotData.filter(parkingSpot => {
-        const distance = haversine(parkingSpot.coordinates[0], parkingSpot.coordinates[1], destLat, destLng);
         if (!filters.forAmEA && parkingSpot.category.includes("forDisabled")) {
             return false;
         } else if (filters.withShadow && !parkingSpot.hasShadow) {
             return false;
         } else if (filters.onlyFree && parkingSpot.carParked) {
-            return false;
+            return willVacateSoon(parkingSpot.timeOfLastReservation, parkingSpot.maximumParkingDuration);
         }
+        const distance = haversine(parkingSpot.coordinates[0], parkingSpot.coordinates[1], destLat, destLng);
         return distance <= radius;
     });
 
@@ -131,6 +131,7 @@ function rankParkingSpots(parkingSpot, destination) {
 function haversine(lat1, lng1, lat2, lng2) {
     // Gia ton ipologismo tis apostasis dio theseon mporei na xrisimopoiithi i methodos haversine.
     //https://www.geeksforgeeks.org/haversine-formula-to-find-distance-between-two-points-on-a-sphere/
+    
     // distance between latitudes
     // and longitudes
     let dLat = (lat2 - lat1) * Math.PI / 180.0;
@@ -151,5 +152,21 @@ function haversine(lat1, lng1, lat2, lng2) {
     // to apotelesma einai se metra
     return rad * c * 1000;
 }
+
+function getMinutesFromDuration(duration) {
+    const match = duration.match(/PT(\d+)H/); // Extract digits between "PT" and "H"
+    return match ? parseInt(match[1], 10) * 60 : null; // Convert to integer and return
+}
+
+function willVacateSoon(timeOfLastReservation, maximumParkingDuration) {
+    // TODO: Move to backend. For example at url /api/willVacateSoon?id=...
+    const soonVacateThreshold = 10; // minutes
+    
+    const now = new Date();
+    const timeOfLastReservationDate = new Date(timeOfLastReservation);
+    const minspassed = (now - timeOfLastReservationDate) / 1000 / 60 ; // Convert milliseconds to minutes
+    return getMinutesFromDuration(maximumParkingDuration) - minspassed < soonVacateThreshold;
+}
+
 
 export { currentParkingSpotsData, singleParkingSpotData as singParkingSpotData, findBestParkingSpot, parkingSpotHasShadow };
