@@ -188,7 +188,10 @@ function createUserPin() {
 }
 
 function spotWasOccupied(id) {
-    if ( !window.selectedParkingSpot || window.selectedParkingSpot.id != id) {
+    if (!window.selectedParkingSpot) {
+        return
+    }
+    if (window.selectedParkingSpot.id != id) {
         return
     }
     stopRoute();
@@ -206,7 +209,7 @@ async function mapFocus(map, location = null) {
         location = { lat: userPosition.coords.latitude, lng: userPosition.coords.longitude };
     }
     map.panTo(location);
-    map.setZoom(16);
+    map.setZoom(17);
 }
 
 export { startDirections, spotWasOccupied, stopRoute, mapFocus }
