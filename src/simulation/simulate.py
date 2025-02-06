@@ -177,7 +177,7 @@ def simulate():
         
         epipedo_aixmis = calculate_epipedo_aixmis(meres_aixmis, current_day, local_time)
 
-        solar_intensity = solar_radiation(time_mins)
+        shade = shade_factor(time_mins)
 
         for sensor in sensors:
 
@@ -189,11 +189,11 @@ def simulate():
 
             sensor: ParkingSensor
 
-            sensor.update_temp(mean_temp, std_dev_temp, solar_intensity=solar_intensity)
+            sensor.update_temp(mean_temp, std_dev_temp, shade_factor=shade)
             
             sensor.update_voltage(mean_voltage_drop, std_dev_volt)
 
-            changed = sensor.update_parking_status(epipedo_aixmis)
+            changed = sensor.update_parking_status(epipedo_aixmis, current_time)
 
             # peripou to 16% tou plithismou einai AMEA
             # https://www.who.int/news-room/fact-sheets/detail/disability-and-health#:~:text=An%20estimated%201.3%20billion%20people%20–%20or%2016%25%20of%20the%20global,diseases%20and%20people%20living%20longer.
@@ -213,9 +213,7 @@ def simulate():
 
                 message_json = json.dumps(message)
                 client.publish(topic, message_json)
-
-
-
+                
         time.sleep(simulation_update_time_in_minutes * 60)
 
 
@@ -231,7 +229,7 @@ def calculate_epipedo_aixmis(meres_aixmis, current_day, local_time):
     return epipedo_aixmis
 
 
-def solar_radiation(time_minute, S_max=20, sunrise=420, sunset=1200):
+def shade_factor(time_minute, sunrise=420, sunset=1200):
     """
     Compute solar radiation as a function of time in minutes from midnight.
     Start of the day is at 00:00, sunrise is at 07:00, and sunset is at 20:00.
@@ -239,7 +237,7 @@ def solar_radiation(time_minute, S_max=20, sunrise=420, sunset=1200):
     import numpy as np
     if time_minute < sunrise or time_minute > sunset:
         return 0
-    return S_max * np.sin(np.pi * (time_minute - sunrise) / (sunset - sunrise))
+    return np.sin(np.pi * (time_minute - sunrise) / (sunset - sunrise))
 
 
 if __name__ == "__main__":

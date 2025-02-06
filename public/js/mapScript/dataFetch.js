@@ -21,6 +21,7 @@ function getMinutesFromDuration(duration) {
 }
 
 function willVacateSoon(timeOfLastReservation, maximumParkingDuration) {
+    console.log(timeOfLastReservation)
     // TODO: Move to backend. For example at url /api/willVacateSoon?id=...
     const soonVacateThreshold = 10; // minutes
     
@@ -28,7 +29,6 @@ function willVacateSoon(timeOfLastReservation, maximumParkingDuration) {
     const timeOfLastReservationDate = new Date(timeOfLastReservation);
     const minspassed = (now - timeOfLastReservationDate) / 1000 / 60 ; // Convert milliseconds to minutes
 
-    // console.log('12 ',getMinutesFromDuration(maximumParkingDuration) - minspassed)
     return getMinutesFromDuration(maximumParkingDuration) - minspassed < soonVacateThreshold;
 }
 

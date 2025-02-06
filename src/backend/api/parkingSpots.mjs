@@ -102,10 +102,12 @@ async function findBestParkingSpot(city, destination, radius, filters) {
     let filteredParkingSpotData = parkignSpotData.filter(parkingSpot => {
         if (!filters.forAmEA && parkingSpot.category.includes("forDisabled")) {
             return false;
+        } else if (filters.forAmEA && !parkingSpot.category.includes("forDisabled")) {
+            return false;
         } else if (filters.withShadow && !parkingSpot.hasShadow) {
             return false;
         } else if (filters.onlyFree && parkingSpot.carParked) {
-            return willVacateSoon(parkingSpot.timeOfLastReservation, parkingSpot.maximumParkingDuration);
+            return willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration);
         }
         const distance = haversine(parkingSpot.coordinates[0], parkingSpot.coordinates[1], destLat, destLng);
         return distance <= radius;
@@ -120,7 +122,7 @@ async function findBestParkingSpot(city, destination, radius, filters) {
 }
 
 function parkingSpotHasShadow(cityTemp, parkignSpotTemp) {
-    return parkignSpotTemp < cityTemp - 2;
+    return parkignSpotTemp - cityTemp < 4;
 }
 
 function rankParkingSpots(parkingSpot, destination) {

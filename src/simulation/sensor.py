@@ -30,6 +30,7 @@ class ParkingSensor:
         self.has_shadow = has_shadow
 
         self.occupied = False
+        self.time_since_occupied = None
 
         self.distance_to_hot_spot = min(haversine(self.location, hot_spots[hot_spot]) for hot_spot in hot_spots)
         
@@ -42,35 +43,49 @@ class ParkingSensor:
         # https://savvycalculator.com/pavement-temperature-calculator
         # Sensor temperature is T_air + ΔΤ_solar * ShadeFactor
         if self.has_shadow:
-            shade_factor = 0.1
+            shade_factor = min(shade_factor, 0.1)
         new_temp = np.random.normal(mean_temp, std_temp) + shade_factor * solar_intensity
 
+        # Smooth temperature changes
         decay = 0.2
         self.temperature = self.temperature * decay + new_temp * (1 - decay)
         
-    def update_parking_status(self, epipedo_aixmis):
+    def update_parking_status(self, epipedo_aixmis, local_time):
+        distances_to_hot_spots = [haversine(self.location, hot_spots[hot_spot]) for hot_spot in hot_spots]
+        want_factor = 1 + np.exp(-250 / np.min(distances_to_hot_spots))
+        
         if epipedo_aixmis == 2:
             probability_to_free_spot = 0.1
-            probability_to_take_spot = 0.3+traffic_coefficient
+            probability_to_take_spot = 0.15 + traffic_coefficient
         elif epipedo_aixmis == 1:
             probability_to_free_spot = 0.15
-            probability_to_take_spot = 0.25+traffic_coefficient
-
+            probability_to_take_spot = 0.125 + traffic_coefficient
         else:
             probability_to_free_spot = 0.2
-            probability_to_take_spot = 0.2+traffic_coefficient
-
+            probability_to_take_spot = 0.1 + traffic_coefficient
         
+        probability_to_take_spot *= want_factor
+
         if self.occupied:
-            if np.random.rand() < probability_to_free_spot:
+            time_parked = local_time - self.time_since_occupied
+            mins = time_parked.total_seconds() / 60
+            if np.random.rand() < probability_to_leave(mins, 120, 90, probability_to_free_spot):
                 self.occupied = False
+                self.time_since_occupied = None
                 return True
         else:
             if np.random.rand() < probability_to_take_spot:
                 self.occupied = True
+                self.time_since_occupied = local_time
                 return True
 
         return False
+
+
+def probability_to_leave(t, T_max, T_50, k):
+    if t > T_max:
+        return 1
+    return 1 / (1 + np.exp(-k * (t - T_50)))
 
 
 def haversine(loc1, loc2):
@@ -143,6 +158,6 @@ def fetch_traffic_data_coefficient():
         return result/counter
 
 
-traffic_coefficient= fetch_traffic_data_coefficient()
+traffic_coefficient = fetch_traffic_data_coefficient()
 
 

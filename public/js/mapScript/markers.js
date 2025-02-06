@@ -26,9 +26,7 @@ async function placeMarkers(map, city) {
         shadowExists = shadowExists || parkingSpot.hasShadow;
     });
 
-
     createCluster(map);
-
 
     if (!shadowExists) {
         disableSkiaCheckbox();
@@ -78,30 +76,26 @@ function createCluster(map) {
     const shadow = document.getElementById("skia").checked;
     const onlyFree = !(document.getElementById("diathesimo").checked)
 
-    const toShow=[]
+    const toShow = []
 
     parkingSpots.forEach(parkingSpot => {
-        if ( !forAmEA && parkingSpot.category.includes("forDisabled")) {
-
+        if (!forAmEA && parkingSpot.category.includes("forDisabled")) {
             markers[parkingSpot.id].setMap(null);
         } else if(forAmEA && ! (parkingSpot.category.includes("forDisabled")) ){
-
             markers[parkingSpot.id].setMap(null);
-        } else if ( shadow && !parkingSpot.hasShadow) {
 
+        } else if (shadow && !parkingSpot.hasShadow) {
             markers[parkingSpot.id].setMap(null);
-        } else if ( onlyFree && parkingSpot.carParked) {
 
+        } else if (onlyFree && parkingSpot.carParked) {
             markers[parkingSpot.id].setMap(null);
-        } else if(  isReserved(parkingSpot.timeOfLastReservation) ){
 
+        } else if( isReserved(parkingSpot.timeOfLastReservation) ){
             markers[parkingSpot.id].setMap(null);
-        } else if ( !onlyFree && parkingSpot.carParked  && ! willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)){
 
+        } else if (!onlyFree && parkingSpot.carParked  && !willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)){
             markers[parkingSpot.id].setMap(null);        
-
         } else {
-
             markers[parkingSpot.id].setMap(map);
             toShow.push(markers[parkingSpot.id]);
         }
@@ -163,7 +157,7 @@ function isReserved(utcTimeOfLastReservation){
     // Convert milliseconds to minutes
     const minutesDifference = (timeDifference / (1000 * 60)).toFixed(1);
 
-    if(minutesDifference>15){
+    if(minutesDifference > 15){
         // den exei gini kratisi
         return false
     }
@@ -189,7 +183,6 @@ function updateMarker(parkingSpot) {
         if(isReserved(parkingSpot.timeOfLastReservation)){
             markers[parkingSpot.id].isFree = false;
             markers[parkingSpot.id].content.style.visibility = "hidden";
-
         }
         else{
             markers[parkingSpot.id].isFree = true;
@@ -197,7 +190,6 @@ function updateMarker(parkingSpot) {
             // Emfanizetai to mple, krivetai to portokali
             markers[parkingSpot.id].content.querySelector("#blue").style.display = "block";
             markers[parkingSpot.id].content.querySelector("#orange").style.display = "none";
-
         }
     }
 }
@@ -242,47 +234,33 @@ function filterMarkers(map, forAmEA, shadow, onlyFree) {
             markers[parkingSpot.id].setMap(null);
             // markerCluster.removeMarker(markers[parkingSpot.id]);
             markersToRemove.push(markers[parkingSpot.id])
-        } else if(forAmEA && ! (parkingSpot.category.includes("forDisabled")) ){
-
+        } else if(forAmEA && !(parkingSpot.category.includes("forDisabled")) ){
             markers[parkingSpot.id].setMap(null);
             markersToRemove.push(markers[parkingSpot.id])
-
             // markerCluster.removeMarker(markers[parkingSpot.id]);
         } else if (shadow && !parkingSpot.hasShadow) {
-
             markers[parkingSpot.id].setMap(null);
             markersToRemove.push(markers[parkingSpot.id])
-
             // markerCluster.removeMarker(markers[parkingSpot.id]);
         } else if (onlyFree && parkingSpot.carParked) {
-
             markersToRemove.push(markers[parkingSpot.id])
             markers[parkingSpot.id].setMap(null);
             // markerCluster.removeMarker(markers[parkingSpot.id]);
-
-        } else if (!onlyFree && parkingSpot.carParked && ! willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)){
-
+        } else if (!onlyFree && parkingSpot.carParked && !willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)){
             markersToRemove.push(markers[parkingSpot.id])
-            markers[parkingSpot.id].setMap(null);        
-
-        } else if( isReserved(parkingSpot.timeOfLastReservation) ){
-
+            markers[parkingSpot.id].setMap(null);
+        } else if(isReserved(parkingSpot.timeOfLastReservation) ){
             markersToRemove.push(markers[parkingSpot.id])
             markers[parkingSpot.id].setMap(null);
             // markerCluster.removeMarker(markers[parkingSpot.id]);
-
         } else {
-
             markersToAdd.push(markers[parkingSpot.id])
             markers[parkingSpot.id].setMap(map);
             // markerCluster.addMarker(markers[parkingSpot.id]);
         }
     });
-
-
     markerCluster.removeMarkers(markersToRemove);
     markerCluster.addMarkers(markersToAdd);
-
 }
 
 function resetMarkers() {
@@ -321,13 +299,9 @@ function selectedMarkerWasOccupied(parkingSpotId, time, parked, temperature) {
     parkingSpot.carParked = parked;
     parkingSpot.temperature = temperature;
     
-
-
     updateMarker(parkingSpot);
 
     updateCluster(parkingSpotId)
-
-    
 }
 
 
@@ -345,42 +319,24 @@ function updateCluster(parkingSpotId){
     if (!forAmEA && parkingSpot.category.includes("forDisabled")) {
         toRemove=true
     } else if(forAmEA && ! (parkingSpot.category.includes("forDisabled")) ){
-
         toRemove=true
     } else if (shadow && !parkingSpot.hasShadow) {
-
         toRemove=true
-
     } else if (onlyFree && parkingSpot.carParked) {
-
         toRemove=true
-
-
     } else if (!onlyFree && parkingSpot.carParked && ! willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)){
-
         toRemove=true
- 
-
     } else if( isReserved(parkingSpot.timeOfLastReservation) ){
-
         toRemove=true
-
     } else {
-
         toRemove=false
-
     }
 
-    if(toRemove){
+    if (toRemove){
         markerCluster.removeMarker(markers[parkingSpot.id]);
-
-    }
-    else{
+    } else{
         markerCluster.addMarker(markers[parkingSpot.id]);
-
     }
-   
-
 }
 
 
