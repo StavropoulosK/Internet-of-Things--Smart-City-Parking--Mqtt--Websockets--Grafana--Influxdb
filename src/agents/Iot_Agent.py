@@ -2,7 +2,6 @@ import time
 import random
 import json
 import paho.mqtt.client as mqtt
-from influxdb_client import InfluxDBClient, Point, WritePrecision
 
 from datetime import datetime, timezone
 import requests
@@ -207,6 +206,7 @@ def process_func(message):
     return None
 
 
+
 def on_message(client, userdata, message):
 
     """Callback function for processing received messages."""
@@ -226,6 +226,8 @@ def on_message(client, userdata, message):
         time= value["time"]
 
         sendDataToContextBroker(deviceId, location, temperature, tag, parkingStatus,time,batteryVoltage)
+
+
 
         return
 

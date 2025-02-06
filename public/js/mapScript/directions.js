@@ -28,6 +28,7 @@ async function startDirections(map) {
         userPosition = await getCurrentPosition();
     } catch (error) {
         console.error("Cannot get user position", error);
+        alert('Cannot get user position')
         return
     }
     // stamatai i proigoumeni diadromi , an iparxi
@@ -41,13 +42,14 @@ async function startDirections(map) {
 
     const destination = window.selectedParkingSpot;
 
+
     // entopismos neas thesis xristi kai estiasi xarti kathe 2 deuterolepta otan odigai.
     intervalIdForMapCenteringWhenDriving = setInterval(() => placeUserPositionPin(map, userPosition), 1000 * 2);
 
     // update directions kathe 30 deuterolepta
     intervalIdForShowingDirections = setInterval(() => getDirectionsToParkingSpot(map, destination.location), 1000 * 30)
 
-    getDirectionsToParkingSpot(map, destination.location)
+    getDirectionsToParkingSpot(map, destination.location,'first')
 
     // notify server about the reservation
     const city = await getCity(destination.position);
@@ -61,6 +63,7 @@ function stopRoute() {
     clearInterval(intervalIdForMapCenteringWhenDriving)
     clearInterval(intervalIdForShowingDirections)
     directionsRenderer.setDirections({ routes: [] }); // Safely clear directions
+    console.log('11212')
 
     const reservationTimeSpan = document.getElementById('reservationInfo')
     reservationTimeSpan.style.visibility = 'hidden'
@@ -69,11 +72,12 @@ function stopRoute() {
     directionsDiv.textContent = ''
 }
 
-async function getDirectionsToParkingSpot(map, destination) {
+async function getDirectionsToParkingSpot(map, destination,first='') {
     try {
         userPosition = await getCurrentPosition();
     } catch (error) {
         console.error(error);
+        return
     }
 
     const userLocation = {
@@ -94,17 +98,19 @@ async function getDirectionsToParkingSpot(map, destination) {
                 showDirectionInstructions(steps[0])
                 directionsRenderer.setDirections(result);
 
-                // mono tin proti fora estiazi o xartis
-                // map.panTo({ lat: userLocation.lat, lng: userLocation.lng });
-                mapFocus(map, userLocation);
-                map.setZoom(15);
-                // elegxi an eftase ston proorismo
-                const distanceFromDestination = haversine(userLocation.lat, userLocation.lng, destination.lat, destination.lng)
-                if (distanceFromDestination < 5) {
-                    // ean briskete se apostasi 5 metra apo tin thesi, exi ftasi ston proorismo.
-                    stopRoute()
-                    directionsDiv.textContent = 'Φτάσατε στον προορισμό σας'
+                if(first){
+                    // mono tin proti fora estiazi o xartis
+                    map.panTo({ lat:userLocation.lat, lng:userLocation.lng });
+                    map.setZoom(15);
+                }else{
+                    // elegxi an eftase ston proorismo
+                    const distanceFromDestination = haversine(userLocation.lat, userLocation.lng, destination.lat, destination.lng)
+                    if (distanceFromDestination < 5) {
+                        // ean briskete se apostasi 5 metra apo tin thesi, exi ftasi ston proorismo.
+                        stopRoute()
+                        directionsDiv.textContent = 'Φτάσατε στον προορισμό σας'
 
+                    }
                 }
             } else {
                 console.error("Directions request failed due to " + status);
@@ -143,6 +149,8 @@ async function placeUserPositionPin(map, userPos) {
     // otan o xristis odigai i efarmogi estiazi stin kenourgia thesi. An omos o xristis metakinisi ton xarti gia na di kati, tote gia na eksasfalizetai kali
     // empiria xristi i efarmogi den epanaferetai automata stin thesi tou xristi. 
     if (distance < 5) {
+        // gia na min kineitai sinexia o xartis den estiazi ksana gia poli mikres metatopisis.
+
         return
     }
 
@@ -180,13 +188,14 @@ function createUserPin() {
 }
 
 function spotWasOccupied(id) {
-    if (window.selectedParkingSpot.id != id) {
+    if ( !window.selectedParkingSpot || window.selectedParkingSpot.id != id) {
         return
     }
     stopRoute();
     const message = 'Δυστυχώς η θέση σας πιάστηκε.'
     return message
 }
+
 
 async function mapFocus(map, location = null) {
     if (location === null) {

@@ -74,25 +74,6 @@ app.use('/admin', adminRouter);
 import { setupMQTTClient } from './src/backend/mqttClient.mjs';
 await setupMQTTClient();
 
-// function convertUtcTimeToLocalTime(utcTime) {
-//     // metatrepi to utc time se ora elados
-
-//     const date = new Date(utcTime); // Parse the UTC date string
-
-//     // Get individual components of the local time
-//     const year = date.getFullYear();
-//     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-//     const day = String(date.getDate()).padStart(2, '0');
-//     const hours = String(date.getHours()).padStart(2, '0');
-//     const minutes = String(date.getMinutes()).padStart(2, '0');
-//     const seconds = String(date.getSeconds()).padStart(2, '0');
-//     const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
-
-//     const localTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
-//     return localTime;
-// }
-
-
 
 app.listen(httpPort, () => console.log(`HTTP server running at  http://127.0.0.1:${httpPort}/`));
 

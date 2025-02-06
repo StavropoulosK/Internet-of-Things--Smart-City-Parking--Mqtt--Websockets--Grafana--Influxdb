@@ -5,6 +5,8 @@ import { placeMarkers, closeInfoWindow } from './mapScript/markers.js';
 import { createAutocomplete } from './mapScript/searchUI.js';
 import { startDirections, mapFocus } from './mapScript/directions.js';
 import { initMQTTClinet } from './mapScript/mqttclient.js';
+import { getCurrentPosition } from "./utils.js";
+
 
 const defaultPosition = {
     city: "Patras",
@@ -14,12 +16,28 @@ const defaultPosition = {
     }
 };
 
+
+
 async function initMap() {
     await loadGoogleMaps();
     const { Map } = await google.maps.importLibrary("maps");
 
+    let userPosition
+    let userLocation
+
+    try {
+        userPosition = await getCurrentPosition();
+        userLocation = { coords:{
+            lat: userPosition.coords.latitude,
+            lng: userPosition.coords.longitude}
+        };
+    } catch (error) {
+        console.error(error);
+        userLocation=defaultPosition
+    }
+
     let map = new Map(document.getElementById("map"), {
-        center: { lat: defaultPosition.coords.lat, lng: defaultPosition.coords.lng },
+        center: { lat: userLocation.coords.lat, lng: userLocation.coords.lng },
         zoom: 15,
         mapId: "b6232a7f7073d846",
         mapTypeControl: false,
@@ -30,7 +48,6 @@ async function initMap() {
         closeInfoWindow()
         event.stop()
     });
-
     await placeMarkers(map, defaultPosition.city);
     await createAutocomplete(map);
     await initMQTTClinet();

@@ -917,23 +917,6 @@ async function getDirectionsToMarker(destination,first='') {
             travelMode: google.maps.TravelMode.DRIVING,
         },
         (result, status) => {
-            // const steps = result.routes[0].legs[0].steps;
-
-            // console.log('aaa ', steps)
-
-            // steps.forEach(step=>{
-            //     const tempDiv = document.createElement('div');
-            //     tempDiv.innerHTML = step.instructions;
-            //     let plainText = (tempDiv.textContent).replaceAll("(ν)", ""); // Extracts plain text
-            //     if (plainText.includes("Στροφή")) {
-            //         plainText+= ' σε '+step.distance.text;
-            //     } else {
-            //         plainText+= ' για '+step.distance.text;;
-            //     }
-            //     directionsDiv.textContent=plainText
-            //     // console.log('aa ',step.instructions,' ',plainText,'   ',step.distance)
-            // })
-
 
             if (status === "OK") {
                 const steps = result.routes[0].legs[0].steps;

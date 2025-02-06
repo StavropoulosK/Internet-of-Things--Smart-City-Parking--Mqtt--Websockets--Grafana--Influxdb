@@ -27,6 +27,8 @@ function willVacateSoon(timeOfLastReservation, maximumParkingDuration) {
     const now = new Date();
     const timeOfLastReservationDate = new Date(timeOfLastReservation);
     const minspassed = (now - timeOfLastReservationDate) / 1000 / 60 ; // Convert milliseconds to minutes
+
+
     return getMinutesFromDuration(maximumParkingDuration) - minspassed < soonVacateThreshold;
 }
 

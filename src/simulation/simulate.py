@@ -117,6 +117,7 @@ def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitud
 simulation_update_time_in_minutes = 25/60
 
 
+
 def simulate():
 
     # Kapoioi aisthitires theoroume oti briskontai se skiera meri
@@ -142,6 +143,7 @@ def simulate():
         sensors.append(
             ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, has_shadow)
         )
+
 
     # Gia tis metablites orizoume oti akolouthoun mia gkaousiani katanomi
     
@@ -221,7 +223,8 @@ def simulate():
                 
                 message_json = json.dumps(message)
                 client.publish(topic, message_json)
-                # print('send')
+
+
 
        
         time.sleep(simulation_update_time_in_minutes * 60)

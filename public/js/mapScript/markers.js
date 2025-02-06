@@ -16,8 +16,8 @@ async function placeMarkers(map, city) {
     
     // Array of parking spot data. [{coordinates: [0: lat, 1:, lng], category: [], temperature: , carParked: , id: , timeOfLastReservation: , maximumParkingDuration: }]
     parkingSpots = await getParkingSpotData(city);
-    
-    createCluster(map);
+
+    // createCluster(map);
 
     let shadowExists = false;
     parkingSpots.forEach(parkingSpot => {
@@ -25,6 +25,10 @@ async function placeMarkers(map, city) {
         updateMarker(parkingSpot);
         shadowExists = shadowExists || parkingSpot.hasShadow;
     });
+
+
+    createCluster(map);
+
 
     if (!shadowExists) {
         disableSkiaCheckbox();
@@ -69,7 +73,41 @@ function createCluster(map) {
         minPoints: 2
     };
 
-    markerCluster = new markerClusterer.MarkerClusterer({ markers: [], map, ...clusterOptions });
+    const forAmEA = document.getElementById("amea").checked;
+    const shadow = document.getElementById("skia").checked;
+    const onlyFree = !(document.getElementById("diathesimo").checked)
+
+    const toShow=[]
+
+    parkingSpots.forEach(parkingSpot => {
+        if (!forAmEA && parkingSpot.category.includes("forDisabled")) {
+
+            markers[parkingSpot.id].setMap(null);
+        } else if(forAmEA && ! (parkingSpot.category.includes("forDisabled")) ){
+
+            markers[parkingSpot.id].setMap(null);
+        } else if (shadow && !parkingSpot.hasShadow) {
+
+            markers[parkingSpot.id].setMap(null);
+        } else if (onlyFree && parkingSpot.carParked) {
+
+            markers[parkingSpot.id].setMap(null);
+        } else if( isReserved(parkingSpot.timeOfLastReservation) ){
+
+            markers[parkingSpot.id].setMap(null);
+        } else if (!onlyFree && parkingSpot.carParked  && ! willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)){
+
+            markers[parkingSpot.id].setMap(null);        
+
+        } else {
+
+            markers[parkingSpot.id].setMap(map);
+            toShow.push(markers[parkingSpot.id]);
+        }
+    });
+
+
+    markerCluster = new markerClusterer.MarkerClusterer({ markers: toShow, map, ...clusterOptions });
 }
 
 function openMarker(marker, id, katigoria, temperature, hasShadow, distance = null) {
@@ -87,7 +125,7 @@ function openMarker(marker, id, katigoria, temperature, hasShadow, distance = nu
                     <strong>Θέση Παρκαρίσματος</strong><br>
                     ${distanceInfo}${katigoria}<br>
                     ${isFreeInfo}<br>
-                    Θερμοκρασία: ${temperature.toFixed(1)} °C ${hasShadow ? '<br>Με σκιά' : ''}
+                    Θερμοκρασία: ${(Number(temperature)).toFixed(1)} °C ${hasShadow ? '<br>Με σκιά' : ''}
                   </div>`;
 
     infoWindow.setContent(content);
@@ -111,23 +149,56 @@ function openMarker(marker, id, katigoria, temperature, hasShadow, distance = nu
     } 
 }
 
+function isReserved(utcTimeOfLastReservation){
+    // theoroume oti i kratisi ginetai gia 15 lepta
+
+    const utcTimeNow = new Date().toISOString();
+
+    const startDate = new Date(utcTimeOfLastReservation);
+    const endDate = new Date(utcTimeNow);
+
+    // Calculate the difference in milliseconds
+    const timeDifference = endDate - startDate;
+    
+    // Convert milliseconds to minutes
+    const minutesDifference = (timeDifference / (1000 * 60)).toFixed(1);
+
+    if(minutesDifference>15){
+        // den exei gini kratisi
+        return false
+    }
+    else{
+        return true
+    }
+    
+}
+
 function updateMarker(parkingSpot) {
     if (parkingSpot.carParked) {
         markers[parkingSpot.id].isFree = false;
-        if (willVacateSoon(parkingSpot.timeOfLastReservation, parkingSpot.maximumParkingDuration)) {
+        if (willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)) {
             markers[parkingSpot.id].content.style.visibility = "visible";
             // Emfanizetai to portokali, krivetai to mple
             markers[parkingSpot.id].content.querySelector("#orange").style.display = "block";
             markers[parkingSpot.id].content.querySelector("#blue").style.display = "none";
         } else {
             markers[parkingSpot.id].content.style.visibility = "hidden";
+
         }
     } else {
-        markers[parkingSpot.id].isFree = true;
-        markers[parkingSpot.id].content.style.visibility = "visible";
-        // Emfanizetai to mple, krivetai to portokali
-        markers[parkingSpot.id].content.querySelector("#blue").style.display = "block";
-        markers[parkingSpot.id].content.querySelector("#orange").style.display = "none";
+        if(isReserved(parkingSpot.timeOfLastReservation)){
+            markers[parkingSpot.id].isFree = false;
+            markers[parkingSpot.id].content.style.visibility = "hidden";
+
+        }
+        else{
+            markers[parkingSpot.id].isFree = true;
+            markers[parkingSpot.id].content.style.visibility = "visible";
+            // Emfanizetai to mple, krivetai to portokali
+            markers[parkingSpot.id].content.querySelector("#blue").style.display = "block";
+            markers[parkingSpot.id].content.querySelector("#orange").style.display = "none";
+
+        }
     }
 }
 
@@ -162,21 +233,56 @@ function updateReservedSpot(parkingSpotId, timeOfLastReservation) {
 
 
 function filterMarkers(map, forAmEA, shadow, onlyFree) {
+
+    const markersToRemove=[]
+    const markersToAdd=[]
+
     parkingSpots.forEach(parkingSpot => {
         if (!forAmEA && parkingSpot.category.includes("forDisabled")) {
             markers[parkingSpot.id].setMap(null);
-            markerCluster.removeMarker(markers[parkingSpot.id]);
+            // markerCluster.removeMarker(markers[parkingSpot.id]);
+            markersToRemove.push(markers[parkingSpot.id])
+        } else if(forAmEA && ! (parkingSpot.category.includes("forDisabled")) ){
+
+            markers[parkingSpot.id].setMap(null);
+            markersToRemove.push(markers[parkingSpot.id])
+
+            // markerCluster.removeMarker(markers[parkingSpot.id]);
         } else if (shadow && !parkingSpot.hasShadow) {
+
             markers[parkingSpot.id].setMap(null);
-            markerCluster.removeMarker(markers[parkingSpot.id]);
+            markersToRemove.push(markers[parkingSpot.id])
+
+            // markerCluster.removeMarker(markers[parkingSpot.id]);
         } else if (onlyFree && parkingSpot.carParked) {
+
+            markersToRemove.push(markers[parkingSpot.id])
             markers[parkingSpot.id].setMap(null);
-            markerCluster.removeMarker(markers[parkingSpot.id]);
+            // markerCluster.removeMarker(markers[parkingSpot.id]);
+
+        } else if (!onlyFree && parkingSpot.carParked && ! willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)){
+
+            markersToRemove.push(markers[parkingSpot.id])
+            markers[parkingSpot.id].setMap(null);        
+
+        } else if( isReserved(parkingSpot.timeOfLastReservation) ){
+
+            markersToRemove.push(markers[parkingSpot.id])
+            markers[parkingSpot.id].setMap(null);
+            // markerCluster.removeMarker(markers[parkingSpot.id]);
+
         } else {
+
+            markersToAdd.push(markers[parkingSpot.id])
             markers[parkingSpot.id].setMap(map);
-            markerCluster.addMarker(markers[parkingSpot.id]);
+            // markerCluster.addMarker(markers[parkingSpot.id]);
         }
     });
+
+
+    markerCluster.removeMarkers(markersToRemove);
+    markerCluster.addMarkers(markersToAdd);
+
 }
 
 function resetMarkers() {
@@ -205,6 +311,7 @@ function flipDirectionsBtn(active) {
     }
 }
 
+
 function selectedMarkerWasOccupied(parkingSpotId, time, parked, temperature) {
     if (selectedSpotId === parkingSpotId) {
         closeInfoWindow();
@@ -213,12 +320,68 @@ function selectedMarkerWasOccupied(parkingSpotId, time, parked, temperature) {
     parkingSpot.time = time;
     parkingSpot.carParked = parked;
     parkingSpot.temperature = temperature;
+    
+
 
     updateMarker(parkingSpot);
+
+    updateCluster(parkingSpotId)
+
+    
 }
 
-function noParkingSpotsWithShadow() {
+
+function updateCluster(parkingSpotId){
+
+    let parkingSpot = parkingSpots.find(parkingSpot => parkingSpot.id === parkingSpotId);
+
+
+    const forAmEA = document.getElementById("amea").checked;
+    const shadow = document.getElementById("skia").checked;
+    const onlyFree = !(document.getElementById("diathesimo").checked)
+
+    let toRemove
+
+    if (!forAmEA && parkingSpot.category.includes("forDisabled")) {
+        toRemove=true
+    } else if(forAmEA && ! (parkingSpot.category.includes("forDisabled")) ){
+
+        toRemove=true
+    } else if (shadow && !parkingSpot.hasShadow) {
+
+        toRemove=true
+
+    } else if (onlyFree && parkingSpot.carParked) {
+
+        toRemove=true
+
+
+    } else if (!onlyFree && parkingSpot.carParked && ! willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)){
+
+        toRemove=true
+ 
+
+    } else if( isReserved(parkingSpot.timeOfLastReservation) ){
+
+        toRemove=true
+
+    } else {
+
+        toRemove=false
+
+    }
+
+    if(toRemove){
+        markerCluster.removeMarker(markers[parkingSpot.id]);
+
+    }
+    else{
+        markerCluster.addMarker(markers[parkingSpot.id]);
+
+    }
+   
 
 }
+
 
 export { placeMarkers, highlightMarker, resetMarkers, selectMarker, filterMarkers, closeInfoWindow, updateReservedSpot, selectedMarkerWasOccupied};

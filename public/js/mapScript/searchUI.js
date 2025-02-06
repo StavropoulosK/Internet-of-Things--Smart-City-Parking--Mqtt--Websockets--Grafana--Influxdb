@@ -27,7 +27,7 @@ async function createAutocomplete(map) {
     const diathesimoCheckbox = document.getElementById("diathesimo");
     diathesimoCheckbox.addEventListener("change", () => filterParkingSpots(map));
     
-    filterParkingSpots(map);
+    // filterParkingSpots(map);
 
     // radius slider
     const slider = document.getElementById("radiusSlider");
