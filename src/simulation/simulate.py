@@ -10,7 +10,6 @@ import uuid
 import time
 
 
-
 broker = "150.140.186.118"
 port = 1883
 client_id = "smartCityParkingFaker"
@@ -114,14 +113,13 @@ def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitud
 
 
 # kathe posa lepta tha trexei i prosomiosi
-simulation_update_time_in_minutes = 25/60
+simulation_update_time_in_minutes = 1
 
 # counter=1
 
 def simulate():
 
     # Kapoioi aisthitires theoroume oti briskontai se skiera meri
-    # sensors_with_shadow = [1, 4, 12, 20, 30, 45]
     sensors_with_shadow = [101318, 101309, 101307, 101295, 101287, 100508]
 
     # mesi thermokrasia stin patra apo to open meteo
@@ -131,37 +129,27 @@ def simulate():
     init_battery_voltage = 5.0
 
     meres_aixmis = ["Friday", "Saturday", "Sunday"]
-    
-    data=get_locations()
+
+    data = get_locations()
 
     sensors = []
 
     for sensor in data:
-        sensor_id=sensor['id']
-        loc=(sensor['lat'],sensor['lng'])
+        sensor_id = sensor["id"]
+        loc = (sensor["lat"], sensor["lng"])
         has_shadow = sensor_id in sensors_with_shadow
-        sensors.append(
-            ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, has_shadow)
-        )
+        sensors.append(ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, has_shadow))
 
     # sensors = sensors[0:300]
 
     # Gia tis metablites orizoume oti akolouthoun mia gkaousiani katanomi
-    
+
     # Parameters for the Gaussian distribution
     mean_temp = temperature  # Mean of the temperature distribution
     std_dev_temp = 0.3  # Standard deviation of the temperature distribution
 
-    mean_voltage_drop = 0.1  # mean of the voltage drop per simulation cycle
-    std_dev_volt = 0.1  # Standard deviation of the voltage drop distribution
-
-    current_time = datetime.now()
-
-    # Get the current day of the week and time
-    current_day = current_time.strftime("%A")  # Full weekday name (e.g., 'Monday')
-    local_time = current_time.strftime(
-        "%H:%M:%S"
-    )  
+    mean_voltage_drop = 0.01  # mean of the voltage drop per simulation cycle
+    std_dev_volt = 0.001  # Standard deviation of the voltage drop distribution
 
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
@@ -181,7 +169,16 @@ def simulate():
     # kathe fora pou trexei merikes thesis pou itan adies gemizoun kai kapoies pou einai gemates adiazoun analoga me to an ine ora aixmis
     # kathe fora pou adiazi i pianete mia thesi oi aisthitires stelnoun dedomena sto lora gateway.
     while True:
-        counterId=1
+        current_time = datetime.now()
+        current_day = current_time.strftime("%A")
+        local_time = current_time.strftime("%H:%M:%S")
+
+        time_mins = current_time.minute + current_time.hour * 60
+        
+        epipedo_aixmis = calculate_epipedo_aixmis(meres_aixmis, current_day, local_time)
+
+        solar_intensity = solar_radiation(time_mins)
+
         for sensor in sensors:
 
             counterId +=1
@@ -191,34 +188,18 @@ def simulate():
                 counterId=1
 
             sensor: ParkingSensor
-            sensor.update_temp(mean_temp, std_dev_temp)
-            # ta dentra elatonoun kata meso oro tin thermokrasia kata 3 bathmous. Auto afora mono tis ores pou exei ilio
-            # https://www.nature.com/articles/s41598-024-51921-y#:~:text=By%20blocking%20incoming%20solar%20radiation,characteristics%20and%20other%20factors18.
-            if sensor.has_shadow and "11:00" <= local_time and local_time <= "17:00":
-                sensor.temperature -= 3
 
+            sensor.update_temp(mean_temp, std_dev_temp, solar_intensity=solar_intensity)
+            
             sensor.update_voltage(mean_voltage_drop, std_dev_volt)
-
-            if (
-                local_time >= "13:00"
-                and local_time <= "15:30"
-                and current_day in meres_aixmis
-            ):
-                epipedo_aixmis = 2
-            elif (
-                local_time >= "13:00" and local_time <= "15:30"
-            ) or current_day in meres_aixmis:
-                epipedo_aixmis = 1
-            else:
-                epipedo_aixmis = 0
 
             changed = sensor.update_parking_status(epipedo_aixmis)
 
             # peripou to 16% tou plithismou einai AMEA
             # https://www.who.int/news-room/fact-sheets/detail/disability-and-health#:~:text=An%20estimated%201.3%20billion%20people%20–%20or%2016%25%20of%20the%20global,diseases%20and%20people%20living%20longer.
-            
+
             tag = str(uuid.uuid4()) if random.random() < 0.16 else ""
-            
+
             if sensor.voltage >= 1 and changed is True:
                 message = generateMessage(
                     sensor.id,
@@ -229,17 +210,37 @@ def simulate():
                     sensor.location[0],
                     sensor.location[1],
                 )
-                
+
                 message_json = json.dumps(message)
                 client.publish(topic, message_json)
 
-                # global counter
 
-                # print(counter)
-                # counter +=1
 
-       
         time.sleep(simulation_update_time_in_minutes * 60)
+
+
+def calculate_epipedo_aixmis(meres_aixmis, current_day, local_time):
+    if local_time >= "13:00" and local_time <= "15:30" and current_day in meres_aixmis:
+        epipedo_aixmis = 2
+    elif (
+        local_time >= "13:00" and local_time <= "15:30"
+    ) or current_day in meres_aixmis:
+        epipedo_aixmis = 1
+    else:
+        epipedo_aixmis = 0
+    return epipedo_aixmis
+
+
+def solar_radiation(time_minute, S_max=20, sunrise=420, sunset=1200):
+    """
+    Compute solar radiation as a function of time in minutes from midnight.
+    Start of the day is at 00:00, sunrise is at 07:00, and sunset is at 20:00.
+    """
+    import numpy as np
+    if time_minute < sunrise or time_minute > sunset:
+        return 0
+    return S_max * np.sin(np.pi * (time_minute - sunrise) / (sunset - sunrise))
+
 
 if __name__ == "__main__":
     simulate()

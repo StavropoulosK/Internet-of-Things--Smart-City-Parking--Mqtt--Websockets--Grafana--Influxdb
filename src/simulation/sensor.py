@@ -38,11 +38,17 @@ class ParkingSensor:
         self.voltage = max(0.0, self.voltage)
         
         
-    def update_temp(self, mean_temp, std_temp):
-        self.temperature = np.random.normal(mean_temp, std_temp)
+    def update_temp(self, mean_temp, std_temp, shade_factor = 1, solar_intensity = 20):
+        # https://savvycalculator.com/pavement-temperature-calculator
+        # Sensor temperature is T_air + ΔΤ_solar * ShadeFactor
+        if self.has_shadow:
+            shade_factor = 0.1
+        new_temp = np.random.normal(mean_temp, std_temp) + shade_factor * solar_intensity
+
+        decay = 0.2
+        self.temperature = self.temperature * decay + new_temp * (1 - decay)
         
     def update_parking_status(self, epipedo_aixmis):
-        a=self.occupied
         if epipedo_aixmis == 2:
             probability_to_free_spot = 0.1
             probability_to_take_spot = 0.3+traffic_coefficient
