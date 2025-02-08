@@ -100,17 +100,21 @@ async function findBestParkingSpot(city, destination, radius, filters) {
     const [ destLat, destLng ] = destination.split(',').map(parseFloat);
     // filter parking spots that are within the radius using havarsine and fullfill the filters
     let filteredParkingSpotData = parkignSpotData.filter(parkingSpot => {
-        if (!filters.forAmEA && parkingSpot.category.includes("forDisabled")) {
+        const distance = haversine(parkingSpot.coordinates[0], parkingSpot.coordinates[1], destLat, destLng);
+        if (distance > radius) {
+            return false;
+        } else if (!filters.forAmEA && parkingSpot.category.includes("forDisabled")) {
             return false;
         } else if (filters.forAmEA && !parkingSpot.category.includes("forDisabled")) {
             return false;
         } else if (filters.withShadow && !parkingSpot.hasShadow) {
             return false;
         } else if (filters.onlyFree && parkingSpot.carParked) {
+            return false;
+        } else if (!filters.onlyFree && parkingSpot.carParked) {
             return willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration);
         }
-        const distance = haversine(parkingSpot.coordinates[0], parkingSpot.coordinates[1], destLat, destLng);
-        return distance <= radius;
+        return true;
     });
 
     let destinationCoords = {"lat": destLat, "lng": destLng};
