@@ -179,15 +179,13 @@ def simulate():
 
         shade = shade_factor(time_mins)
 
+        counterId = 1
         for sensor in sensors:
+            counterId += 1
 
-            counterId +=1
-
-            if(counterId==300):
+            if(counterId == 300):
                 time.sleep(simulation_update_time_in_minutes * 60)
-                counterId=1
-
-            sensor: ParkingSensor
+                counterId = 1
 
             sensor.update_temp(mean_temp, std_dev_temp, shade_factor=shade)
             
