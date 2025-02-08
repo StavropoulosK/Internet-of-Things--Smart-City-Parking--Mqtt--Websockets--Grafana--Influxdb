@@ -116,7 +116,7 @@ def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitud
 # kathe posa lepta tha trexei i prosomiosi
 simulation_update_time_in_minutes = 25/60
 
-
+# counter=1
 
 def simulate():
 
@@ -144,6 +144,7 @@ def simulate():
             ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, has_shadow)
         )
 
+    # sensors = sensors[0:300]
 
     # Gia tis metablites orizoume oti akolouthoun mia gkaousiani katanomi
     
@@ -180,7 +181,15 @@ def simulate():
     # kathe fora pou trexei merikes thesis pou itan adies gemizoun kai kapoies pou einai gemates adiazoun analoga me to an ine ora aixmis
     # kathe fora pou adiazi i pianete mia thesi oi aisthitires stelnoun dedomena sto lora gateway.
     while True:
+        counterId=1
         for sensor in sensors:
+
+            counterId +=1
+
+            if(counterId==300):
+                time.sleep(simulation_update_time_in_minutes * 60)
+                counterId=1
+
             sensor: ParkingSensor
             sensor.update_temp(mean_temp, std_dev_temp)
             # ta dentra elatonoun kata meso oro tin thermokrasia kata 3 bathmous. Auto afora mono tis ores pou exei ilio
@@ -224,7 +233,10 @@ def simulate():
                 message_json = json.dumps(message)
                 client.publish(topic, message_json)
 
+                # global counter
 
+                # print(counter)
+                # counter +=1
 
        
         time.sleep(simulation_update_time_in_minutes * 60)

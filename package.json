@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@emailjs/nodejs": "^5.0.2",
     "async-mqtt": "^2.6.3",
     "axios": "^1.7.9",
     "dotenv": "^16.4.5",

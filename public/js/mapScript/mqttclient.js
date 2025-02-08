@@ -3,6 +3,8 @@ import { updateReservedSpot, selectedMarkerWasOccupied } from "./markers.js";
 import { spotWasOccupied } from "./directions.js";
 import { getCity } from "../utils.js";
 
+// let counter=1
+
 async function initMQTTClinet() {
     const sessionId = await getSessionId();
     const city = await getCity();
@@ -23,6 +25,7 @@ async function initMQTTClinet() {
     client.on('message', (topic, message) => {
         if (topic == sessionId) {
             handleUpdateParkingSpot(message)
+            // console.log('a ',counter++)
         }
         else if (topic == (sessionId + 'Reservation' + city)) {
             message = JSON.parse(message.toString())

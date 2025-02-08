@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import session from "express-session";
 
+import checkDoublePark from "./src/backend/doubleParkingController/doubleParkingController.mjs"
+
 
 
 // File path setup
@@ -92,3 +94,7 @@ update_average_occupancy_heatmap();
 setInterval(update_current_temp_heatmap, 1000 * 60 * 10); // Update every 10 minutes
 setInterval(update_average_temp_heatmap, 1000 * 60 * 60 * 24); // Update every 24 hours
 setInterval(update_average_occupancy_heatmap, 1000 * 60 * 60 * 24); // Update every 24 hours
+
+
+
+setInterval(checkDoublePark, 1000 * 60 * 20);  // check for double parking every 20 minutes.

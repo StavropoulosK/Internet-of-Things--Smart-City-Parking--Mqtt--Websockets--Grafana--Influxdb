@@ -67,6 +67,7 @@ function createMarker(map, parkingSpot) {
     return marker
 }
 
+
 function createCluster(map) {    
     const clusterOptions = {
         minZoom: 4,
@@ -80,22 +81,22 @@ function createCluster(map) {
     const toShow=[]
 
     parkingSpots.forEach(parkingSpot => {
-        if (!forAmEA && parkingSpot.category.includes("forDisabled")) {
+        if ( !forAmEA && parkingSpot.category.includes("forDisabled")) {
 
             markers[parkingSpot.id].setMap(null);
         } else if(forAmEA && ! (parkingSpot.category.includes("forDisabled")) ){
 
             markers[parkingSpot.id].setMap(null);
-        } else if (shadow && !parkingSpot.hasShadow) {
+        } else if ( shadow && !parkingSpot.hasShadow) {
 
             markers[parkingSpot.id].setMap(null);
-        } else if (onlyFree && parkingSpot.carParked) {
+        } else if ( onlyFree && parkingSpot.carParked) {
 
             markers[parkingSpot.id].setMap(null);
-        } else if( isReserved(parkingSpot.timeOfLastReservation) ){
+        } else if(  isReserved(parkingSpot.timeOfLastReservation) ){
 
             markers[parkingSpot.id].setMap(null);
-        } else if (!onlyFree && parkingSpot.carParked  && ! willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)){
+        } else if ( !onlyFree && parkingSpot.carParked  && ! willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration)){
 
             markers[parkingSpot.id].setMap(null);        
 
@@ -105,7 +106,6 @@ function createCluster(map) {
             toShow.push(markers[parkingSpot.id]);
         }
     });
-
 
     markerCluster = new markerClusterer.MarkerClusterer({ markers: toShow, map, ...clusterOptions });
 }

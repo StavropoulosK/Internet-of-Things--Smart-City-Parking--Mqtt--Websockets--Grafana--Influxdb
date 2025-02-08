@@ -205,14 +205,19 @@ def process_func(message):
 
     return None
 
-
+# counter=1
 
 def on_message(client, userdata, message):
 
     """Callback function for processing received messages."""
 
     value = process_func(message.payload.decode())
-    
+
+    # global counter
+
+    # print(counter)
+    # counter +=1
+
     if value is not None:
 
         deviceId = value["device_id"]
@@ -226,7 +231,7 @@ def on_message(client, userdata, message):
         time= value["time"]
 
         sendDataToContextBroker(deviceId, location, temperature, tag, parkingStatus,time,batteryVoltage)
-
+        
 
 
         return
