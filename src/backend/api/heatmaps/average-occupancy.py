@@ -1,5 +1,6 @@
 from utils import connect_to_db, get_sensor_ids, create_heatmap, create_html_map
 import json
+import time
 
 connector = connect_to_db()
 cursor = connector.cursor()
@@ -43,7 +44,13 @@ def get_average_occupancy_data(cursor):
             prev_timestamp = timestamp
             prev_state = value
         
+        current_time = int(time.time_ns() // 1e6)
+        total_mins += current_time - prev_timestamp
+        if prev_timestamp and prev_state == "true":
+            total_occupied += current_time - prev_timestamp
+        
         avg_occ = total_occupied / total_mins if total_mins > 0 else 0
+        print(f"Sensor {id} has average occupancy {avg_occ}")
     
         query = f"""
             SELECT attrValue AS location

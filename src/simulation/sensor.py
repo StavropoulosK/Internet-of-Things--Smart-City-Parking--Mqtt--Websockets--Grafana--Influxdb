@@ -21,7 +21,7 @@ hot_spots = {
 
 
 class ParkingSensor:
-    def __init__(self, sensor_id, location, voltage, temperature, has_shadow=False):
+    def __init__(self, sensor_id, location, voltage, temperature, has_shadow=False, occupied=False, time_since_occupied=None):
         self.id = sensor_id
         self.location = location
         self.voltage = voltage
@@ -29,8 +29,8 @@ class ParkingSensor:
         
         self.has_shadow = has_shadow
 
-        self.occupied = False
-        self.time_since_occupied = None
+        self.occupied = occupied
+        self.time_since_occupied = time_since_occupied
 
         self.distance_to_hot_spot = min(haversine(self.location, hot_spots[hot_spot]) for hot_spot in hot_spots)
         
@@ -53,6 +53,7 @@ class ParkingSensor:
     def update_parking_status(self, epipedo_aixmis, local_time):
         distances_to_hot_spots = [haversine(self.location, hot_spots[hot_spot]) for hot_spot in hot_spots]
         want_factor = 1 + np.exp(-250 / np.min(distances_to_hot_spots))
+
         
         if epipedo_aixmis == 2:
             probability_to_free_spot = 0.1
@@ -83,6 +84,8 @@ class ParkingSensor:
 
 
 def probability_to_leave(t, T_max, T_50, k):
+    if t < 20:
+        return 0.1 / 20 * t
     if t > T_max:
         return 1
     return 1 / (1 + np.exp(-k * (t - T_50)))

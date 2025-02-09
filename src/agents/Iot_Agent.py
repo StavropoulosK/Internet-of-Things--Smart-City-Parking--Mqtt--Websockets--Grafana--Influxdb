@@ -94,7 +94,7 @@ def check_and_create_entity(
 
 
 def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus,formatted_utc_time,batteryVoltage):
-
+    print("Sending data to FIWARE... sensor_id:", sensor_id)
     # Gia to Fiware xrisimopoioume attributes pou orizei to smart data models (id,location,type,occupancyModified) kai ala pou to epektinoun
     # https://github.com/smart-data-models/dataModel.Parking/blob/master/OnStreetParking/doc/spec.md
 

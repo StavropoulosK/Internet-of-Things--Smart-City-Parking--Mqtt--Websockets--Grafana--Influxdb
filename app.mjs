@@ -91,9 +91,9 @@ update_current_temp_heatmap();
 update_average_temp_heatmap();
 update_average_occupancy_heatmap();
 
-setInterval(update_current_temp_heatmap, 1000 * 60 * 10); // Update every 10 minutes
-setInterval(update_average_temp_heatmap, 1000 * 60 * 60 * 24); // Update every 24 hours
-setInterval(update_average_occupancy_heatmap, 1000 * 60 * 60 * 24); // Update every 24 hours
+setInterval(update_current_temp_heatmap, 1000 * 60 * 5); // Update every 5 minutes
+setInterval(update_average_temp_heatmap, 1000 * 60 * 60 * 6); // Update every 6 hours
+setInterval(update_average_occupancy_heatmap, 1000 * 60 * 60 * 6); // Update every 6 hours
 
 
 

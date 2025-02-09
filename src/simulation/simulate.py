@@ -8,6 +8,7 @@ import random
 import json
 import uuid
 import time
+import requests
 
 
 broker = "150.140.186.118"
@@ -138,12 +139,30 @@ def simulate():
     local_time = current_time.strftime("%H:%M:%S")
     shade = shade_factor(current_time.minute + current_time.hour * 60)
 
-    for sensor in data:
-        sensor_id = sensor["id"]
-        loc = (sensor["lat"], sensor["lng"])
+    def load_data_from_context_broker():
+        limit = 999
+        url = f"http://150.140.186.118:1026/v2/entities?idPattern=^smartCityParking_&limit={limit}"
+        headers = headers = {
+            "Accept": "application/json",
+            "FIWARE-ServicePath": "/smartCityParking/Patras"
+        };
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Failed to load data from context broker, status code: {response.status_code}")
+            return []
+
+    context_broker_data = load_data_from_context_broker()
+    
+    for sensor in context_broker_data:
+        sensor_id = int(sensor["id"].split("_")[1])
+        loc = sensor["location"]["value"]["coordinates"]
         has_shadow = sensor_id in sensors_with_shadow
-        temp = temperature + 20 * shade if has_shadow else temperature
-        sensors.append(ParkingSensor(sensor_id, loc, init_battery_voltage, temp, has_shadow))
+        temp = sensor["temperature"]["value"]
+        occupied = sensor["carParked"]["value"]
+        time_since_occupied = datetime.strptime(sensor['occcupancyModified']['value'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        sensors.append(ParkingSensor(sensor_id, loc, init_battery_voltage, temp, has_shadow, occupied, time_since_occupied))
     # sensors = sensors[0:300]
 
     # Gia tis metablites orizoume oti akolouthoun mia gkaousiani katanomi
@@ -182,6 +201,10 @@ def simulate():
         epipedo_aixmis = calculate_epipedo_aixmis(meres_aixmis, current_day, local_time)
 
         shade = shade_factor(time_mins)
+
+        print(f"Current Time: {local_time}")
+        print(f"Total occupied spots: {sum([1 for sensor in sensors if sensor.occupied])} out of {len(sensors)}")
+
         counterId = 1
         for sensor in sensors:
             counterId += 1
@@ -214,9 +237,8 @@ def simulate():
 
                 message_json = json.dumps(message)
                 client.publish(topic, message_json)
-                
-        print(f"Current Time: {local_time}")
-        print(f"Total occupied spots: {sum([1 for sensor in sensors if sensor.occupied])} out of {len(sensors)}")
+            
+            # time.sleep(simulation_update_time_in_minutes * 60 / len(sensors))
         # time.sleep(simulation_update_time_in_minutes * 60)
 
 
