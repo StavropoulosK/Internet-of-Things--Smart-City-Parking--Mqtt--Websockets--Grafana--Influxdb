@@ -1,9 +1,11 @@
 import requests
 
+
 def getAmea_sensorId():
     locations = get_locations()
-    amea_ids = [item['id'] for item in locations if item['isAmea']]
+    amea_ids = [item["id"] for item in locations if item["isAmea"]]
     return amea_ids
+
 
 def get_locations():
     url = "https://patra.smartiscity.gr/api/api.php?func=parkingAll"
@@ -11,37 +13,90 @@ def get_locations():
     try:
         response = requests.get(url)
         if response.status_code != 200:
-            print('2')
+            print("2")
             print("Error: ", response.status_code)
             return None
 
         data = response.json()
-        
-        
-        locations = [{
-            "id": parking["id"],
-            "lat": parking["Lat"],
-            "lng": parking["Lon"],
-            "isAmea": parking["Type"] == "ΑΜΕΑ"
-            # "isAmea": parking["IsAmea"]
-            } for parking in data
+
+        locations = [
+            {
+                "id": parking["id"],
+                "lat": parking["Lat"],
+                "lng": parking["Lon"],
+                "isAmea": parking["Type"] == "ΑΜΕΑ",
+                # "isAmea": parking["IsAmea"]
+            }
+            for parking in data
         ]
-        
+
         return locations
 
     except Exception as e:
         print("Error: ", e)
         return None
 
-if __name__ == "__main__":
-    print(get_locations())
-    # locations = get_locations()
-    # print(locations)
-    # amea_ids = [item['id'] for item in locations if item['isAmea']]
 
-    # print(amea_ids)
+if __name__ == "__main__":
+    # print(get_locations())
+    locations = get_locations()
+    # print(locations)
+    amea_ids = [item['id'] for item in locations if item['isAmea']]
+
+    print(amea_ids)
     # print(sum([1 for location in locations if location["isAmea"]]), "Amea spots")
 
+# Kapoioi aisthitires theoroume oti briskontai se skiera meri
+sensors_with_shadow = [
+    100493,
+    100494,
+    100495,
+    100496,
+    100497,
+    100499,
+    100498,
+    100500,
+    100501,
+    100502,
+    100503,
+    100504,
+    100505,
+    100506,
+    100507,
+    100508,
+    100509,
+    100510,
+    101309,
+    101300,
+    101308,
+    101299,
+    101307,
+    101298,
+    101306,
+    101297,
+    101305,
+    101296,
+    101304,
+    101295,
+    101303,
+    101294,
+    101291,
+    101301,
+    101302,
+    101292,
+    101293,
+    101794,
+    101805,
+    101795,
+    101806,
+    101796,
+    101807,
+    101797,
+    101808,
+    101798,
+    101809,
+    101799,
+]
 # locations = [
 #     (38.24452980649084, 21.72979870807786),
 #     (38.24449898766099, 21.729837948928942),

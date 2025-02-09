@@ -44,11 +44,11 @@ class ParkingSensor:
         # Sensor temperature is T_air + ΔΤ_solar * ShadeFactor
         if self.has_shadow:
             shade_factor = min(shade_factor, 0.1)
-        new_temp = np.random.normal(mean_temp, std_temp) + shade_factor * solar_intensity
+        self.temperature = np.random.normal(mean_temp, std_temp) + shade_factor * solar_intensity
 
-        # Smooth temperature changes
-        decay = 0.2
-        self.temperature = self.temperature * decay + new_temp * (1 - decay)
+        # # Smooth temperature changes
+        # decay = 0.2
+        # self.temperature = self.temperature * decay + new_temp * (1 - decay)
         
     def update_parking_status(self, epipedo_aixmis, local_time):
         distances_to_hot_spots = [haversine(self.location, hot_spots[hot_spot]) for hot_spot in hot_spots]

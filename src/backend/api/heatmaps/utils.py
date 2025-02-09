@@ -55,6 +55,7 @@ def create_heatmap(sensor_data, image_path, min_value, max_value, fill_value=0):
     # Normalize the data to the range [0, 1]
     norm = mcolors.Normalize(vmin=min_value, vmax=max_value)
 
+    fill_value = np.nanmean(grid)
     filtered_grid = np.where(np.isnan(grid), fill_value, grid)
     colored_grid = cmap(norm(filtered_grid))
 

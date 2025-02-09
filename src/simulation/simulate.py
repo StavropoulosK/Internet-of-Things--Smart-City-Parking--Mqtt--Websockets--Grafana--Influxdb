@@ -19,7 +19,7 @@ topic = "smartCityParking/Patras"
 # Kapoioi aisthitires briskontai se skiastra/dentra opote exoun mikroteri thermokrasia ti diarkia tis imeras.
 #
 # from locations import locations
-from locations import get_locations
+from locations import get_locations, sensors_with_shadow
 
 from sensor import ParkingSensor
 
@@ -120,7 +120,7 @@ simulation_update_time_in_minutes = 1
 def simulate():
 
     # Kapoioi aisthitires theoroume oti briskontai se skiera meri
-    sensors_with_shadow = [101318, 101309, 101307, 101295, 101287, 100508]
+    # sensors_with_shadow = [101318, 101309, 101307, 101295, 101287, 100508]
 
     # mesi thermokrasia stin patra apo to open meteo
     temperature = getCurrentTemp()
@@ -133,13 +133,17 @@ def simulate():
     data = get_locations()
 
     sensors = []
+    current_time = datetime.now()
+    current_day = current_time.strftime("%A")
+    local_time = current_time.strftime("%H:%M:%S")
+    shade = shade_factor(current_time.minute + current_time.hour * 60)
 
     for sensor in data:
         sensor_id = sensor["id"]
         loc = (sensor["lat"], sensor["lng"])
         has_shadow = sensor_id in sensors_with_shadow
-        sensors.append(ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, has_shadow))
-
+        temp = temperature + 20 * shade if has_shadow else temperature
+        sensors.append(ParkingSensor(sensor_id, loc, init_battery_voltage, temp, has_shadow))
     # sensors = sensors[0:300]
 
     # Gia tis metablites orizoume oti akolouthoun mia gkaousiani katanomi
@@ -178,7 +182,6 @@ def simulate():
         epipedo_aixmis = calculate_epipedo_aixmis(meres_aixmis, current_day, local_time)
 
         shade = shade_factor(time_mins)
-
         counterId = 1
         for sensor in sensors:
             counterId += 1
@@ -212,7 +215,9 @@ def simulate():
                 message_json = json.dumps(message)
                 client.publish(topic, message_json)
                 
-        time.sleep(simulation_update_time_in_minutes * 60)
+        print(f"Current Time: {local_time}")
+        print(f"Total occupied spots: {sum([1 for sensor in sensors if sensor.occupied])} out of {len(sensors)}")
+        # time.sleep(simulation_update_time_in_minutes * 60)
 
 
 def calculate_epipedo_aixmis(meres_aixmis, current_day, local_time):
