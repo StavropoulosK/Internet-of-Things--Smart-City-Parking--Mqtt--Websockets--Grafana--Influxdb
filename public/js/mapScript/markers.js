@@ -109,6 +109,8 @@ function openMarker(marker, id, katigoria, temperature, hasShadow, distance = nu
     infoWindow = new google.maps.InfoWindow();
     selectedSpotId = id
 
+    console.log(id)
+
     highlightMarker(id);
 
     flipDirectionsBtn(true);

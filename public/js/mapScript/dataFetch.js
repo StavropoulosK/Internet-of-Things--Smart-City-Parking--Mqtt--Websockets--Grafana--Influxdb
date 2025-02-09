@@ -21,7 +21,6 @@ function getMinutesFromDuration(duration) {
 }
 
 function willVacateSoon(timeOfLastReservation, maximumParkingDuration) {
-    console.log(timeOfLastReservation)
     // TODO: Move to backend. For example at url /api/willVacateSoon?id=...
     const soonVacateThreshold = 10; // minutes
     

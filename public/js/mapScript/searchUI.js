@@ -167,7 +167,7 @@ function enterHandler(map, geocoder, event) {
                 lat: results[0].geometry.location.lat(),
                 lng: results[0].geometry.location.lng()
             }
-            console.log(searchDestination);
+            // console.log(searchDestination);
 
             destination = searchDestination;
             createDestinationLocationPin(map, searchDestination);
