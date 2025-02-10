@@ -17,20 +17,24 @@ client_id = "smartCityParkingFaker"
 topic = "smartCityParking/Patras"
 
 # Gia tin prosomiosi lambanei tin thermokrasia stin Patra apo to open meteo api kai me gkaousiani katanomi anatheti stous aisthitires thermokrasies.
-# Kapoioi aisthitires briskontai se skiastra/dentra opote exoun mikroteri thermokrasia ti diarkia tis imeras.
+# Kapoioi aisthitires briskontai se skiastra/dentra opote exoun mikroteri thermokrasia ti diarkia tis imeras, efoson den brexei kai den exei sinefa.
 #
 # from locations import locations
+
+# ipothetoume oti iparxi skia mono an den brexei
+
+# oi aisthitires pou exoun skia otan den exi sinefa
 from locations import get_locations, sensors_with_shadow
 
 from sensor import ParkingSensor
 
 
-def getCurrentTemp():
+def getCurrentTemp_Conditions():
     om = openmeteo_requests.Client()
     params = {
         "latitude": 38.246403475045675,
         "longitude": 21.731728987305722,
-        "current": ["temperature_2m"],
+        "current": ["temperature_2m","weather_code"],
     }
 
     responses = om.weather_api("https://api.open-meteo.com/v1/forecast", params=params)
@@ -47,7 +51,14 @@ def getCurrentTemp():
             current_variables,
         )
     )
-    return current_temperature_2m.Value()
+
+    current_weather_code = next(
+        (x for x in current_variables if x.Variable() == Variable.weather_code),
+        None
+    )
+
+
+    return current_temperature_2m.Value(),current_weather_code.Value()
 
 
 def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitude):
@@ -116,7 +127,7 @@ def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitud
 # kathe posa lepta tha trexei i prosomiosi
 simulation_update_time_in_minutes = 1
 
-# counter=1
+counter=1
 
 def simulate():
 
@@ -124,7 +135,11 @@ def simulate():
     # sensors_with_shadow = [101318, 101309, 101307, 101295, 101287, 100508]
 
     # mesi thermokrasia stin patra apo to open meteo
-    temperature = getCurrentTemp()
+    temperature = getCurrentTemp_Conditions()[0]
+
+    # Elegxi an brexi i oxi. To eksetazoume oste na min exoun skia oi aisthitires an brexei.
+    weather_code=  getCurrentTemp_Conditions()[1]
+
     print(f"Current temperature {temperature}")
 
     init_battery_voltage = 5.0
@@ -158,7 +173,17 @@ def simulate():
     for sensor in context_broker_data:
         sensor_id = int(sensor["id"].split("_")[1])
         loc = sensor["location"]["value"]["coordinates"]
-        has_shadow = sensor_id in sensors_with_shadow
+
+
+        has_shadow= False
+        if weather_code<20:
+            # ipothetoume oti iparxi skia mono an den brexei
+            # https://www.nodc.noaa.gov/archive/arc0021/0002199/1.1/data/0-data/HTML/WMO-CODE/WMO4677.HTM
+            has_shadow = sensor_id in sensors_with_shadow
+        else:
+            # Brexei
+            has_shadow = False
+
         temp = sensor["temperature"]["value"]
         occupied = sensor["carParked"]["value"]
         time_since_occupied = datetime.strptime(sensor['occcupancyModified']['value'], '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -237,6 +262,11 @@ def simulate():
 
                 message_json = json.dumps(message)
                 client.publish(topic, message_json)
+
+                # global counter
+                # print(counter)
+                # counter +=1
+
             
             # time.sleep(simulation_update_time_in_minutes * 60 / len(sensors))
         # time.sleep(simulation_update_time_in_minutes * 60)

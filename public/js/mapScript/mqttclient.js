@@ -1,13 +1,36 @@
 import { getSessionId, showAlive, sendNotificationParamsToServer} from "./sessionUtils.js";
 import { updateReservedSpot, selectedMarkerWasOccupied } from "./markers.js";
 import { spotWasOccupied } from "./directions.js";
-import { getCity } from "../utils.js";
+import { getCurrentPosition, getCity } from "../utils.js";
 
 // let counter=1
 
 async function initMQTTClinet() {
     const sessionId = await getSessionId();
-    const city = await getCity();
+
+    let userLocation
+
+    try {
+        const userPosition = await getCurrentPosition();
+        userLocation = { coords:{
+            lat: userPosition.coords.latitude,
+            lng: userPosition.coords.longitude}
+        };
+    } catch (error) {
+        console.error(error);
+
+        // default thesi se periptosi pou den iparxi anixneusi topothesias.
+        userLocation={
+            coords: {
+                lat: 38.2552478,
+                lng: 21.7461463
+            }
+        }
+    }
+
+    const city = await getCity({lat:userLocation.coords.lat,lng:userLocation.coords.lng});
+    // console.log('12 ',userLocation,city)
+
 
     await sendNotificationParamsToServer(city);
 

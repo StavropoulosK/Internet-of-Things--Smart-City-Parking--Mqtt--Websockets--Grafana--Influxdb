@@ -28,35 +28,24 @@ function getCurrentPosition() {
     });
 }
 
-async function getCity(location = null) {
-    if (location === null) {
+// Oria Patras
+
+// 38.371445, 21.604063     
+// 38.371445, 21.965454
+// 38.122938, 21.604063
+// 38.122938, 21.965454
+
+async function getCity(location) {
+    // console.log('a  ',location.lat, location.lng)
+
+    if( location.lat >= 38.122938 && location.lat <= 38.371445 && location.lng >= 21.604063   && location.lng<= 21.965454 ){
         return "Patras";
     }
-    return "Patras";
-
-    // Tried to automatically find the city name. 
-    // Unfortunately, the Geocoder API returns Patra, not Patras...
-    // And the whole system breaks...
-    const geocoder = new google.maps.Geocoder();
-
-    try {
-        const response = await geocoder.geocode({ location: location , language : 'en'});
-        if (response.results.length > 0) {
-            // Loop through address components to find the city
-            const addressComponents = response.results[0].address_components;
-            for (const component of addressComponents) {
-                if (component.types.includes("locality")) {
-                    return component.long_name; // This is the city name
-                }
-            }
-            return "City not found in address components.";
-        } else {
-            return "No results found.";
-        }
-    } catch (error) {
-        console.error("Error fetching city:", error);
-        return "Error fetching city.";
+    else{
+        // mexri stigmis den ipostirizetai ali poli, opote epistrefei panta Patras
+        return "Patras";
     }
+
 }
 
 function haversine(lat1, lon1, lat2, lon2) {

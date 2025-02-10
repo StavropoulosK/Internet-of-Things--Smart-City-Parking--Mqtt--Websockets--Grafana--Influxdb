@@ -5,11 +5,11 @@ import { placeMarkers, closeInfoWindow } from './mapScript/markers.js';
 import { createAutocomplete } from './mapScript/searchUI.js';
 import { startDirections, mapFocus } from './mapScript/directions.js';
 import { initMQTTClinet } from './mapScript/mqttclient.js';
-import { getCurrentPosition } from "./utils.js";
+import { getCurrentPosition,getCity } from "./utils.js";
 
 
+// H thesi tou xarti an den iparxei topothesia thesis tou xristi.
 const defaultPosition = {
-    city: "Patras",
     coords: {
         lat: 38.2552478,
         lng: 21.7461463
@@ -36,6 +36,8 @@ async function initMap() {
         userLocation=defaultPosition
     }
 
+    const city= await getCity({lat:userLocation.coords.lat,lng:userLocation.coords.lng})
+
     let map = new Map(document.getElementById("map"), {
         center: { lat: userLocation.coords.lat, lng: userLocation.coords.lng },
         zoom: 15,
@@ -48,7 +50,7 @@ async function initMap() {
         closeInfoWindow()
         event.stop()
     });
-    await placeMarkers(map, defaultPosition.city);
+    await placeMarkers(map,city);
     await createAutocomplete(map);
     await initMQTTClinet();
 

@@ -32,7 +32,9 @@ function willVacateSoon(timeOfLastReservation, maximumParkingDuration) {
 }
 
 async function findBestParkingSpot(destination, radius, filters) {
+
     const city = await getCity(destination);
+    
     try {
         const response = await fetch(`/api/bestParkingSpot?city=${city}&destination=${destination.lat},${destination.lng}&radius=${radius}&filters=${JSON.stringify(filters)}`);
         if (!response.ok) {
