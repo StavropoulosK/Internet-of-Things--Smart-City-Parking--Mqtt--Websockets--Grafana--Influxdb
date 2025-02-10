@@ -15,11 +15,12 @@ simulation_path = os.path.join(parent_dir, 'simulation')
 sys.path.insert(1,simulation_path)
 from locations import getAmea_sensorId 
 
+print('agent running')
 
 # mqtt broker
 broker = "150.140.186.118"
 port = 1883
-client_id = "SmartCityParking"
+client_id = "SmartCityParkingAgent" +str(random.random())
 topic = "smartCityParking/Patras"
 
 # FIWARE Orion Context Broker details
@@ -154,6 +155,11 @@ def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus
     url = f"{orion_url}/{entity_id}/attrs"
     response = -1
 
+    # global counter
+
+    # print(counter)
+    # counter +=1
+
     try:
         response = requests.patch(url, headers=headers, json=payload)
     except Exception as e:
@@ -213,10 +219,6 @@ def on_message(client, userdata, message):
 
     value = process_func(message.payload.decode())
 
-    # global counter
-
-    # print(counter)
-    # counter +=1
 
     if value is not None:
 

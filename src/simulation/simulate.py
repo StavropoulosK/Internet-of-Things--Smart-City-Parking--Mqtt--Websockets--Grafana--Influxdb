@@ -13,7 +13,7 @@ import requests
 
 broker = "150.140.186.118"
 port = 1883
-client_id = "smartCityParkingFaker"
+client_id = "smartCityParkingFaker"+str(random.random())
 topic = "smartCityParking/Patras"
 
 # Gia tin prosomiosi lambanei tin thermokrasia stin Patra apo to open meteo api kai me gkaousiani katanomi anatheti stous aisthitires thermokrasies.
@@ -125,7 +125,7 @@ def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitud
 
 
 # kathe posa lepta tha trexei i prosomiosi
-simulation_update_time_in_minutes = 1
+simulation_update_time_in_minutes = 25/60
 
 counter=1
 
