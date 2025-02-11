@@ -54,15 +54,14 @@ class ParkingSensor:
         distances_to_hot_spots = [haversine(self.location, hot_spots[hot_spot]) for hot_spot in hot_spots]
         want_factor = 1 + np.exp(-250 / np.min(distances_to_hot_spots))
 
-        
         if epipedo_aixmis == 2:
-            probability_to_free_spot = 0.1
+            T_50 = 100
             probability_to_take_spot = 0.15 + traffic_coefficient
         elif epipedo_aixmis == 1:
-            probability_to_free_spot = 0.15
+            T_50 = 90
             probability_to_take_spot = 0.125 + traffic_coefficient
         else:
-            probability_to_free_spot = 0.2
+            T_50 = 80
             probability_to_take_spot = 0.1 + traffic_coefficient
         
         probability_to_take_spot *= want_factor
@@ -70,7 +69,7 @@ class ParkingSensor:
         if self.occupied:
             time_parked = local_time - self.time_since_occupied
             mins = time_parked.total_seconds() / 60
-            if np.random.rand() < probability_to_leave(mins, 120, 90, probability_to_free_spot):
+            if np.random.rand() < probability_to_leave(mins, 120, T_50, 0.2):
                 self.occupied = False
                 self.time_since_occupied = None
                 return True

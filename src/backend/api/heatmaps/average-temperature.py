@@ -15,10 +15,13 @@ def get_average_temperature_data(cursor):
         table = f"smartCityParking_Patras_smartCityParking_{id}_OnStreetParking"
 
         query = f"""
-            SELECT AVG(attrValue) AS temperature
-            FROM {table}
-            WHERE attrName = 'temperature'
-            AND recvTimeTs >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 1 WEEK));
+            SELECT AVG(temperature) AS temperature
+            FROM (
+                SELECT attrValue AS temperature, recvTime
+                FROM {table}
+                WHERE attrName = 'temperature'
+                AND recvTime >= NOW() - INTERVAL 3 DAY
+            ) AS SubQuery;
         """
         try:
             cursor.execute(query)
