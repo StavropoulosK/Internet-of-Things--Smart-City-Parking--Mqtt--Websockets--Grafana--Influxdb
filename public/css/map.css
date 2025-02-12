@@ -1,107 +1,107 @@
-:root{
-    font-size:16px;
-  }
+:root {
+    font-size: 16px;
+}
 
-.container{
+.container {
     flex: 1;
     position: relative;
-}
-
-
-html, body {
-    max-height: 100vh;
-    margin: 0;
-    padding: 0;
+    padding: 0rem;
     display: flex;
-    flex-direction: column; /* Stack items vertically */
-    overflow: hidden;
-
 }
+
 
 #map {
     width: 100%;
-    height: 100vh; 
     flex: 1;
-    margin:0;
-    padding:0;
-
+    margin: 0;
+    padding: 0;
 }
 
 #compass {
     position: absolute;
-    bottom: 7.5em;  /* Distance from the bottom of the map */
-    left: 2.5em;    /* Distance from the left side of the map */
-    width:3em;
-    height:3em;
-    background-color: transparent; /* Remove background */
-    border: none;  /* Remove the border */
-    padding: 0;    /* Remove any padding */
+    bottom: 7.5em;
+    /* Distance from the bottom of the map */
+    left: 2.5em;
+    /* Distance from the left side of the map */
+    width: 3em;
+    height: 3em;
+    background-color: transparent;
+    /* Remove background */
+    border: none;
+    /* Remove the border */
+    padding: 0;
+    /* Remove any padding */
     cursor: pointer;
-    display: inline-block; /* This allows the button to size based on its content (the image) */
+    display: inline-block;
+    /* This allows the button to size based on its content (the image) */
 }
 
 
 #compass img {
-    border:none;
-    width: 100%; /* Make the image fill the button's width */
-    height: 100%; /* Make the image fill the button's height */
-    object-fit: cover; /* Ensures the image covers the entire button area while maintaining aspect ratio */
+    border: none;
+    width: 100%;
+    /* Make the image fill the button's width */
+    height: 100%;
+    /* Make the image fill the button's height */
+    object-fit: cover;
+    /* Ensures the image covers the entire button area while maintaining aspect ratio */
 }
 
-  
-.marker{
-    width:1.5rem;
-    height:1.5rem;
+.marker {
+    width: 1.5rem;
+    height: 1.5rem;
     border-radius: 50%;
 }
 
-.disabilitymarker{
-    width:4rem;
-    height:4rem;
+.disabilitymarker {
+    width: 4rem;
+    height: 4rem;
     border-radius: 50%;
 }
 
 .autocomplete {
     position: absolute;
-    top: 20px; /* Space from the top of the page */
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Offset by half of its width to truly center */
-    z-index: 1; /* Ensure it's above the map */
-    /* background-color: #C9E6F0; */
-    background-color:rgba(201, 230, 240, 0.8) ;
+    top: 20px;
+    /* Space from the top of the page */
+    left: 50%;
+    /* Center horizontally */
+    transform: translateX(-50%);
+    /* Offset by half of its width to truly center */
+    z-index: 1;
+    /* Ensure it's above the map */
+    background-color: #31572Cdd;
 
     width: 70vw;
     max-width: 500px;
-
     padding: 1em;
-    padding-bottom:1em;
+    padding-bottom: 1em;
     border-radius: 0.7em;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3); /* Optional, adds shadow for better visibility */
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+    /* Optional, adds shadow for better visibility */
 }
 
-#reservationInfo{
+#reservationInfo {
     display: inline-flex;
-    align-items: center;  
-    height:100%;
+    align-items: center;
+    height: 100%;
     font-size: 1.2em;
-    margin-left:0.5em;
-    max-width:50vw;
+    margin-left: 0.5em;
+    max-width: 50vw;
 }
 
 
 
 
-.autocomplete input[type="checkbox"]{
+.autocomplete input[type="checkbox"] {
     appearance: none;
     background: white;
     position: relative;
-    top:0.3rem;
+    top: 0.3rem;
 }
 
 
-
 .autocomplete input[type="checkbox"]:checked {
-    background-color: #007bff;
+    background-color: #6A994E;
 }
 
 .autocomplete input[type="checkbox"]::after {
@@ -112,30 +112,25 @@ html, body {
     border: 2px solid white;
     border-top: none;
     border-right: none;
-    left: 2.5px; 
+    left: 2.5px;
     top: 4px;
     transform: rotate(-45deg);
-    opacity: 0; /* Hidden by default */
+    opacity: 0;
+    /* Hidden by default */
     transition: opacity 0.1s;
 }
 
 .autocomplete input[type="checkbox"]:checked::after {
-    opacity: 1; /* Show checkmark when checked */
+    opacity: 1;
+    /* Show checkmark when checked */
 }
-
-
-
-
-
-
-
-
 
 /* General slider styles */
 #radiusSlider {
-    margin-top:0.5rem;
-    margin-bottom:0.5rem;
-    -webkit-appearance: none; /* Removes default styling on WebKit browsers */
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    -webkit-appearance: none;
+    /* Removes default styling on WebKit browsers */
     appearance: none;
     width: 100%;
     height: 10px;
@@ -153,7 +148,7 @@ html, body {
     width: 22px;
     height: 22px;
     background: #007bff;
-    border:none;
+    border: none;
     border-radius: 50%;
     cursor: pointer;
     transition: 0.2s;
@@ -163,11 +158,12 @@ html, body {
 #radiusSlider::-moz-range-thumb {
     width: 22px;
     height: 22px;
-    background: #007bff;
+    background: #6A994E;
     border-radius: 50%;
     cursor: pointer;
     transition: 0.2s;
-    border: none; /* Remove border */
+    border: none;
+    /* Remove border */
 
 }
 
@@ -177,65 +173,85 @@ html, body {
 }
 
 #radiusSlider:active::-webkit-slider-thumb {
-    background: #0056b3;
+    background: #6A994E;
 }
 
 #radiusSlider:active::-moz-range-thumb {
-    background: #0056b3;
+    background: #6A994E;
+}
+
+
+.autocomplete .input-div {
+    display: flex;
+}
+
+.autocompleteButton {
+    width: 45px;
+    height: 35px;
+    background-color: #6A994E;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 0 10px;
+    padding: 0px;
+}
+
+.autocompleteButton:hover {
+    background-color: #132a13;
+}
+
+#clearBtn {
+    margin: 0px;
+    background-color: #BC4749;
+}
+
+#clearBtn:hover {
+    background-color: #7D2E30;
+}
+
+.autocomplete i {
+    color: white;
+    font-size: 16px;
 }
 
 
 
-
-
-
-.autocomplete input{
+.autocomplete input {
     width: 100%;
     border: none;
     border-radius: 0.25em;
-    font-size:1rem;
+    font-size: 1rem;
 
 
 }
 
 .autocomplete input:focus {
-    outline: none; /* Removes the outline (usually the blue highlight) */
-    border: none;  /* Removes the border on focus */
-}
-
-.options{
-    font-size: 1.2rem;
-    display:flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    margin-top:0.8rem;
-    /* background-color: red; */
-}
-
-.buttonsDiv{
-    display:flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    margin-top:0.2rem;
-    /* background-color: red; */
-}
-
-.autocompleteButton{
-    width: auto;
-    height: 2.0em;
-    background-color: #007bff;
-    color: white;
+    outline: none;
+    /* Removes the outline (usually the blue highlight) */
     border: none;
-    border-radius: 25px;
-    font-size: 1em;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;      
-    align-items: center; 
-    justify-content: center; 
+    /* Removes the border on focus */
 }
 
-.options button{
+.options {
+    font-size: 1.2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 0.8rem;
+    width: 100%;
+    /* background-color: red; */
+}
+
+.buttonsDiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-top: 0.2rem;
+    /* background-color: red; */
+}
+
+.options button {
     border: none;
     background-color: #3498db;
     color: white;
@@ -243,75 +259,80 @@ html, body {
     cursor: pointer;
 }
 
-.options input{
-    display:inline-block;
-    width:fit-content;
-    border:none;
-    padding:0.5em;
+.options input {
+    display: inline-block;
+    width: fit-content;
+    border: none;
+    padding: 0.5em;
 
 }
 
-.options span{
-    color:rgb(19, 18, 18);
+.options span {
+    color: rgb(19, 18, 18);
 }
 
-#radius{
+#radius {
     font-size: 0.85rem;
     background-color: white;
-    border:none;
+    border: none;
     border-radius: 10px;
-    padding:0.3em;
-    padding-left:0.5em;
+    padding: 0.3em;
+    padding-left: 0.5em;
 }
 
-.dialogWindow{
+.dialogWindow {
     position: absolute;
-    top: 44%; /* Space from the top of the page */
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Offset by half of its width to truly center */
-    width:20rem;
-    z-index: 1; /* Ensure it's above the map */
+    top: 44%;
+    /* Space from the top of the page */
+    left: 50%;
+    /* Center horizontally */
+    transform: translateX(-50%);
+    /* Offset by half of its width to truly center */
+    width: 20rem;
+    z-index: 1;
+    /* Ensure it's above the map */
     background-color: white;
     padding: 0.2em;
     border-radius: 0.7rem;
-    font-size:1rem;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3); /* Optional, adds shadow for better visibility */
+    font-size: 1rem;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+    /* Optional, adds shadow for better visibility */
 }
 
-.dialogWindow p{
+.dialogWindow p {
     margin-top: 0.8rem;
-    margin-left:0.4rem;
-    margin-right:0.4rem;
-    margin-bottom:0.2rem;
+    margin-left: 0.4rem;
+    margin-right: 0.4rem;
+    margin-bottom: 0.2rem;
     font-family: 'Arial', sans-serif;
-    font-weight: 300; 
+    font-weight: 300;
 
 }
 
-.invisible{
-    display:none
+.invisible {
+    display: none
 }
 
-.dialogWindow button{
-    border:none;
-    padding:0.3rem;
+.dialogWindow button {
+    border: none;
+    padding: 0.3rem;
     border-radius: 1rem;
-    margin-bottom:0.2rem;
-    font-size:1rem;
+    margin-bottom: 0.2rem;
+    font-size: 1rem;
     background-color: white;
-    float:right;
-    margin-right:0.8rem
+    float: right;
+    margin-right: 0.8rem
 }
 
-.dialogWindow button:hover{
-    cursor:pointer;
+.dialogWindow button:hover {
+    cursor: pointer;
 }
 
 
 button.gm-ui-hover-effect {
-    width:35px !important;
-    height:35px !important;
-  }
+    width: 35px !important;
+    height: 35px !important;
+}
 
 button.gm-ui-hover-effect span {
     mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M19%206.41L17.59%205%2012%2010.59%206.41%205%205%206.41%2010.59%2012%205%2017.59%206.41%2019%2012%2013.41%2017.59%2019%2019%2017.59%2013.41%2012z%22/%3E%3Cpath%20d%3D%22M0%200h24v24H0z%22%20fill%3D%22none%22/%3E%3C/svg%3E") !important;
@@ -319,23 +340,24 @@ button.gm-ui-hover-effect span {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M19%206.41L17.59%205%2012%2010.59%206.41%205%205%206.41%2010.59%2012%205%2017.59%206.41%2019%2012%2013.41%2017.59%2019%2019%2017.59%2013.41%2012z%22/%3E%3Cpath%20d%3D%22M0%200h24v24H0z%22%20fill%3D%22none%22/%3E%3C/svg%3E") !important;
 }
 
-.bottomContainer{
-    display:flex;
+.bottomContainer {
+    display: flex;
     flex-direction: column;
 }
 
-#distance{
+#distance {
     display: inline-block;
     margin-top: 0.3rem;
 }
 
-button#directionsBtn{
-    width:7em;
-    height:2.5em;
-    float:right;
-    margin-right:1em;   /* Distance from the right */
-    margin-bottom:0.4em;
-    margin-top:0.5em;
+button#directionsBtn {
+    width: 7em;
+    height: 2.5em;
+    float: right;
+    margin-right: 1em;
+    /* Distance from the right */
+    margin-bottom: 0.4em;
+    margin-top: 0.5em;
     padding: 10px 60px;
     background-color: #b3b1b1;
     color: white;
@@ -344,76 +366,82 @@ button#directionsBtn{
     font-size: 1em;
     cursor: auto;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;      
-    align-items: center; 
-    justify-content: center; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-button#directionsBtn.active{
+button#directionsBtn.active {
     background-color: #007bff;
     cursor: pointer;
 }
 
 
-.ReservationBtn{
-    width:5.5em;
-    height:2.5em;
-    float:right;
-    margin-right:0.2em;   /* Distance from the right */
-    margin-bottom:0.2em;
-    margin-top:0.4em;
+.ReservationBtn {
+    width: 2.5em;
+    height: 2.5em;
+    float: right;
+    margin-right: 0.2em;
+    /* Distance from the right */
+    margin-bottom: 0.2em;
+    margin-top: 0.4em;
     padding: 6px 10px;
-    background-color: #007bff;
+    background-color: #6A994E;
     color: white;
     border: none;
     border-radius: 15px;
     font-size: 1em;
     cursor: auto;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;      
-    align-items: center; 
-    justify-content: center; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.ReservationBtn{
-    background-color: #007bff;
+.ReservationBtn:hover {
+    background-color: #132a13;
     cursor: pointer;
 }
 
 #directions {
     position: absolute;
-    left: 50%; /* Position the element at the middle of the parent */
-    transform: translateX(-50%); /* Offset by half its width to center it */
-    bottom:1.5em;
-    box-sizing:border-box;
-    width:90%;
-    height: 2.5em;
-    margin: 0 auto ;
-    padding: 5px 10px; 
-    background-color: #007bff;
+    left: 50%;
+    /* Position the element at the middle of the parent */
+    transform: translateX(-50%);
+    /* Offset by half its width to center it */
+    bottom: 1.5em;
+    box-sizing: border-box;
+    width: 90%;
+    margin: 0 auto;
+    padding: 15px 20px;
+    background-color: #6A994E;
     color: white;
     border: none;
     border-radius: 25px;
     font-size: 1em;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;      
-    align-items: center; 
-    justify-content: center; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
-.hidden{
+.hidden {
     visibility: hidden;
+}
 
+.InfoWindow {
+    z-index: 2;
 }
 
 
 @media (max-width: 500px) {
-    .InfoWindow{
-        font-size: 0.75rem;  
+    .InfoWindow {
+        font-size: 0.75rem;
     }
 
-    .autocomplete{
-        width:90vw;
+    .autocomplete {
+        width: 90vw;
     }
-  }
+}

@@ -71,12 +71,12 @@ function createMarker(map, parkingSpot) {
 function createCluster(map) {    
     const clusterOptions = {
         minZoom: 4,
-        minPoints: 2
+        minPoints: 2,
     };
 
     const forAmEA = document.getElementById("amea").checked;
     const shadow = document.getElementById("skia").checked;
-    const onlyFree = !(document.getElementById("diathesimo").checked)
+    const onlyFree = !(document.getElementById("free").checked)
 
     const toShow = []
 
@@ -123,8 +123,10 @@ function openMarker(map,marker, id, katigoria, temperature, hasShadow, distance 
                     <strong>Θέση Παρκαρίσματος</strong><br><br>
                     ${distanceInfo}${katigoria==='Κανονική'?'':katigoria+'<br>'}
                     ${isFreeInfo}<br>
-                    Θερμοκρασία: ${(Number(temperature)).toFixed(1)} °C ${hasShadow ? '<br>Με σκιά' : '' } <br>Kράτηση: 15 λεπτά <br>
-                    <button class="ReservationBtn">Κράτηση </button>
+                    <i class="fa-solid fa-temperature-three-quarters"></i>: ${(Number(temperature)).toFixed(1)} °C ${hasShadow ? '<br>Με σκιά' : '' } <br>Kράτηση: 15 λεπτά <br>
+                    <button class="ReservationBtn">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                   </div>`;
 
 
@@ -144,7 +146,9 @@ function openMarker(map,marker, id, katigoria, temperature, hasShadow, distance 
         }
 
         const btnReservation= document.querySelector(".ReservationBtn")
-        btnReservation.addEventListener('click', ()=>startDirections(map));
+        btnReservation.addEventListener('click', () => {
+            startDirections(map)
+        });
     }, 500);
 
     window.selectedParkingSpot = {
@@ -324,10 +328,9 @@ function updateCluster(parkingSpotId){
 
     let parkingSpot = parkingSpots.find(parkingSpot => parkingSpot.id === parkingSpotId);
 
-
     const forAmEA = document.getElementById("amea").checked;
     const shadow = document.getElementById("skia").checked;
-    const onlyFree = !(document.getElementById("diathesimo").checked)
+    const onlyFree = !(document.getElementById("free").checked)
 
     let toRemove
 
@@ -355,4 +358,4 @@ function updateCluster(parkingSpotId){
 }
 
 
-export { placeMarkers, highlightMarker, resetMarkers, selectMarker, filterMarkers, closeInfoWindow, updateReservedSpot, selectedMarkerWasOccupied};
+export { placeMarkers, highlightMarker, resetMarkers, selectMarker, filterMarkers, closeInfoWindow, updateReservedSpot, selectedMarkerWasOccupied, createCluster};

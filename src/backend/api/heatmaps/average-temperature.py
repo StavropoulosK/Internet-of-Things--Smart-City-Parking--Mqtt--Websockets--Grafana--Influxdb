@@ -61,7 +61,7 @@ fill_value = sum(sensors[s]["value"] for s in sensors) / len(sensors)
 
 min_value, max_value = 0, 40
 
-df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value, fill_value)
+df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value, fill_value, caption='Temperature (°C)')
 
 html_path = "./public/html/heatmaps/average-temperature.html"
 zoom_options = {

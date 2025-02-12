@@ -44,7 +44,7 @@ def get_sensor_ids():
 
     return locations
 
-def create_heatmap(sensor_data, image_path, min_value, max_value, fill_value=0):
+def create_heatmap(sensor_data, image_path, min_value, max_value, fill_value=0, caption='Sensor Values'):
     df = pd.DataFrame.from_dict(sensor_data, orient="index")
 
     grid, bounds = interpolate_data(df)
@@ -63,7 +63,7 @@ def create_heatmap(sensor_data, image_path, min_value, max_value, fill_value=0):
     plt.imsave(image_path, colored_grid, origin='lower')
     
     # create a colorbar to later use in the map
-    colorbar = create_color_bar(cmap, min_value, max_value)
+    colorbar = create_color_bar(cmap, min_value, max_value, caption)
 
     return df, bounds, colorbar
     
@@ -133,7 +133,8 @@ def create_html_map(df, bounds, colorbar, image_path, output_path, zoom_options)
     # Save the map to an HTML file
     m.save(output_path)
 
-def create_color_bar(cmap, min_value, max_value):
+def create_color_bar(cmap, min_value, max_value, caption='Sensor Values'):
+    
     import branca.colormap as cm
 
     colorbar = cm.LinearColormap(
@@ -141,6 +142,9 @@ def create_color_bar(cmap, min_value, max_value):
         vmin=min_value,
         vmax=max_value
     )
+    colorbar.caption = caption
+    colorbar.tick_labels = [min_value, (min_value + max_value) / 4, (min_value + max_value) / 2, (min_value + max_value) * 3 / 4, max_value]
+    colorbar.width = 300
 
     return colorbar
 

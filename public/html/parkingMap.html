@@ -6,43 +6,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- <script type="module" src="../js/mapScript.js" defer></script> -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <link href="../css/header_footer.css" rel="stylesheet">
+    <link href="../css/slider-checkbox.css" rel="stylesheet">
+    <script src="../js/admin/sidepanel.js" defer></script>
     <script type="module" src="../js/mapInit.js" defer></script>
     <link href="../css/map.css" rel="stylesheet" />
     <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
 <body>
+    <header>
+        <a class="logo" href="/">Smart City Parking</a>
+        <button class="menu-button" onclick="toggleSidebar()">
+            <i class="fa-solid fa-bars menu-icon"></i>
+        </button>
+    </header>
+
+    <div class="sidebar" id="sidebar">
+        <button class="close-button" onclick="closeSidebar()">
+            <i class="fa-solid fa-times close-icon"></i>
+        </button>
+        <a href="/">
+            <i class="fas fa-home"></i>
+            <div class="tooltip">Home</div>
+        </a>
+        <a href="/getHeatMap">
+            <i class="fa-solid fa-map"></i>
+            <div class="tooltip">Heat Map</div>
+        </a>
+        <a class="dashboards hidden" href="/admin/getDashboards">
+            <i class="fas fa-chart-line"></i>
+            <div class="tooltip">Dashboards</div>
+        </a>
+        <a class="login-button" href="/admin/login">
+            <i class="fa-solid fa-circle-user"></i>
+            <div class="tooltip">Admin Login</div>
+        </a>
+        <button class="info-button" onclick="showInfo()">
+            <i class="fa-solid fa-circle-info"></i>
+        </button>
+    </div>
     <!-- <div id="map"></div> -->
     <div class="container">
         <div id="map"></div>
         <div class="autocomplete" id="autocomplete">
-            <input type="text" id="searchInput">
+            <div class="input-div">
+                <input type="text" id="searchInput">
+                <button class="autocompleteButton" id="searchBtn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <button class="autocompleteButton" id="clearBtn">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
 
             <div class="options">
+                <div class="my-slider-container">
+                    <input type="checkbox" id="amea" class="my-slider">
+                    <label for="amea" class="my-slider-label">
+                        <span class="my-slider-text">ΑμεΑ</span>
+                    </label>
+                </div>
 
-                <label class="checkboxLabel">
-                    <i class="fa-solid fa-wheelchair"></i>
-                    <span>ΑμεΑ</span>
+                <div class="my-slider-container">
+                    <input type="checkbox" id="skia" class="my-slider">
+                    <label for="skia" class="my-slider-label">
+                        <span class="my-slider-text">Σκιά</span>
+                    </label>
+                </div>
 
-                    <input type="checkbox" id="amea">
-                </label>
-
-                <label class="checkboxLabel" id="labelSkia">
-                    <span id="skiaText">Με σκιά</span>
-                    <input type="checkbox" id="skia">
-                </label>
-                <label class="checkboxLabel">
-                    <span>Σύντομα Ελεύθερες</span>
-                    <input type="checkbox" id="diathesimo">
-                </label>
+                <div class="my-slider-container">
+                    <input type="checkbox" id="free" class="my-slider">
+                    <label for="free" class="my-slider-label">
+                        <span class="my-slider-text">Soon</span>
+                    </label>
+                </div>
             </div>
             <label>
                 <span id="distance">Απόσταση</span>
                 <input type="range" id="radiusSlider" min="10" max="310" step="20" value="50">
             </label>
             <div class="buttonsDiv">
-                <button class="autocompleteButton" id="searchBtn">Αναζήτηση</button>
-                <button class="autocompleteButton" id="clearBtn">Καθαρισμός</button>
             </div>
         </div>
 
@@ -54,7 +100,6 @@
         <button id="compass">
             <img src="../resources/icons/piksida.png" alt="Compass" />
         </button>
-
     </div>
 
     <div class="bottomContainer">

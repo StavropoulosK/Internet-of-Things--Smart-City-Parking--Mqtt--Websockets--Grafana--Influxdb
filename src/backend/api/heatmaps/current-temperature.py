@@ -89,7 +89,7 @@ fill_value = get_current_temp()
 
 min_value, max_value = 0, 40
 
-df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value, fill_value)
+df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value, fill_value, caption='Temperature (°C)')
 
 hmtl_path = "./public/html/heatmaps/current-temperature.html"
 zoom_options = {
