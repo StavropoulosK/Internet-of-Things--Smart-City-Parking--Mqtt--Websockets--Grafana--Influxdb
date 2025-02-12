@@ -129,7 +129,7 @@ async function getDirectionsToParkingSpot(map, destination,first='') {
                 if(first){
                     // mono tin proti fora estiazi o xartis
                     map.panTo({ lat:userLocation.lat, lng:userLocation.lng });
-                    map.setZoom(15);
+                    map.setZoom(17);
                 }else{
                     // elegxi an eftase ston proorismo
                     const distanceFromDestination = haversine(userLocation.lat, userLocation.lng, destination.lat, destination.lng)

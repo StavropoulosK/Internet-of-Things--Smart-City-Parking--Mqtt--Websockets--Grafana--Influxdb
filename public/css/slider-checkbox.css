@@ -1,0 +1,62 @@
+#my-slider {
+    display: none;
+}
+
+.my-slider-container {
+    display: flex;
+    align-items: center;
+}
+
+.my-slider-label {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100px;
+    height: 30px;
+    background-color: #cfe1b9;
+    border-radius: 30px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    padding: 5px;
+    box-sizing: border-box;
+    border: 1px solid black;
+}
+
+.my-slider-label::before {
+    content: '✘';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    background-color: #F2E8CF;
+    /* Smooth transition for the circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.my-slider-text {
+    margin-left: 10px;
+    position: absolute;
+    /* Ensure the text stays positioned on the left side */
+    left: 32px;
+}
+
+.my-slider:checked + .my-slider-label .my-slider-text {
+    color: white;
+}
+
+.my-slider:checked + .my-slider-label::before {
+    left: calc(100% - 25px);
+    content: '✔';
+}
+
+.my-slider:checked + .my-slider-label {
+    background-color: #132a13;
+    /* Change background to black */
+}
