@@ -21,7 +21,7 @@ def get_average_occupancy_data(cursor):
             SELECT recvTimeTs, attrValue
             FROM {table}
             WHERE attrName = 'carParked'
-            AND recvTimeTs >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 1 DAY));
+            AND recvTime >= NOW() - INTERVAL 3 DAY
         """
         try:
             cursor.execute(query)
@@ -44,10 +44,10 @@ def get_average_occupancy_data(cursor):
             prev_timestamp = timestamp
             prev_state = value
         
-        current_time = int(time.time_ns() // 1e6)
-        total_mins += current_time - prev_timestamp
-        if prev_timestamp and prev_state == "true":
-            total_occupied += current_time - prev_timestamp
+        # current_time = int(time.time_ns() // 1e6)
+        # total_mins += current_time - prev_timestamp
+        # if prev_timestamp and prev_state == "true":
+        #     total_occupied += current_time - prev_timestamp
         
         avg_occ = total_occupied / total_mins if total_mins > 0 else 0
         print(f"Sensor {id} has average occupancy {avg_occ}")

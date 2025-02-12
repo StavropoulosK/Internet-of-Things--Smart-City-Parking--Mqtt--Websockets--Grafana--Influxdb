@@ -8,7 +8,7 @@
 
 Το API key συμπληρώνεται στο αρχείο public->js->mapScript.js όπως φαίνεται παρακάτω.
 
-![API Key](./Presentations/readme-images/api-key.png)
+![API Key](./Presentations/images/api-key.png)
 
 ### Map Id
 
@@ -16,7 +16,7 @@
 συμπληρωθεί και αυτό. Το Map Id βγαίνει στην καρτέλα Map Management και μπορεί να μπει και
 ένα Style στο Map Styles. Εγώ είχα διαλέξει ένα απλό style και είχα απενεργοποιήσει τα Points of interest.
 
-![Map Id](./Presentations/readme-images/map-id.png)
+![Map Id](./Presentations/images/map-id.png)
 
 ### Usage
 
