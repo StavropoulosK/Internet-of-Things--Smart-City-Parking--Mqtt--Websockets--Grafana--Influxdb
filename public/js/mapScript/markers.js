@@ -328,10 +328,9 @@ function updateCluster(parkingSpotId){
 
     let parkingSpot = parkingSpots.find(parkingSpot => parkingSpot.id === parkingSpotId);
 
-
     const forAmEA = document.getElementById("amea").checked;
     const shadow = document.getElementById("skia").checked;
-    const onlyFree = !(document.getElementById("diathesimo").checked)
+    const onlyFree = !(document.getElementById("free").checked)
 
     let toRemove
 

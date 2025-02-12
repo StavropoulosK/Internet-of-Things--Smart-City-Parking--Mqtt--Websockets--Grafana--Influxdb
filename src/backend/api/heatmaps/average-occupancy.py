@@ -81,7 +81,7 @@ print(len(sensors))
 image_path = "./public/html/heatmaps/average-occupancy.png"
 
 min_value, max_value = 0, 1
-df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value)
+df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value, caption='Average Occupancy')
 
 html_path = "./public/html/heatmaps/average-occupancy.html"
 zoom_options = {

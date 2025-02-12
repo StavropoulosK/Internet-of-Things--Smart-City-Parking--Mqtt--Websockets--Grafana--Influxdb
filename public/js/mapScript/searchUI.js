@@ -88,7 +88,6 @@ async function createAutocomplete(map) {
         clearDestinationLocationPin();
         closeInfoWindow();
         stopRoute();
-        createCluster(map);
     });
 }
 
