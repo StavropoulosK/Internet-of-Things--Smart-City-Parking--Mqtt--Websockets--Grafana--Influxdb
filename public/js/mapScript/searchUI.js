@@ -1,4 +1,4 @@
-import { selectMarker, filterMarkers, closeInfoWindow } from "./markers.js"
+import { selectMarker, filterMarkers, closeInfoWindow, createCluster } from "./markers.js"
 import { findBestParkingSpot } from "./dataFetch.js";
 import { stopRoute } from "./directions.js";
 import { openDialog } from "./mqttclient.js";
@@ -24,7 +24,7 @@ async function createAutocomplete(map) {
     ameaCheckbox.addEventListener("change", () => filterParkingSpots(map));
     const skiaCheckbox = document.getElementById("skia");
     skiaCheckbox.addEventListener("change", () => filterParkingSpots(map));
-    const diathesimoCheckbox = document.getElementById("diathesimo");
+    const diathesimoCheckbox = document.getElementById("free");
     diathesimoCheckbox.addEventListener("change", () => filterParkingSpots(map));
     
     // filterParkingSpots(map);
@@ -88,6 +88,7 @@ async function createAutocomplete(map) {
         clearDestinationLocationPin();
         closeInfoWindow();
         stopRoute();
+        createCluster(map);
     });
 }
 
@@ -147,8 +148,8 @@ function clearDestinationCircle(destinationCircle) {
 function filterParkingSpots(map) {
     const forAmEA = document.getElementById("amea").checked;
     const withShadow = document.getElementById("skia").checked;
-    const onlyFree = !(document.getElementById("diathesimo").checked);
-    
+    const onlyFree = !(document.getElementById("free").checked);
+    console.log(forAmEA, withShadow, onlyFree);
     filterMarkers(map, forAmEA, withShadow, onlyFree);
 }
 

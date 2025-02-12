@@ -186,8 +186,8 @@
 }
 
 .autocompleteButton {
-    width: 50px;
-    height: 40px;
+    width: 45px;
+    height: 35px;
     background-color: #6A994E;
     color: white;
     border: none;
@@ -237,8 +237,9 @@
     font-size: 1.2rem;
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: space-between;
     margin-top: 0.8rem;
+    width: 100%;
     /* background-color: red; */
 }
 

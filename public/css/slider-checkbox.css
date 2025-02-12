@@ -1,4 +1,4 @@
-#my-slider {
+#skia, #free, #amea {
     display: none;
 }
 
@@ -12,7 +12,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100px;
+    width: 120px;
     height: 30px;
     background-color: #cfe1b9;
     border-radius: 30px;
@@ -42,7 +42,7 @@
 
 .my-slider-text {
     font-size: 16px;
-    margin-left: 10px;
+    margin-left: 22px;
     position: absolute;
     /* Ensure the text stays positioned on the left side */
     left: 18px;

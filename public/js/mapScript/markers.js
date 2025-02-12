@@ -71,12 +71,12 @@ function createMarker(map, parkingSpot) {
 function createCluster(map) {    
     const clusterOptions = {
         minZoom: 4,
-        minPoints: 2
+        minPoints: 2,
     };
 
     const forAmEA = document.getElementById("amea").checked;
     const shadow = document.getElementById("skia").checked;
-    const onlyFree = !(document.getElementById("diathesimo").checked)
+    const onlyFree = !(document.getElementById("free").checked)
 
     const toShow = []
 
@@ -146,7 +146,9 @@ function openMarker(map,marker, id, katigoria, temperature, hasShadow, distance 
         }
 
         const btnReservation= document.querySelector(".ReservationBtn")
-        btnReservation.addEventListener('click', ()=>startDirections(map));
+        btnReservation.addEventListener('click', () => {
+            startDirections(map)
+        });
     }, 500);
 
     window.selectedParkingSpot = {
@@ -357,4 +359,4 @@ function updateCluster(parkingSpotId){
 }
 
 
-export { placeMarkers, highlightMarker, resetMarkers, selectMarker, filterMarkers, closeInfoWindow, updateReservedSpot, selectedMarkerWasOccupied};
+export { placeMarkers, highlightMarker, resetMarkers, selectMarker, filterMarkers, closeInfoWindow, updateReservedSpot, selectedMarkerWasOccupied, createCluster};
