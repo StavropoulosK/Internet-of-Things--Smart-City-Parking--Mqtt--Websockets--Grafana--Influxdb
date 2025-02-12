@@ -98,7 +98,6 @@ def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus
     # print("Sending data to FIWARE... sensor_id:", sensor_id)
     # Gia to Fiware xrisimopoioume attributes pou orizei to smart data models (id,location,type,occupancyModified) kai ala pou to epektinoun
     # https://github.com/smart-data-models/dataModel.Parking/blob/master/OnStreetParking/doc/spec.md
-
     """Send data to FIWARE Orion Context Broker, checking entity existence each time."""
     headers = {
         "Content-Type": "application/json",

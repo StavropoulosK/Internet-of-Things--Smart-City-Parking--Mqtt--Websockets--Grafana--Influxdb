@@ -6,9 +6,12 @@ import paho.mqtt.client as mqtt_client
 import random
 
 import json
-import uuid
 import time
+import uuid
+from sensor import ParkingSensor
 import requests
+
+from shadows.calculate_shadows import calculate_shadows
 
 
 broker = "150.140.186.118"
@@ -18,15 +21,6 @@ topic = "smartCityParking/Patras"
 
 # Gia tin prosomiosi lambanei tin thermokrasia stin Patra apo to open meteo api kai me gkaousiani katanomi anatheti stous aisthitires thermokrasies.
 # Kapoioi aisthitires briskontai se skiastra/dentra opote exoun mikroteri thermokrasia ti diarkia tis imeras, efoson den brexei kai den exei sinefa.
-#
-# from locations import locations
-
-# ipothetoume oti iparxi skia mono an den brexei
-
-# oi aisthitires pou exoun skia otan den exi sinefa
-from locations import get_locations, sensors_with_shadow
-
-from sensor import ParkingSensor
 
 
 def getCurrentTemp_Conditions():
@@ -34,7 +28,7 @@ def getCurrentTemp_Conditions():
     params = {
         "latitude": 38.246403475045675,
         "longitude": 21.731728987305722,
-        "current": ["temperature_2m","weather_code"],
+        "current": ["temperature_2m", "weather_code"],
     }
 
     responses = om.weather_api("https://api.open-meteo.com/v1/forecast", params=params)
@@ -57,8 +51,7 @@ def getCurrentTemp_Conditions():
         None
     )
 
-
-    return current_temperature_2m.Value(),current_weather_code.Value()
+    return round(current_temperature_2m.Value(), 5), current_weather_code.Value()
 
 
 def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitude):
@@ -127,77 +120,17 @@ def generateMessage(id, battery, carStatus, tag, temperature, latitude, longitud
 # kathe posa lepta tha trexei i prosomiosi
 simulation_update_time_in_minutes = 25/60
 
-counter=1
 
 def simulate():
-
-    # Kapoioi aisthitires theoroume oti briskontai se skiera meri
-    # sensors_with_shadow = [101318, 101309, 101307, 101295, 101287, 100508]
-
-    # mesi thermokrasia stin patra apo to open meteo
-    temperature = getCurrentTemp_Conditions()[0]
-
-    # Elegxi an brexi i oxi. To eksetazoume oste na min exoun skia oi aisthitires an brexei.
-    weather_code=  getCurrentTemp_Conditions()[1]
-
-    print(f"Current temperature {temperature}")
-
-    init_battery_voltage = 5.0
-
-    meres_aixmis = ["Friday", "Saturday", "Sunday"]
-
-    data = get_locations()
-
-    sensors = []
-    current_time = datetime.now()
-    current_day = current_time.strftime("%A")
-    local_time = current_time.strftime("%H:%M:%S")
-    shade = shade_factor(current_time.minute + current_time.hour * 60)
-
-    def load_data_from_context_broker():
-        limit = 999
-        url = f"http://150.140.186.118:1026/v2/entities?idPattern=^smartCityParking_&limit={limit}"
-        headers = headers = {
-            "Accept": "application/json",
-            "FIWARE-ServicePath": "/smartCityParking/Patras"
-        };
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            print(f"Failed to load data from context broker, status code: {response.status_code}")
-            return []
-
-    context_broker_data = load_data_from_context_broker()
-    
-    for sensor in context_broker_data:
-        sensor_id = int(sensor["id"].split("_")[1])
-        loc = sensor["location"]["value"]["coordinates"]
-
-
-        has_shadow= False
-        if weather_code<20:
-            # ipothetoume oti iparxi skia mono an den brexei
-            # https://www.nodc.noaa.gov/archive/arc0021/0002199/1.1/data/0-data/HTML/WMO-CODE/WMO4677.HTM
-            has_shadow = sensor_id in sensors_with_shadow
-        else:
-            # Brexei
-            has_shadow = False
-
-        temp = sensor["temperature"]["value"]
-        occupied = sensor["carParked"]["value"]
-        time_since_occupied = datetime.strptime(sensor['occcupancyModified']['value'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        sensors.append(ParkingSensor(sensor_id, loc, init_battery_voltage, temp, has_shadow, occupied, time_since_occupied))
-    # sensors = sensors[0:300]
-
     # Gia tis metablites orizoume oti akolouthoun mia gkaousiani katanomi
-
     # Parameters for the Gaussian distribution
-    mean_temp = temperature  # Mean of the temperature distribution
     std_dev_temp = 0.3  # Standard deviation of the temperature distribution
 
+    init_battery_voltage = 5.0
     mean_voltage_drop = 0.01  # mean of the voltage drop per simulation cycle
     std_dev_volt = 0.001  # Standard deviation of the voltage drop distribution
+
+    sensors = init_sensors(init_battery_voltage)
 
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
@@ -209,13 +142,11 @@ def simulate():
     client.on_connect = on_connect
     client.connect(broker, port)
 
-    # print(f"Current Day: {current_day}")
-    # print(f"Current Time: {local_time}")
-
     # Prosomiosi
     # O kodikas autos trexei epanalambanomena se xrono pou kathorizetai apo to simulation_update_time_in_minutes
     # kathe fora pou trexei merikes thesis pou itan adies gemizoun kai kapoies pou einai gemates adiazoun analoga me to an ine ora aixmis
     # kathe fora pou adiazi i pianete mia thesi oi aisthitires stelnoun dedomena sto lora gateway.
+    counterId = 1
     while True:
         current_time = datetime.now()
         current_day = current_time.strftime("%A")
@@ -223,33 +154,37 @@ def simulate():
 
         time_mins = current_time.minute + current_time.hour * 60
         
-        epipedo_aixmis = calculate_epipedo_aixmis(meres_aixmis, current_day, local_time)
+        epipedo_aixmis = calculate_epipedo_aixmis(current_day, local_time)
 
         shade = shade_factor(time_mins)
+        calculate_shadows(sensors)
+        
+        mean_temp, weather_code = getCurrentTemp_Conditions()
+
+        # if weather_code >= 20: # An vrexei theoroume oti oloi oi aisthitires exoun skia
+        #     for sensor in sensors:
+        #         sensor.has_shadow = True
 
         print(f"Current Time: {local_time}")
+        print(f"Current Temperature: {mean_temp}")
         print(f"Total occupied spots: {sum([1 for sensor in sensors if sensor.occupied])} out of {len(sensors)}")
-
-        counterId = 1
+        print(f"Total sensors with shade: {sum([1 for sensor in sensors if sensor.has_shadow])} out of {len(sensors)}")
+        
         for sensor in sensors:
-            counterId += 1
-
-            if(counterId == 300):
+            if(counterId % 300 == 299):
+                print(f"Have sent {counterId} messages")
                 time.sleep(simulation_update_time_in_minutes * 60)
-                counterId = 1
 
             sensor.update_temp(mean_temp, std_dev_temp, shade_factor=shade)
-            
             sensor.update_voltage(mean_voltage_drop, std_dev_volt)
-
             changed = sensor.update_parking_status(epipedo_aixmis, current_time)
 
             # peripou to 16% tou plithismou einai AMEA
             # https://www.who.int/news-room/fact-sheets/detail/disability-and-health#:~:text=An%20estimated%201.3%20billion%20people%20–%20or%2016%25%20of%20the%20global,diseases%20and%20people%20living%20longer.
-
             tag = str(uuid.uuid4()) if random.random() < 0.16 else ""
 
-            if sensor.voltage >= 1 and changed is True:
+            if sensor.voltage >= 1 and (changed or not sensor.occupied):
+                counterId += 1
                 message = generateMessage(
                     sensor.id,
                     sensor.voltage,
@@ -262,17 +197,42 @@ def simulate():
 
                 message_json = json.dumps(message)
                 client.publish(topic, message_json)
+                time.sleep(simulation_update_time_in_minutes * 60 / len(sensors))
 
-                # global counter
-                # print(counter)
-                # counter +=1
+def load_data_from_context_broker():
+    limit = 999
+    url = f"http://150.140.186.118:1026/v2/entities?idPattern=^smartCityParking_&limit={limit}"
+    headers = headers = {
+        "Accept": "application/json",
+        "FIWARE-ServicePath": "/smartCityParking/Patras"
+    };
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Failed to load data from context broker, status code: {response.status_code}")
+        return []
+    
+    
+def init_sensors(init_battery_voltage):
+    context_broker_data = load_data_from_context_broker()
+    
+    sensors = []
+    for sensor in context_broker_data:
+        sensor_id = int(sensor["id"].split("_")[1])
+        loc = sensor["location"]["value"]["coordinates"]
 
-            
-            # time.sleep(simulation_update_time_in_minutes * 60 / len(sensors))
-        # time.sleep(simulation_update_time_in_minutes * 60)
+        temperature = sensor["temperature"]["value"]
+        occupied = sensor["carParked"]["value"]
+        time_since_occupied = datetime.strptime(sensor['occcupancyModified']['value'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        sensors.append(ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, False, occupied, time_since_occupied))
+
+    return sensors
 
 
-def calculate_epipedo_aixmis(meres_aixmis, current_day, local_time):
+def calculate_epipedo_aixmis(current_day, local_time):
+    meres_aixmis = ["Friday", "Saturday", "Sunday"]
+    
     if local_time >= "13:00" and local_time <= "15:30" and current_day in meres_aixmis:
         epipedo_aixmis = 2
     elif (
