@@ -23,6 +23,9 @@ async function updatePositionPin(map){
 }
 
 async function startDirections(map) {
+
+    stopRoute()
+
     directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer({
         map: map,
@@ -31,10 +34,12 @@ async function startDirections(map) {
 
     });
 
-    const directionsBtn = document.getElementById('directionsBtn')
-    if (!directionsBtn.classList.contains('active')) {
-        return
-    }
+    // const directionsBtn = document.getElementById('directionsBtn')
+    // if (!directionsBtn.classList.contains('active')) {
+    //     return
+    // }
+
+
     // try {
     //     userPosition = await getCurrentPosition();
     // } catch (error) {
@@ -45,12 +50,11 @@ async function startDirections(map) {
 
 
     // stamatai i proigoumeni diadromi , an iparxi
-    stopRoute()
 
-    const reservationTimeSpan = document.getElementById('reservationInfo')
+    // const reservationTimeSpan = document.getElementById('reservationInfo')
 
-    reservationTimeSpan.textContent = 'Έχει γίνει κράτηση μέχρι της ' + getReservationTime()
-    reservationTimeSpan.style.visibility = 'visible'
+    // reservationTimeSpan.textContent = 'Έχει γίνει κράτηση μέχρι της ' + getReservationTime()
+    // reservationTimeSpan.style.visibility = 'visible'
 
 
     const destination = window.selectedParkingSpot;
@@ -77,15 +81,23 @@ function stopRoute() {
     if (!directionsRenderer) {
         return
     }
+
     clearInterval(intervalIdForMapCenteringWhenDriving)
     clearInterval(intervalIdForShowingDirections)
     directionsRenderer.setDirections({ routes: [] }); // Safely clear directions
 
-    const reservationTimeSpan = document.getElementById('reservationInfo')
-    reservationTimeSpan.style.visibility = 'hidden'
+
+    // const reservationTimeSpan = document.getElementById('reservationInfo')
+    // reservationTimeSpan.style.visibility = 'hidden'
 
     const directionsDiv = document.getElementById('directions')
     directionsDiv.textContent = ''
+
+    if (!directionsDiv.classList.contains("hidden")) {
+        directionsDiv.classList.add("hidden"); 
+    } 
+
+
 }
 
 async function getDirectionsToParkingSpot(map, destination,first='') {
@@ -95,8 +107,6 @@ async function getDirectionsToParkingSpot(map, destination,first='') {
         console.error(error);
         return
     }
-
-    console.log('directions')
 
     const userLocation = {
         lat: userPosition.coords.latitude,
@@ -137,8 +147,15 @@ async function getDirectionsToParkingSpot(map, destination,first='') {
     );
 }
 
+
+
 function showDirectionInstructions(step) {
     const directionsDiv = document.getElementById('directions')
+
+
+    if (directionsDiv.classList.contains("hidden")) {
+        directionsDiv.classList.remove("hidden"); // Show it
+    } 
     
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = step.instructions;
@@ -249,7 +266,6 @@ function mapFocus(map) {
     // }
 
     const location = { lat: userPosition.coords.latitude, lng: userPosition.coords.longitude };
-    console.log('a ',location)
     map.panTo(location);
 }
 

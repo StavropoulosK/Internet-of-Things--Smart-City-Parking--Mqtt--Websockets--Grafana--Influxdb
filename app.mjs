@@ -39,24 +39,13 @@ app.use(session({
 
 
 // HTTPS options
-const options = {
-    key: fs.readFileSync('./certificates/key.pem'),
-    cert: fs.readFileSync('./certificates/cert.pem')
-};
+// const options = {
+//     key: fs.readFileSync('./certificates/key.pem'),
+//     cert: fs.readFileSync('./certificates/cert.pem')
+// };
 
-function redirectToHttps(req, res, next) {
-    next()
-    return
-    if (!req.secure) {
-        const location = req.headers.host;
-        const domain = location.slice(0, location.indexOf(':'));
-        const secureUrl = 'https://' + domain + ':' + httpsPort + req.url;
-        return res.redirect(secureUrl);
-    }
-    next()
-}
 
-app.use(redirectToHttps)
+
 
 // router gia tin efarmogi
 import router from "./src/backend/router.mjs";

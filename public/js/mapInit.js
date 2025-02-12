@@ -45,6 +45,7 @@ async function initMap() {
         mapTypeControl: false,
         fullscreenControl: false,  // Disable the fullscreen control button
         streetViewControl: false, // Disable the Street View control
+        zoomControl: false 
     });
     map.addListener('click', (event) => {
         closeInfoWindow()
@@ -54,8 +55,8 @@ async function initMap() {
     await createAutocomplete(map);
     await initMQTTClinet();
 
-    const directionsButton = document.getElementById('directionsBtn');
-    directionsButton.addEventListener('click', () => startDirections(map));
+    // const directionsButton = document.getElementById('directionsBtn');
+    // directionsButton.addEventListener('click', () => startDirections(map));
 
     const compass = document.getElementById('compass');
     compass.addEventListener('click', () => compassHandler(map));

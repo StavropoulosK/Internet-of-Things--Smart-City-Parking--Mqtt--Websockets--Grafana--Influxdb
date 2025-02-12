@@ -1,5 +1,7 @@
 import { getParkingSpotData, willVacateSoon } from './dataFetch.js';
 import { disableSkiaCheckbox } from './searchUI.js';
+import { startDirections } from './directions.js';
+
 
 let AdvancedMarkerElement;
 
@@ -43,7 +45,7 @@ function createMarker(map, parkingSpot) {
         pin.innerHTML = `<img id="blue" src="./resources/icons/disabilityparking.png" alt="disability parking icon" style="width: 100%; height: auto;">
                          <img id="orange" src="./resources/icons/disabilityparking_orange.png" alt="disability parking icon" style="width: 100%; height: auto; display: none;">`
         pin.className = 'disabilitymarker';
-        category = "Θέση ΑμΕΑ";
+        category = "Θέση ΑμεΑ";
     } else {
         pin.innerHTML = `<img id="blue" src="./resources/icons/parking.png" alt="parking icon" style="width: 100%; height: auto;">
                          <img id="orange" src="./resources/icons/parking_orange.png" alt="parking icon" style="width: 100%; height: auto; display: none;">`
@@ -59,7 +61,7 @@ function createMarker(map, parkingSpot) {
     });
 
     marker.addListener("click", () => {
-        openMarker(marker, parkingSpot.id, category, parkingSpot.temperature, parkingSpot.hasShadow);
+        openMarker(map,marker, parkingSpot.id, category, parkingSpot.temperature, parkingSpot.hasShadow);
     }) 
 
     return marker
@@ -104,23 +106,27 @@ function createCluster(map) {
     markerCluster = new markerClusterer.MarkerClusterer({ markers: toShow, map, ...clusterOptions });
 }
 
-function openMarker(marker, id, katigoria, temperature, hasShadow, distance = null) {
+function openMarker(map,marker, id, katigoria, temperature, hasShadow, distance = null) {
     closeInfoWindow();
     infoWindow = new google.maps.InfoWindow();
     selectedSpotId = id
 
     highlightMarker(id);
 
-    flipDirectionsBtn(true);
+    // flipDirectionsBtn(true);
 
     let isFreeInfo = `${marker.isFree ? 'Ελεύθερη' : 'Θα ελευθερωθεί σύντομα'}`;
     let distanceInfo = distance !== null ? `<br>Απόσταση: ${distance} μέτρα` : '';
+    
+
     let content = `<div class="InfoWindow">
-                    <strong>Θέση Παρκαρίσματος</strong><br>
-                    ${distanceInfo}${katigoria}<br>
+                    <strong>Θέση Παρκαρίσματος</strong><br><br>
+                    ${distanceInfo}${katigoria==='Κανονική'?'':katigoria+'<br>'}
                     ${isFreeInfo}<br>
-                    Θερμοκρασία: ${(Number(temperature)).toFixed(1)} °C ${hasShadow ? '<br>Με σκιά' : ''}
+                    Θερμοκρασία: ${(Number(temperature)).toFixed(1)} °C ${hasShadow ? '<br>Με σκιά' : '' } <br>Kράτηση: 15 λεπτά <br>
+                    <button class="ReservationBtn">Κράτηση </button>
                   </div>`;
+
 
     infoWindow.setContent(content);
     infoWindow.open({
@@ -129,12 +135,16 @@ function openMarker(marker, id, katigoria, temperature, hasShadow, distance = nu
         shouldFocus: false,
     });
 
+
     setTimeout(() => {
         // To google maps xrisimopoii react opote topothetite asigxrona to infoWindow kai gia auto to button sto InfoWindow einai diathesimo meta apo ligo xrono.
         const btn = document.querySelector('button.gm-ui-hover-effect');
         if (btn) {
             btn.addEventListener('click', closeInfoWindow);
         }
+
+        const btnReservation= document.querySelector(".ReservationBtn")
+        btnReservation.addEventListener('click', ()=>startDirections(map));
     }, 500);
 
     window.selectedParkingSpot = {
@@ -197,7 +207,7 @@ function updateMarker(parkingSpot) {
 
 function highlightMarker(parkingSpotId) {
     for (const marker in markers) {
-        markers[marker].content.style.opacity = "0.2";
+        markers[marker].content.style.opacity = "0.3";
     }
 
     const marker = markers[parkingSpotId];
@@ -279,7 +289,7 @@ function resetMarkers() {
 function closeInfoWindow() {
     if (selectedSpotId && infoWindow) {
         resetMarkers();
-        flipDirectionsBtn(false);
+        // flipDirectionsBtn(false);
         infoWindow.close();
         selectedSpotId = null;
     }
