@@ -94,7 +94,7 @@ df, bounds, colorbar = create_heatmap(sensors, image_path, min_value, max_value,
 hmtl_path = "./public/html/heatmaps/current-temperature.html"
 zoom_options = {
     "max_zoom": 21,
-    "min_zoom": 17,
-    "zoom_start": 19,
+    "min_zoom": 16,
+    "zoom_start": 17,
 }
 create_html_map(df, bounds, colorbar, image_path, hmtl_path, zoom_options)
