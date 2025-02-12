@@ -1,123 +1,172 @@
-
-
-a {
-    text-decoration: none;
+:root {
+    --primary-color: #31572C;
+    --dark-color: #132A13;
+    --border-color: #1a1a1a;
 }
 
-#logo{
-    margin-left:2em;
-    font-size:1.5rem;
-    display: inline-block; /* Make it block-like */
+* {
+    box-sizing: border-box;
 }
 
-.dashboards{
-    display: none;
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
 }
-
 
 header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    height: 40px;
-    padding: 10px 0px;
-    background-color: rgb(36, 96, 19);
-    color: white;
+    background-color: var(--primary-color);
+    padding: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 2;
 }
 
-header a {
-    margin-left: auto;
-    margin-right: 20px;
+header .logo {
     color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.menu-button {
+    background: none;
     border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#logo{
-    margin-left:0;
-}
-
-.left button{
-    background: none; 
-    border: none; 
-    padding: 0; 
-    margin: 0; 
-    cursor: pointer;
-    
-}
-
-.dropdown{
-    background-color:rgba(36, 96, 19,0.8) ;
-    position: fixed;
-    top:3.7rem;
-    width:13rem;
-    height:14rem;
-    left:1.5rem;
-    display: flex;
-    flex-direction: column;
-
-}
-
-.dropdown a{
-    left:0;
-    width:11rem;
-    margin-left:0;
-}
-
-.menu{
-    font-size: 1.6rem;
-    margin-left:2rem;
-    color:white;
-    visibility: hidden;
-}
-
-
-#logo::first-letter {
-    font-size: 1.8rem; /* Increase the size */
-  }
-
-  footer {
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #333;
     color: white;
-    text-align: center;
-    padding: 10px 0;
-    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.menu-button:hover {
+    background-color: var(--dark-color);
+    border-radius: 4px;
+}
+
+.menu-icon {
+    font-size: 25px;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: -65px;
+    width: 65px;
+    height: 100%;
+    background-color: var(--primary-color);
+    padding-top: 4rem;
+    transition: right 0.3s;
+    border-left: 2px solid var(--border-color);
+    border-radius: 12px 0 0 12px;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-  }
-
-
-.dropdown {
-    visibility: hidden; /* Initially hidden */
-    opacity: 0; /* Fully transparent */
-    transition: opacity 0.05s ease-in-out; /* Smooth transition */
 }
 
-.dropdown.visible {
-    visibility: visible; /* Make it visible */
-    opacity: 1; /* Fully visible */
+.sidebar.open {
+    right: 0;
 }
 
-
-@media screen and (max-width: 950px) {
-    .menu{
-
-        visibility: visible;
-    }
-
-    div.right{
-        display: none;
-    }
-
-
+.sidebar button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
 }
 
+.sidebar .close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 30px;
+    height: 30px;
+}
+
+.close-button:hover {
+    background-color: var(--dark-color);
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    justify-content: center;
+    padding: 1rem;
+    transition: background-color 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: var(--dark-color);
+}
+
+.sidebar .info-button {
+    position: absolute;
+    bottom: 2rem;
+    right: 1rem;
+    width: 30px;
+    height: 30px;
+}
+.sidebar .info-button:hover {
+    background-color: var(--dark-color);
+    border-radius: 4px;
+}
+
+.sidebar .info-button i {
+    font-size: 20px;
+}
+
+.sidebar .hidden {
+    display: none;
+}
+
+.sidebar .close-icon {
+    font-size: 25px;
+}
+
+.sidebar.show-tooltips.open {
+    width: 150px;
+}
+
+.sidebar.sidebar.show-tooltips a {
+    justify-content: flex-start;
+}
+
+.tooltip {
+    display: none;
+    font-size: 14px;
+}
+
+.sidebar.show-tooltips .tooltip {
+    padding-left: 0.7rem;
+    display: block;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+main {
+    flex: 1;
+    width: 100%;
+    padding: 2rem;
+}
+
+footer {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+footer p {
+    font-size: 12px;
+    margin: 5px;
+}
+
+footer a {
+    text-decoration: none;
+}

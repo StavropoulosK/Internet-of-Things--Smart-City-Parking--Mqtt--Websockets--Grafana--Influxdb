@@ -8,54 +8,44 @@
     <link href="../css/adminLogin.css" rel="stylesheet">
     <link href="../css/header_footer.css" rel="stylesheet">    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="../js/admin/sidepanel.js" defer></script>
 
     <script src="../js/admin/sumbitLoginForm.js" defer></script>
 </head>
 <body>
 
     <header>
-        <div class="left">
-            <button onclick="toggleDropdown()">
-                <i class="fa-solid fa-bars menu"></i>
-
-            </button>
-            <a id="logo" href="/">Smart City Parking</a>
-            <div class="dropdown">
-                <a class="dashboards" href="/admin/getDashboards">
-                    <i class="fas fa-chart-line"></i>
-                    Admin Dashboards</a>
-    
-                <a href="/getHeatMap">
-                    <i class="fas fa-map"></i>
-                    Θερμοκρασία Πόλης</a>
-    
-                <a class="login-button" href="/admin/login">
-                    <i class="fa-solid fa-circle-user"></i>
-                    Διαχειριστής
-                </a>
-            </div>
-
-        </div>
-
-        <div class="right">
-            <a class="dashboards" href="/admin/getDashboards">
-                <i class="fas fa-chart-line"></i>
-                Admin Dashboards</a>
-
-            <a href="/getHeatMap">
-                <i class="fas fa-map"></i>
-                Θερμοκρασία Πόλης</a>
-
-            <a class="login-button" href="/admin/login">
-                <i class="fa-solid fa-circle-user"></i>
-                Διαχειριστής
-            </a>
-
-            
-
-        </div>
-
+        <a class="logo" href="/">Smart City Parking</a>
+        <button class="menu-button" onclick="toggleSidebar()">
+            <i class="fa-solid fa-bars menu-icon"></i>
+        </button>
     </header>
+
+    <div class="sidebar" id="sidebar">
+        <button class="close-button" onclick="closeSidebar()">
+            <i class="fa-solid fa-times close-icon"></i>
+        </button>
+        <a href="/">
+            <i class="fas fa-home"></i>
+            <div class="tooltip">Home</div>
+        </a>
+        <a href="/getHeatMap">
+            <i class="fa-solid fa-map"></i>
+            <div class="tooltip">Heat Map</div>
+        </a>
+        <a class="dashboards hidden" href="/admin/getDashboards">
+            <i class="fas fa-chart-line"></i>
+            <div class="tooltip">Dashboards</div>
+        </a>
+        <a class="login-button" href="/admin/login">
+            <i class="fa-solid fa-circle-user"></i>
+            <div class="tooltip">Admin Login</div>
+        </a>
+        <button class="info-button" onclick="showInfo()">
+            <i class="fa-solid fa-circle-info"></i>
+        </button>
+    </div>
+
     <div class="outerContainer">
         <div class="login-container">
             <h1>Είσοδος διαχειριστή</h1>
