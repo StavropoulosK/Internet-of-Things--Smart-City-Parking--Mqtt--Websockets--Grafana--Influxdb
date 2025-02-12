@@ -1,11 +1,21 @@
 main {
-    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)), url('/resources/patra.jpg') center/cover no-repeat;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-main .overlay {
+.bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)), url('/resources/patra.jpg') center/cover no-repeat;
+    filter: blur(4px);
+    z-index: -1;
+}
+
+.overlay {
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
     border-radius: 20px;
     padding: 2rem;
@@ -25,7 +35,7 @@ main .overlay {
     color: #ECF39E;
 }
 
-main .overlay a {
+.overlay a {
     font-size: 1.2rem;
     background-color: #90A955;
     border-radius: 10px;
@@ -38,6 +48,6 @@ main .overlay a {
     transition: background-color 0.3s;
 }
 
-main .overlay a:hover {
+.overlay a:hover {
     background-color: #4F772D;
 }
