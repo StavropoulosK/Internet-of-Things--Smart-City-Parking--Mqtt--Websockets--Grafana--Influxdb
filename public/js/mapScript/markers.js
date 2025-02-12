@@ -123,8 +123,10 @@ function openMarker(map,marker, id, katigoria, temperature, hasShadow, distance 
                     <strong>Θέση Παρκαρίσματος</strong><br><br>
                     ${distanceInfo}${katigoria==='Κανονική'?'':katigoria+'<br>'}
                     ${isFreeInfo}<br>
-                    Θερμοκρασία: ${(Number(temperature)).toFixed(1)} °C ${hasShadow ? '<br>Με σκιά' : '' } <br>Kράτηση: 15 λεπτά <br>
-                    <button class="ReservationBtn">Κράτηση </button>
+                    <i class="fa-solid fa-temperature-three-quarters"></i>: ${(Number(temperature)).toFixed(1)} °C ${hasShadow ? '<br>Με σκιά' : '' } <br>Kράτηση: 15 λεπτά <br>
+                    <button class="ReservationBtn">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                   </div>`;
 
 
