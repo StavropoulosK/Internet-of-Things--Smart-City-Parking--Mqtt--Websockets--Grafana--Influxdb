@@ -107,7 +107,6 @@ function createDestinationLocationPin(map, destination) {
     // Center the map to the selected address
     map.panTo(destination);
     map.setZoom(18);
-
     // Remove previous marker if any
     clearDestinationLocationPin();
 

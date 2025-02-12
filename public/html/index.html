@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart City Parking</title>
     <link href="../css/index.css" rel="stylesheet">    
+    <link href="../css/header_footer.css" rel="stylesheet">    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="../js/admin/loggedIn.js" defer></script>
 </head>
@@ -13,33 +14,71 @@
         window.city = "Patras";
     </script>
 
-<header>
-    <a id="login-button" href="/admin/login">
-        <i class="fas fa-lock"></i>
-        Admin
-    </a>
-</header>
+    <header>
+        <div class="left">
+            <button onclick="toggleDropdown()">
+                <i class="fa-solid fa-bars menu"></i>
 
-<main>
+            </button>
+            <a id="logo" href="/">Smart City Parking</a>
+            <div class="dropdown">
+                <a class="dashboards" href="/admin/getDashboards">
+                    <i class="fas fa-chart-line"></i>
+                    Admin Dashboards</a>
+    
+                <a href="/getHeatMap">
+                    <i class="fas fa-map"></i>
+                    Θερμοκρασία Πόλης</a>
+    
+                <a class="login-button" href="/admin/login">
+                    <i class="fa-solid fa-circle-user"></i>
+                    Διαχειριστής
+                </a>
+            </div>
 
-    <h1>Smart City Parking</h1>
-    <select id="city-selector" onchange="window.city = this.value;">
-        <option value="Patras">Πάτρα</option>
-        <!-- <option value="Athens">Αθήνα</option> -->
-    </select>
+        </div>
 
-    <div class="buttons">
-        <a href="/getMap">
-            <i class="fas fa-car"></i>
-            Εύρεση Θέσης</a>
-        <a href="/getHeatMap">
-            <i class="fas fa-map"></i>
-            Θερμοκρασία Πόλης</a>
-        <a id="dashboards" href="/admin/getDashboards">
-            <i class="fas fa-chart-line"></i>
-            Admin Dashboards</a>
-    </div>
-</main>
+        <div class="right">
+            <a class="dashboards" href="/admin/getDashboards">
+                <i class="fas fa-chart-line"></i>
+                Admin Dashboards</a>
+
+            <a href="/getHeatMap">
+                <i class="fas fa-map"></i>
+                Θερμοκρασία Πόλης</a>
+
+            <a class="login-button" href="/admin/login">
+                <i class="fa-solid fa-circle-user"></i>
+                Διαχειριστής
+            </a>
+
+            
+
+        </div>
+
+    </header>
+
+    <main>
+
+
+
+        <div class="image">
+            <span> Για να παρκάρετε πάντα εύκολα</span>
+
+            <a href="/getMap">
+                <i class="fas fa-car"></i>
+                Εύρεση Θέσης</a>
+        
+        </div>
+
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Smart City Parking. All rights reserved.</p>
+        <p>Icons by <a href="https://fontawesome.com" target="_blank" rel="noopener noreferrer">Font Awesome</a>.</p>
+
+    </footer>
 
 </body>
 </html>

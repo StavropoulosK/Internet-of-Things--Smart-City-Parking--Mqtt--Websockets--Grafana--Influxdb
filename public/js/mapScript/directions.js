@@ -11,6 +11,17 @@ let userPosition;
 let userPositionPin;
 let blueDotElement;
 
+async function updatePositionPin(map){
+    try {
+        userPosition = await getCurrentPosition();
+        placeUserPositionPin(map, userPosition)
+    }
+    catch (error) {
+        console.error("Cannot get user position", error);
+        return
+    }
+}
+
 async function startDirections(map) {
     directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer({
@@ -24,13 +35,15 @@ async function startDirections(map) {
     if (!directionsBtn.classList.contains('active')) {
         return
     }
-    try {
-        userPosition = await getCurrentPosition();
-    } catch (error) {
-        console.error("Cannot get user position", error);
-        alert('Cannot get user position')
-        return
-    }
+    // try {
+    //     userPosition = await getCurrentPosition();
+    // } catch (error) {
+    //     console.error("Cannot get user position", error);
+    //     alert('Cannot get user position')
+    //     return
+    // }
+
+
     // stamatai i proigoumeni diadromi , an iparxi
     stopRoute()
 
@@ -44,9 +57,13 @@ async function startDirections(map) {
 
 
     // entopismos neas thesis xristi kai estiasi xarti kathe 2 deuterolepta otan odigai.
-    intervalIdForMapCenteringWhenDriving = setInterval(() => placeUserPositionPin(map, userPosition), 1000 * 2);
+    // intervalIdForMapCenteringWhenDriving = setInterval(() => placeUserPositionPin(map, userPosition), 1000 * 2);
 
-    // update directions kathe 30 deuterolepta
+
+
+    intervalIdForMapCenteringWhenDriving = setInterval( ()=>updatePositionPin(map), 1000 * 2);
+
+    // update directions kathe 30 deuterolepta    
     intervalIdForShowingDirections = setInterval(() => getDirectionsToParkingSpot(map, destination.location), 1000 * 30)
 
     getDirectionsToParkingSpot(map, destination.location,'first')
@@ -63,7 +80,6 @@ function stopRoute() {
     clearInterval(intervalIdForMapCenteringWhenDriving)
     clearInterval(intervalIdForShowingDirections)
     directionsRenderer.setDirections({ routes: [] }); // Safely clear directions
-    console.log('11212')
 
     const reservationTimeSpan = document.getElementById('reservationInfo')
     reservationTimeSpan.style.visibility = 'hidden'
@@ -79,6 +95,8 @@ async function getDirectionsToParkingSpot(map, destination,first='') {
         console.error(error);
         return
     }
+
+    console.log('directions')
 
     const userLocation = {
         lat: userPosition.coords.latitude,
@@ -105,8 +123,8 @@ async function getDirectionsToParkingSpot(map, destination,first='') {
                 }else{
                     // elegxi an eftase ston proorismo
                     const distanceFromDestination = haversine(userLocation.lat, userLocation.lng, destination.lat, destination.lng)
-                    if (distanceFromDestination < 5) {
-                        // ean briskete se apostasi 5 metra apo tin thesi, exi ftasi ston proorismo.
+                    if (distanceFromDestination < 10) {
+                        // ean briskete se apostasi 10 metra apo tin thesi, exi ftasi ston proorismo.
                         stopRoute()
                         directionsDiv.textContent = 'Φτάσατε στον προορισμό σας'
 
@@ -156,7 +174,7 @@ async function placeUserPositionPin(map, userPos) {
 
     if (distance < 500) {
         // map.panTo(userLocation)
-        mapFocus(map, userLocation);
+        mapFocus(map)
     }
 
     // Remove previous marker if any
@@ -200,16 +218,39 @@ function spotWasOccupied(id) {
 }
 
 
-async function mapFocus(map, location = null) {
-    if (location === null) {
-        if (!userPosition) {
-            userPosition = await getCurrentPosition();
-        }
-        placeUserPositionPin(map, userPosition);
-        location = { lat: userPosition.coords.latitude, lng: userPosition.coords.longitude };
+// async function mapFocus(map, location = null) {
+
+//     if (location === null) {
+
+//         if (!userPosition) {
+//             userPosition = await getCurrentPosition();
+//         }
+//         // placeUserPositionPin(map, userPosition);
+        
+//         location = { lat: userPosition.coords.latitude, lng: userPosition.coords.longitude };
+//     }
+//     console.log('aa ',location)
+
+//     map.panTo(location);
+//     map.setZoom(17);
+// }
+
+async function compassHandler(map){
+    if(!userPosition){
+        userPosition= await getCurrentPosition()
     }
-    map.panTo(location);
-    map.setZoom(17);
+    mapFocus(map)
 }
 
-export { startDirections, spotWasOccupied, stopRoute, mapFocus }
+function mapFocus(map) {
+    
+    // if(!userPosition){
+    //     userPosition= getCurrentPosition()
+    // }
+
+    const location = { lat: userPosition.coords.latitude, lng: userPosition.coords.longitude };
+    console.log('a ',location)
+    map.panTo(location);
+}
+
+export { startDirections, spotWasOccupied, stopRoute, mapFocus,compassHandler }

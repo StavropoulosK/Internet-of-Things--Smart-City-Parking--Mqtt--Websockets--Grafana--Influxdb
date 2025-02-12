@@ -9,41 +9,34 @@ body, html {
 }
 
 body {
-    background: linear-gradient(30deg, #6e85b7, #f1f1f1);
+    min-height: 120vh;
 }
 
-header {
-    background-color: #333;
-    color: white;
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 60px;
-}
 
 h1 {
     font-size: 2rem;
     margin: 0;
-    flex-grow: 1;
+    flex-grow: 0;
     text-align: center;
+    margin-top:6.5rem;
+    margin-bottom:2rem;
 }
 #button-container {
     position: absolute;
     flex-shrink: 0;
 }
 
-button {
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    width: 100px;
-}
 
 #heatmap {
     flex: 1;
-    margin: 10px;
+    margin: 0 auto;
+    width:95vw;
+    margin-bottom:2rem
+}
+
+@media screen and (max-width: 700px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
 }

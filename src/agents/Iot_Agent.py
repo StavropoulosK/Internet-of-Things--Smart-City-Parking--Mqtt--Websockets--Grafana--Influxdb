@@ -105,7 +105,6 @@ def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus
         "Fiware-ServicePath": fiware_service_path,
     }
 
-
     latitude = location["latitude"]
     longitude = location["longitude"]    
 
@@ -155,10 +154,10 @@ def sendDataToContextBroker(sensor_id, location, temperature, tag, parkingStatus
     url = f"{orion_url}/{entity_id}/attrs"
     response = -1
 
-    # global counter
+    global counter
 
-    # print(counter)
-    # counter +=1
+    print(counter)
+    counter +=1
 
     try:
         response = requests.patch(url, headers=headers, json=payload)

@@ -94,6 +94,30 @@ async function singleParkingSpotData(city, parkingSpotId) {
     
 }
 
+function isReserved(utcTimeOfLastReservation){
+    // theoroume oti i kratisi ginetai gia 15 lepta
+
+    const utcTimeNow = new Date().toISOString();
+
+    const startDate = new Date(utcTimeOfLastReservation);
+    const endDate = new Date(utcTimeNow);
+
+    // Calculate the difference in milliseconds
+    const timeDifference = endDate - startDate;
+    
+    // Convert milliseconds to minutes
+    const minutesDifference = (timeDifference / (1000 * 60)).toFixed(1);
+
+    if(minutesDifference > 15){
+        // den exei gini kratisi
+        return false
+    }
+    else{
+        return true
+    }
+    
+}
+
 async function findBestParkingSpot(city, destination, radius, filters) {
     const parkignSpotData = await currentParkingSpotsData(city);
 
@@ -104,14 +128,22 @@ async function findBestParkingSpot(city, destination, radius, filters) {
         if (distance > radius) {
             return false;
         } else if (!filters.forAmEA && parkingSpot.category.includes("forDisabled")) {
+
             return false;
         } else if (filters.forAmEA && !parkingSpot.category.includes("forDisabled")) {
+
             return false;
         } else if (filters.withShadow && !parkingSpot.hasShadow) {
+
             return false;
         } else if (filters.onlyFree && parkingSpot.carParked) {
+
             return false;
+        }else if( isReserved(parkingSpot.timeOfLastReservation) ){
+            return false
+            
         } else if (!filters.onlyFree && parkingSpot.carParked) {
+
             return willVacateSoon(parkingSpot.time, parkingSpot.maximumParkingDuration);
         }
         return true;
@@ -120,7 +152,6 @@ async function findBestParkingSpot(city, destination, radius, filters) {
     let destinationCoords = {"lat": destLat, "lng": destLng};
     // rank the remaining parking spots, lower score is better
     filteredParkingSpotData = filteredParkingSpotData.sort((a, b) => {return rankParkingSpots(a, destinationCoords) - rankParkingSpots(b, destinationCoords)});
-
     // return the best parking spot
     return filteredParkingSpotData[0];
 }

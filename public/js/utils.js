@@ -38,6 +38,11 @@ function getCurrentPosition() {
 async function getCity(location) {
     // console.log('a  ',location.lat, location.lng)
 
+    if(location==null){
+        // default location
+        return "Patras"
+    }
+
     if( location.lat >= 38.122938 && location.lat <= 38.371445 && location.lng >= 21.604063   && location.lng<= 21.965454 ){
         return "Patras";
     }

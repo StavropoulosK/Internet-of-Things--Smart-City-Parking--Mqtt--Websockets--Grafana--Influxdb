@@ -1,0 +1,123 @@
+
+
+a {
+    text-decoration: none;
+}
+
+#logo{
+    margin-left:2em;
+    font-size:1.5rem;
+    display: inline-block; /* Make it block-like */
+}
+
+.dashboards{
+    display: none;
+}
+
+
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 40px;
+    padding: 10px 0px;
+    background-color: rgb(36, 96, 19);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+header a {
+    margin-left: auto;
+    margin-right: 20px;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#logo{
+    margin-left:0;
+}
+
+.left button{
+    background: none; 
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+    cursor: pointer;
+    
+}
+
+.dropdown{
+    background-color:rgba(36, 96, 19,0.8) ;
+    position: fixed;
+    top:3.7rem;
+    width:13rem;
+    height:14rem;
+    left:1.5rem;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.dropdown a{
+    left:0;
+    width:11rem;
+    margin-left:0;
+}
+
+.menu{
+    font-size: 1.6rem;
+    margin-left:2rem;
+    color:white;
+    visibility: hidden;
+}
+
+
+#logo::first-letter {
+    font-size: 1.8rem; /* Increase the size */
+  }
+
+  footer {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1rem;
+    z-index: 1000;
+  }
+
+
+.dropdown {
+    visibility: hidden; /* Initially hidden */
+    opacity: 0; /* Fully transparent */
+    transition: opacity 0.05s ease-in-out; /* Smooth transition */
+}
+
+.dropdown.visible {
+    visibility: visible; /* Make it visible */
+    opacity: 1; /* Fully visible */
+}
+
+
+@media screen and (max-width: 950px) {
+    .menu{
+
+        visibility: visible;
+    }
+
+    div.right{
+        display: none;
+    }
+
+
+}
+

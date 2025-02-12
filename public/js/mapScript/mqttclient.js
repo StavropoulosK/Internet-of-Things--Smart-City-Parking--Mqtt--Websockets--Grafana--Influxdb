@@ -3,7 +3,7 @@ import { updateReservedSpot, selectedMarkerWasOccupied } from "./markers.js";
 import { spotWasOccupied } from "./directions.js";
 import { getCurrentPosition, getCity } from "../utils.js";
 
-// let counter=1
+let counter=1
 
 async function initMQTTClinet() {
     const sessionId = await getSessionId();
@@ -52,7 +52,6 @@ async function initMQTTClinet() {
         }
         else if (topic == (sessionId + 'Reservation' + city)) {
             message = JSON.parse(message.toString())
-
             const parkingSpotId = message.markerId
             const timeOfLastReservation = message.reservationTime
             updateReservedSpot(parkingSpotId, timeOfLastReservation)

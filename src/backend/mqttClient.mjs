@@ -13,7 +13,7 @@ let notifications = []
 // kinito den stelnete to http request ston server otan klisi. https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon
 // Omoios kai otan xrisimopoiithi i methodos fetch me keepalive: true 
 // Gia auto ilopoiisame mia methodo opou o client stelni pings ston server ana 10 lepta oti i efarmogi einai anixti
-// O server kathe 15 lepta kitai poies efarmoges stamatisan na stelnoun kai termatizi ta notifications.
+// O server kathe 15 lepta kitai poies efarmoges stamatisan na stelnoun kai termatizi ta notifications gia autes.
 
 // Arxika notifications.alive=2. An o server ektelesi to deleteDeadConnections (ginetai kathe 15 lepta) prin stalthi to epomeno ping oti i sindesi einai zontani
 // tote tha gini notifications.alive=1. Meta tha stalthi to ping (ginetai kathe 10 lepta) kai tha ksanagini  notifications.alive=2, kai auto tha epanalambanetai.
@@ -62,6 +62,8 @@ let mqttPublish;
 const broker = "mqtt://150.140.186.118";
 const topic = "smartCityParking/#";
 
+let counter =1
+
 async function setupMQTTClient() {
     try {
         // akoui tis alages apo ton mqtt broker kai tis stelni san push notifications stous clients pou briskontai stin antistixi poli
@@ -75,6 +77,7 @@ async function setupMQTTClient() {
 
         // Handle incoming messages
         mqttClientSubscribe.on('message', (topic, message) => {
+            // console.log('a ',topic,' ',counter++)
             const city = topic.split("/")[1]
             const extractedData = extractData(message.toString())
             const data = JSON.stringify(extractedData, null, 2)
@@ -133,7 +136,6 @@ async function updateMqtt(markerId, time, reservationUserId, city) {
     notifications.forEach(notification => {
         const idOfUser = notification.sessionId
         if (notification.city === city && reservationUserId !== idOfUser) {
-
             const topic = notification.sessionId + 'Reservation' + city
             mqttPublish.publish(topic, message);
         }

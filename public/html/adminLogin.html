@@ -6,29 +6,86 @@
     <title>Admin Login</title>
 
     <link href="../css/adminLogin.css" rel="stylesheet">
+    <link href="../css/header_footer.css" rel="stylesheet">    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
     <script src="../js/admin/sumbitLoginForm.js" defer></script>
 </head>
 <body>
-    <div class="header">
-        <button id="back" onclick="window.location.href = '/';">Πίσω</button>
-    </div class="header">
+
+    <header>
+        <div class="left">
+            <button onclick="toggleDropdown()">
+                <i class="fa-solid fa-bars menu"></i>
+
+            </button>
+            <a id="logo" href="/">Smart City Parking</a>
+            <div class="dropdown">
+                <a class="dashboards" href="/admin/getDashboards">
+                    <i class="fas fa-chart-line"></i>
+                    Admin Dashboards</a>
     
-    <div class="login-container">
-        <h1>Admin Login</h1>
-        <form id="login-form">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
+                <a href="/getHeatMap">
+                    <i class="fas fa-map"></i>
+                    Θερμοκρασία Πόλης</a>
+    
+                <a class="login-button" href="/admin/login">
+                    <i class="fa-solid fa-circle-user"></i>
+                    Διαχειριστής
+                </a>
+            </div>
+
+        </div>
+
+        <div class="right">
+            <a class="dashboards" href="/admin/getDashboards">
+                <i class="fas fa-chart-line"></i>
+                Admin Dashboards</a>
+
+            <a href="/getHeatMap">
+                <i class="fas fa-map"></i>
+                Θερμοκρασία Πόλης</a>
+
+            <a class="login-button" href="/admin/login">
+                <i class="fa-solid fa-circle-user"></i>
+                Διαχειριστής
+            </a>
+
             
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-            
-            <button type="submit">Login</button>
-        </form>
+
+        </div>
+
+    </header>
+    <div class="outerContainer">
+        <div class="login-container">
+            <h1>Είσοδος διαχειριστή</h1>
+            <form id="login-form">
+                <label for="username">
+                    <i class="fa-solid fa-user icon"></i>Όνομα Χρήστη
+                </label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="password">                
+                    <i class="fa-solid fa-lock icon"></i>Κωδικός
+                </label>
+                <input type="password" id="password" name="password" required>
+                
+                <button class="login" type="submit">Είσοδος</button>
+            </form>
+    
+        </div>
 
     </div>
 
     <div id="error-popup">
         Invalid username or password.
     </div>
+
+    <footer>
+        <p>&copy; 2025 Smart City Parking. All rights reserved.</p>
+        <p>Icons by <a href="https://fontawesome.com" target="_blank" rel="noopener noreferrer">Font Awesome</a>.</p>
+
+    </footer>
+
 </body>
 </html>

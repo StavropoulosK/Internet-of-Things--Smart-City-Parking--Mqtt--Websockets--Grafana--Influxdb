@@ -209,6 +209,11 @@ function highlightMarker(parkingSpotId) {
 function selectMarker(parkingSpotId) {
     selectedSpotId = parkingSpotId;
     const marker = markers[parkingSpotId];
+
+    // console.log("Selected Parking Spot ID:", parkingSpotId);
+    // console.log("Marker Object:", markers[parkingSpotId]);
+    // console.log('ddd ',parkingSpotId,markers[parkingSpotId])
+
     google.maps.event.trigger(marker, "click");
 }
 

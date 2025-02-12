@@ -5,25 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboards</title>
     <link href="../css/dashboards.css" rel="stylesheet" />
+    <link href="../css/header_footer.css" rel="stylesheet">    
+    <script src="../js/admin/loggedIn.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
 
 </head>
 <body>
     <header>
-        <div id="button-container">
-            <button id="back" onclick="window.location.href = '/';">Πίσω</button>
+        <div class="left">
+            <button onclick="toggleDropdown()">
+                <i class="fa-solid fa-bars menu"></i>
+
+            </button>
+            <a id="logo" href="/">Smart City Parking</a>
+            <div class="dropdown">
+                <a class="dashboards" href="/admin/getDashboards">
+                    <i class="fas fa-chart-line"></i>
+                    Admin Dashboards</a>
+    
+                <a href="/getHeatMap">
+                    <i class="fas fa-map"></i>
+                    Θερμοκρασία Πόλης</a>
+    
+                <a class="login-button" href="/admin/login">
+                    <i class="fa-solid fa-circle-user"></i>
+                    Διαχειριστής
+                </a>
+            </div>
+
         </div>
-        <h1>Admin Dashboard Panel</h1>    
+
+        <div class="right">
+            <a class="dashboards" href="/admin/getDashboards">
+                <i class="fas fa-chart-line"></i>
+                Admin Dashboards</a>
+
+            <a href="/getHeatMap">
+                <i class="fas fa-map"></i>
+                Θερμοκρασία Πόλης</a>
+
+            <a class="login-button" href="/admin/login">
+                <i class="fa-solid fa-circle-user"></i>
+                Διαχειριστής
+            </a>
+
+            
+
+        </div>
+
     </header>
 
+    <h1>Admin Dashboard Panel</h1>
 
-    <div class=dashboard-container>
+    <div class="dashboard-container">
         <div class="dashboard">
-            <h2 class="caption">Sensor Temperature</h2>    
-            <iframe src="https://labserver.sense-campus.gr:8087/d-solo/be7q90dn9i8e8c/smart-city-parking-admin?timezone=browser&orgId=2&theme=light&panelId=2&__feature.dashboardSceneSolo&from=now-30m&to=now" width="450" height="200" frameborder="0"></iframe> 
+            <h2 class="caption">Θερμοκρασία Αισθητήρων</h2>    
+            <iframe src="https://labserver.sense-campus.gr:8087/d-solo/be7q90dn9i8e8c/smart-city-parking-admin?timezone=browser&orgId=2&theme=light&panelId=2&__feature.dashboardSceneSolo&from=now-180m&to=now" width="450" height="200" frameborder="0"></iframe> 
         </div>
         <div class="dashboard">
-            <h2 class="caption">Sensor Battery Voltage</h2>
-            <iframe src="https://labserver.sense-campus.gr:8087/d-solo/be7q90dn9i8e8c/smart-city-parking-admin?timezone=browser&orgId=2&theme=light&panelId=1&__feature.dashboardSceneSolo&from=now-30m&to=now" width="450" height="200" frameborder="0"></iframe>
+            <h2 class="caption">Μπαταρία Αισθητήρων</h2>
+            <iframe src="https://labserver.sense-campus.gr:8087/d-solo/be7q90dn9i8e8c/smart-city-parking-admin?timezone=browser&orgId=2&theme=light&panelId=1&__feature.dashboardSceneSolo&from=now-180m&to=now" width="450" height="200" frameborder="0"></iframe>
         </div>
         <div class="dashboard">
             <h2 class="caption">Μέση Θερμοκρασία Πάτρας</h2>
@@ -34,6 +76,12 @@
             <iframe src="/html/heatmaps/average-occupancy.html"></iframe>
         </div>
     </div>
+
+    <footer>
+        <p>&copy; 2025 Smart City Parking. All rights reserved.</p>
+        <p>Icons by <a href="https://fontawesome.com" target="_blank" rel="noopener noreferrer">Font Awesome</a>.</p>
+
+    </footer>
 
 </body>
 </html>

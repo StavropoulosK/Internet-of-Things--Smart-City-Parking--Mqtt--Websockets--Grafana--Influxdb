@@ -8,85 +8,94 @@ body {
     align-items: center;
     justify-content: center;
     height: 100vh;
-
-    background: linear-gradient(30deg, #6e85b7, #f1f1f1);
-}
-
-a {
-    text-decoration: none;
-}
-
-header {
-    position: absolute;
-    top: 0;
     width: 100%;
-    height: 40px;
-    padding: 10px 20px;
-    background-color: #333;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
 }
 
-header a {
-    background-color: #444;
-    margin-left: auto;
-    margin-right: 20px;
+i.fa-circle-user{
+    font-size: 1.05rem;
+}
+
+
+#dashboards{
+    display: none;
+}
+
+main{
+    width: 100%;
+}
+
+
+div.image{
+    min-height:120vh;
+    width:100%;
+    position: relative;
+
+    background-image: url('/resources/city.jpg'); 
+    background-size: cover; /* Ensures the image covers the div */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents tiling */
+    overflow: hidden;
+
+}
+
+div.image span{
+    font-size: 2rem; 
+    position: absolute;
+    top: 16rem; 
+    left: 4rem; 
+    /* color: rgb(36, 96, 19, 0.8); */
+    color:#333;
+    z-index: 1; 
+    font-weight: bold; 
+    max-width:80vw;
+    text-align: left;
+
+}
+
+
+div.image a{
+    font-size: 1.5rem;
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%); */
+    text-decoration: none;
+    background: rgba(36, 96, 19, 0.6);
     color: white;
-    border: none;
-    padding: 10px 15px;
+    padding: 15px 20px;
     border-radius: 5px;
-    cursor: pointer;
-}
-
-header button:hover {
-    background-color: #777;
-}
-
-main {
-    text-align: center;
 }
 
 h1 {
     font-size: 5rem;
 }
 
-select {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #333;
-    border-radius: 10px;
-    background-color: #f4f4f9;
-    color: #333;
-  }
-
-.buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    justify-content: center;
-    margin-top: 2rem;
+div.image a:hover{
+    background: rgba(36, 96, 19, 0.8);
 }
 
-.buttons a {
-    background-color: #007bff;
-    margin: auto;
-    color: white;
-    border: none;
-    padding: 15px 25px;
-    border-radius: 50px;
-    font-size: 18px;
-    width: 70vw;
-    max-width: 500px;
-    cursor: pointer;
-}
 
-.buttons a:hover {
-    background-color: #007bff;
-}
+
 
 .hidden {
     display: none;
+}
+
+
+@media screen and (max-width: 700px) {
+    div.image span{
+        font-size: 1.5rem; 
+        top:13rem;
+    
+    }
+    
+    div.image a{
+        font-size: 1.3rem;
+        top: 60%;
+        
+    }
+
+    
+
 }
