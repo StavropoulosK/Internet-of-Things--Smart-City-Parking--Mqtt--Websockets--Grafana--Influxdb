@@ -147,7 +147,7 @@
     appearance: none;
     width: 22px;
     height: 22px;
-    background: #007bff;
+    background: #6A994E;
     border: none;
     border-radius: 50%;
     cursor: pointer;
@@ -436,12 +436,13 @@ button#directionsBtn.active {
 }
 
 
-@media (max-width: 500px) {
+@media (max-width: 570px) {
     .InfoWindow {
         font-size: 0.75rem;
     }
 
     .autocomplete {
         width: 90vw;
+        padding-left: 0.5em;
     }
 }
