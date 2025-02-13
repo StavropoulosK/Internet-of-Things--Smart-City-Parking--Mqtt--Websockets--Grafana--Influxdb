@@ -250,6 +250,10 @@ body{
     /* background-color: red; */
 }
 
+.my-slider-text{
+    margin-left: 14px;;
+}
+
 .buttonsDiv {
     display: flex;
     flex-direction: row;
