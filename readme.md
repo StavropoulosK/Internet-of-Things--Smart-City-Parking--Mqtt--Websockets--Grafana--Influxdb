@@ -8,8 +8,7 @@
 
 ### Map Id
 
-Το mapId βγαίνει και αυτό από τη google και περιορίζεται μόνο σε ένα API για αυτό χρειάζεται να
-συμπληρωθεί και αυτό. Το Map Id βγαίνει στην καρτέλα Map Management και μπορεί να μπει 
+Το mapId βγαίνει επίσης από τη google και περιορίζεται μόνο σε ένα API key. Το Map Id βγαίνει στην καρτέλα Map Management και μπορεί να μπει 
 ένα Style στο Map Styles.
 
 ![Map Id](./Presentations/images/map-id.png)
