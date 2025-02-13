@@ -18,6 +18,7 @@ main {
     position: relative;
     overflow: hidden;
     margin-top: 1rem;
+    margin-right: 1rem;
 }
 
 .dashboard h2 {

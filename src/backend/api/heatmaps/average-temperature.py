@@ -20,7 +20,7 @@ def get_average_temperature_data(cursor):
                 SELECT attrValue AS temperature, recvTime
                 FROM {table}
                 WHERE attrName = 'temperature'
-                AND recvTime >= NOW() - INTERVAL 3 DAY
+                AND recvTime >= NOW() - INTERVAL 1 DAY
             ) AS SubQuery;
         """
         try:

@@ -33,5 +33,5 @@ dotenv.config();
             if (err) throw err;
             // console.log('File moved successfully');
         });
-    }, 6000);
+    }, 16000);
 })();

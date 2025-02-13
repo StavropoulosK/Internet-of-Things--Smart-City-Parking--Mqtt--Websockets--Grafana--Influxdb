@@ -171,9 +171,10 @@ def simulate():
         print(f"Total sensors with shade: {sum([1 for sensor in sensors if sensor.has_shadow])} out of {len(sensors)}")
         
         for sensor in sensors:
-            if(counterId % 300 == 299):
+            if(counterId == 300):
                 print(f"Have sent {counterId} messages")
                 time.sleep(simulation_update_time_in_minutes * 60)
+                counterId = 0
 
             sensor.update_temp(mean_temp, std_dev_temp, shade_factor=shade)
             sensor.update_voltage(mean_voltage_drop, std_dev_volt)
@@ -183,7 +184,7 @@ def simulate():
             # https://www.who.int/news-room/fact-sheets/detail/disability-and-health#:~:text=An%20estimated%201.3%20billion%20people%20–%20or%2016%25%20of%20the%20global,diseases%20and%20people%20living%20longer.
             tag = str(uuid.uuid4()) if random.random() < 0.16 else ""
 
-            if sensor.voltage >= 1 and (changed or not sensor.occupied):
+            if sensor.voltage >= 1 and changed: #(changed or not sensor.occupied):
                 counterId += 1
                 message = generateMessage(
                     sensor.id,
@@ -213,7 +214,6 @@ def load_data_from_context_broker():
         print(f"Failed to load data from context broker, status code: {response.status_code}")
         return []
     
-    
 def init_sensors(init_battery_voltage):
     context_broker_data = load_data_from_context_broker()
     
@@ -221,11 +221,11 @@ def init_sensors(init_battery_voltage):
     for sensor in context_broker_data:
         sensor_id = int(sensor["id"].split("_")[1])
         loc = sensor["location"]["value"]["coordinates"]
-
+        voltage = sensor["batteryVoltage"]["value"]
         temperature = sensor["temperature"]["value"]
         occupied = sensor["carParked"]["value"]
         time_since_occupied = datetime.strptime(sensor['occcupancyModified']['value'], '%Y-%m-%dT%H:%M:%S.%fZ')
-        sensors.append(ParkingSensor(sensor_id, loc, init_battery_voltage, temperature, False, occupied, time_since_occupied))
+        sensors.append(ParkingSensor(sensor_id, loc, voltage, temperature, has_shadow=False, occupied=occupied, time_since_occupied=time_since_occupied))
 
     return sensors
 
