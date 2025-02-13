@@ -44,7 +44,7 @@ async function fetchTrafficData(dromos) {
     //   console.log("Coordinates ",flowData.coordinates.coordinate)
 
     const sintelestisTaxititas= flowData.currentSpeed/flowData.freeFlowSpeed 
-    // console.log(flowData.currentSpeed,' ',flowData.freeFlowSpeed,' ',sintelestisTaxititas)
+    // console.log(dromos,sintelestisTaxititas)
     return sintelestisTaxititas<0.4
 
     } catch (error) {
@@ -98,7 +98,9 @@ function checkIfAllSportsAreTaken(street,parkingStatus){
             break;
         }
     }
-    // console.log(' ')
+    // if(allSpotsTaken){
+    //     console.log('full ',street)
+    // }
 
     return allSpotsTaken
 }
