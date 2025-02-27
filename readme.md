@@ -10,7 +10,7 @@ Initially, it is required to create an API key from google.
 
 ### Map Id
 
-Moreover, it is necessary to create a mapId from google. You can create mapId from Map Management Menu and afterwards you can apply a style.
+Moreover, it is necessary to create a map id from google. You can create the map id from Map Management Menu and afterwards you can apply a style.
 
 ![Map Id](./Presentations/images/map-id.png)
 
