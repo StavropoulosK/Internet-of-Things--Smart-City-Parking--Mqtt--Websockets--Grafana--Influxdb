@@ -6,23 +6,22 @@ This project is the creation of the students Stavropoulos Constantinos and Hlias
 
 ### API Key
 
-Αρχικά χρειάζεται να εκδοθεί ένα API key που βγαίνει από την google.
+Initially, it is required to create an API key from google.
 
 ### Map Id
 
-Το mapId βγαίνει επίσης από τη google και περιορίζεται μόνο σε ένα API key. Το Map Id βγαίνει στην καρτέλα Map Management και μπορεί να μπει 
-ένα Style στο Map Styles.
+Moreover, it is necessary to create a mapId from google. You can create mapId from Map Management Menu and afterwards you can apply a style.
 
 ![Map Id](./Presentations/images/map-id.png)
 
 ### Navigation
 
-Η εφαρμογή κατά την πλοήγηση εντοπίζει την τωρινή τοποθεσία και εμφανίζει την διαδρομή. Για να γίνει αυτό χρησιμοποιείται το navigator.geolocation api του browser. Αυτό ελέγχει αυτόματα την θέση με βάση το gps αν είναι διαθέσιμο ή τη διεύθυνση ip με λιγότερη ακρίβεια αν δεν είναι διαθέσιμο.
+The application detects the current location during navigation and displays the route. To achieve this, it uses the browser's navigator.geolocation API. This API automatically determines the position based on GPS if available or the IP address with less accuracy if GPS is unavailable.
 
-Για να τρέξει η προσομοίωση πρέπει να τρέχουν ταυτόχρονα τα  προγράμματα Iot_Agent.py, simulate.py, influx Agent και ο server.
+To run the simulation, the following programs must be running simultaneously: Iot_Agent.py, simulate.py, Influx Agent, and the server.
 
 ### Smart Data Models
 
-Για τη μορφή των δεδομένων χρησιμοποιήθηκαν [smart Data Models](https://github.com/smart-data-models/dataModel.Parking/blob/master/OnStreetParking/doc/spec.md)
-σχετικά με το onstreet parking
+The data format was derived from  [smart Data Models](https://github.com/smart-data-models/dataModel.Parking/blob/master/OnStreetParking/doc/spec.md)
+for onstreet parking
 
