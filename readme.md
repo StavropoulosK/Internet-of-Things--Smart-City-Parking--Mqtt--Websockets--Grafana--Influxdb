@@ -1,6 +1,6 @@
 # Smart City Parking
 
-This project is the creation of the students Stavropoulos Constantinos and Hlias Ouzounis of the Department of Electrical Engineering and Computer Technology of the University of Patras for the Internet of Things course for the academic year 2024-2025.
+This project was created by the students Stavropoulos Constantinos and Hlias Ouzounis of the Department of Electrical Engineering and Computer Technology of the University of Patras for the Internet of Things course for the academic year 2024-2025.
 
 ## Google Maps API Keys
 
