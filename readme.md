@@ -1,6 +1,6 @@
 # Smart City Parking
 
-This project was created by the students Stavropoulos Konstantinos and Hlias Ouzounis of the Department of Electrical Engineering and Computer Technology of the University of Patras for the Internet of Things course for the academic year 2024-2025. You can view a demonstration of the application by downloading the file "Smart City Parking Presentation" in the folder Presentations > Final and selecting read-only mode if asked for password.
+This project was created by the students Stavropoulos Konstantinos and Hlias Ouzounis of the Department of Electrical Engineering and Computer Technology of the University of Patras for the Internet of Things course for the academic year 2024-2025. You can view video demonstrations of the application by downloading the file "Smart City Parking Presentation" in the folder Presentations > Final and selecting read-only mode if asked for password.
 
 ## Google Maps API Keys
 
