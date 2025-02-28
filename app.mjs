@@ -23,7 +23,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true })); // required for admin login post request
 
 
-
 app.use(session({
     name: 'cookieSid',
     secret: process.env.SESSION_SECRET, // κλειδί για κρυπτογράφηση του cookie
